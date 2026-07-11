@@ -113,10 +113,7 @@ function TopBar() {
       <div className="ml-auto flex items-center gap-2">
         <LiveIndicator />
         <GlobalSearch />
-        <button className="relative grid h-9 w-9 place-items-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition hover:text-foreground">
-          <Bell className="h-4 w-4" />
-          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-destructive" />
-        </button>
+        <EventFeed />
         <RoleSwitcher />
       </div>
     </header>
