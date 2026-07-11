@@ -18,6 +18,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { GlobalSearch } from "@/components/global-search";
 import { RoleSwitcher } from "@/components/role-switcher";
 import { LiveIndicator } from "@/components/live-indicator";
+import { EventFeed } from "@/components/event-feed";
 
 function NotFoundComponent() {
   return (
