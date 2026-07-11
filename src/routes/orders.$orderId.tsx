@@ -60,7 +60,7 @@ function OrderDetail() {
                 </tr>
               </thead>
               <tbody>
-                {so.lines.map((line) => {
+                {so.lines.map((line: typeof so.lines[number]) => {
                   const p = findProduct(line.productId);
                   return (
                     <tr key={line.id} className="border-b border-border/30">
