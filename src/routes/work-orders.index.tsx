@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { findWorkstation, findPO, findProduct } from "@/lib/oms-data";
+import { findWorkstation, findPO, findProduct, type WorkOrder } from "@/lib/oms-data";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
-import { useStore } from "@/lib/store";
+import { useStore, store } from "@/lib/store";
+import { permissionsFor } from "@/lib/roles";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/work-orders/")({
   head: () => ({ meta: [{ title: "Work Orders · CORTA OMS" }] }),
@@ -14,6 +16,8 @@ export const Route = createFileRoute("/work-orders/")({
 
 function WOList() {
   const workOrders = useStore((s) => s.workOrders);
+  const role = useStore((s) => s.role);
+  const perms = permissionsFor(role);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
   const filters = ["all", "pending", "in_progress", "paused", "completed", "cancelled"];
@@ -22,6 +26,7 @@ function WOList() {
     if (q) return w.number.toLowerCase().includes(q.toLowerCase()) || w.operation.toLowerCase().includes(q.toLowerCase());
     return true;
   }), [q, status, workOrders]);
+
   return (
     <div className="space-y-5">
       <PageHeader
@@ -61,14 +66,42 @@ function WOList() {
           ))}
         </div>
       </div>
-      <DataTable
+      <DataTable<WorkOrder>
         rows={filtered}
+        getRowId={(w) => w.id}
+        defaultSort={{ key: "num", dir: "asc" }}
+        bulkActions={perms.operateWO ? (selected, clear) => {
+          const bulk = (label: string, fn: (id: string) => void) => {
+            selected.forEach((w) => fn(w.id));
+            toast.success(`${label} · ${selected.length} work order(s)`);
+            clear();
+          };
+          return (
+            <>
+              <button onClick={() => bulk("Started", store.startWO)}
+                className="rounded-md border border-success/40 bg-success/10 px-2.5 py-1 text-[11px] text-success hover:bg-success/20">Start</button>
+              <button onClick={() => bulk("Paused", store.pauseWO)}
+                className="rounded-md border border-warning/40 bg-warning/10 px-2.5 py-1 text-[11px] text-warning hover:bg-warning/20">Pause</button>
+              <button onClick={() => bulk("Resumed", store.resumeWO)}
+                className="rounded-md border border-info/40 bg-info/10 px-2.5 py-1 text-[11px] text-info hover:bg-info/20">Resume</button>
+              <button onClick={() => bulk("Completed", store.completeWO)}
+                className="rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 text-[11px] text-primary hover:bg-primary/20">Complete</button>
+              <CSVExportButton filename="work-orders-selection" rows={selected} label="Export selection"
+                columns={[
+                  { key: "number", label: "WO #" },
+                  { key: "operation", label: "Operation" },
+                  { key: "status", label: "Status" },
+                  { key: "progress", label: "Progress %" },
+                ]} />
+            </>
+          );
+        } : undefined}
         columns={[
-          { key: "num", label: "WO", render: (w) => (
+          { key: "num", label: "WO", sortAccessor: (w) => w.number, render: (w) => (
             <Link to="/work-orders/$woId" params={{ woId: w.id }} className="font-mono text-xs text-primary hover:underline">{w.number}</Link>
           )},
-          { key: "op", label: "Operation", render: (w) => <span className="text-sm">{w.operation}</span> },
-          { key: "po", label: "PO", render: (w) => {
+          { key: "op", label: "Operation", sortAccessor: (w) => w.operation, render: (w) => <span className="text-sm">{w.operation}</span> },
+          { key: "po", label: "PO", sortAccessor: (w) => w.productionOrderId, render: (w) => {
             const po = findPO(w.productionOrderId);
             return po ? <Link to="/production-orders/$poId" params={{ poId: po.id }} className="font-mono text-xs text-muted-foreground hover:text-primary">{po.number}</Link> : "—";
           }},
@@ -76,9 +109,9 @@ function WOList() {
             const po = findPO(w.productionOrderId);
             return <span className="text-xs">{po ? findProduct(po.productId)?.name : "—"}</span>;
           }},
-          { key: "ws", label: "Workstation", render: (w) => <span className="text-xs">{findWorkstation(w.workstationId)?.name}</span> },
-          { key: "qty", label: "Qty", render: (w) => <span className="font-mono text-xs">{w.qtyProduced}/{w.qtyTarget}</span> },
-          { key: "prog", label: "Progress", render: (w) => (
+          { key: "ws", label: "Workstation", sortAccessor: (w) => findWorkstation(w.workstationId)?.name ?? "", render: (w) => <span className="text-xs">{findWorkstation(w.workstationId)?.name}</span> },
+          { key: "qty", label: "Qty", sortAccessor: (w) => w.qtyProduced, render: (w) => <span className="font-mono text-xs">{w.qtyProduced}/{w.qtyTarget}</span> },
+          { key: "prog", label: "Progress", sortAccessor: (w) => w.progress, render: (w) => (
             <div className="flex items-center gap-2">
               <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
                 <div className="h-full bg-gradient-to-r from-primary to-info" style={{ width: `${w.progress}%` }} />
@@ -86,7 +119,7 @@ function WOList() {
               <span className="font-mono text-[11px] text-muted-foreground">{w.progress}%</span>
             </div>
           )},
-          { key: "status", label: "Status", render: (w) => <StatusPill status={w.status} /> },
+          { key: "status", label: "Status", sortAccessor: (w) => w.status, render: (w) => <StatusPill status={w.status} /> },
         ]}
       />
     </div>

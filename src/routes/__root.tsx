@@ -8,7 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { Bell, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -18,6 +18,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { GlobalSearch } from "@/components/global-search";
 import { RoleSwitcher } from "@/components/role-switcher";
 import { LiveIndicator } from "@/components/live-indicator";
+import { EventFeed } from "@/components/event-feed";
 
 function NotFoundComponent() {
   return (
@@ -112,10 +113,7 @@ function TopBar() {
       <div className="ml-auto flex items-center gap-2">
         <LiveIndicator />
         <GlobalSearch />
-        <button className="relative grid h-9 w-9 place-items-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition hover:text-foreground">
-          <Bell className="h-4 w-4" />
-          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-destructive" />
-        </button>
+        <EventFeed />
         <RoleSwitcher />
       </div>
     </header>

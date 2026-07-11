@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
-import { customers, salesOrders } from "@/lib/oms-data";
+import { customers, salesOrders, type Customer } from "@/lib/oms-data";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
 import { toast } from "sonner";
@@ -24,6 +24,8 @@ function CustomersList() {
     return true;
   }), [q, region]);
 
+  const ordersOf = (id: string) => salesOrders.filter((s) => s.customerId === id).length;
+
   return (
     <div className="space-y-5">
       <PageHeader
@@ -42,7 +44,7 @@ function CustomersList() {
                 { key: "phone", label: "Phone" },
                 { key: "address", label: "Address" },
                 { key: "createdAt", label: "Onboarded" },
-                { key: "orders", label: "Orders", get: (c) => salesOrders.filter((s) => s.customerId === c.id).length },
+                { key: "orders", label: "Orders", get: (c) => ordersOf(c.id) },
               ]}
             />
             <button onClick={() => toast.success("New customer (demo)")}
@@ -70,18 +72,19 @@ function CustomersList() {
         </div>
       </div>
 
-      <DataTable
+      <DataTable<Customer>
         rows={filtered}
+        defaultSort={{ key: "name", dir: "asc" }}
         columns={[
-          { key: "id", label: "ID", render: (c) => (
+          { key: "id", label: "ID", sortAccessor: (c) => c.id, render: (c) => (
             <Link to="/customers/$customerId" params={{ customerId: c.id }} className="font-mono text-xs text-primary hover:underline">{c.id}</Link>
           )},
-          { key: "name", label: "Name", render: (c) => <span className="text-sm font-medium">{c.name}</span> },
-          { key: "contact", label: "Contact", render: (c) => <span className="text-xs">{c.contact}</span> },
-          { key: "email", label: "Email", render: (c) => <span className="font-mono text-xs text-muted-foreground">{c.email}</span> },
+          { key: "name", label: "Name", sortAccessor: (c) => c.name, render: (c) => <span className="text-sm font-medium">{c.name}</span> },
+          { key: "contact", label: "Contact", sortAccessor: (c) => c.contact, render: (c) => <span className="text-xs">{c.contact}</span> },
+          { key: "email", label: "Email", sortAccessor: (c) => c.email, render: (c) => <span className="font-mono text-xs text-muted-foreground">{c.email}</span> },
           { key: "phone", label: "Phone", render: (c) => <span className="font-mono text-xs">{c.phone}</span> },
-          { key: "orders", label: "Orders", align: "right", render: (c) => (
-            <span className="font-mono text-xs">{salesOrders.filter((s) => s.customerId === c.id).length}</span>
+          { key: "orders", label: "Orders", align: "right", sortAccessor: (c) => ordersOf(c.id), render: (c) => (
+            <span className="font-mono text-xs">{ordersOf(c.id)}</span>
           )},
         ]}
       />
