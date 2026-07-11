@@ -1,5 +1,9 @@
 import { useSyncExternalStore } from "react";
+import { toast } from "sonner";
 import { workOrders as seedWO, auditLog as seedAudit, type WorkOrder, type AuditLog } from "./oms-data";
+
+export type FeedEventKind = "wo_start" | "wo_pause" | "wo_resume" | "wo_complete" | "wo_update" | "sop_check" | "sop_uncheck" | "sop_note";
+export interface FeedEvent { id: string; at: string; kind: FeedEventKind; message: string; entity?: string; user: string; }
 
 export type Role = "admin" | "order_manager" | "production_planner" | "supervisor" | "operator";
 export type SopStep = { id: string; text: string };
