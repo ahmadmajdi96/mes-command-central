@@ -1,30 +1,40 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Plus, Search, Filter } from "lucide-react";
-import { salesOrders, findCustomer, type SalesOrder, type SalesOrderStatus } from "@/lib/oms-data";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { SavedPresetsBar } from "@/components/saved-presets-bar";
+import { FormDialog } from "@/components/form-dialog";
 import { toast } from "sonner";
-import { useStore, store } from "@/lib/store";
+import { useStore } from "@/lib/store";
 import { permissionsFor } from "@/lib/roles";
+import {
+  useOrders, useCreateOrder, useBulkUpdateOrderStatus, useCustomers, useRealtimeInvalidate,
+  ordersKey, orderStatusOptions, type OrderWithCustomer,
+} from "@/lib/oms-db";
 
 export const Route = createFileRoute("/orders/")({
   head: () => ({ meta: [{ title: "Sales Orders · CORTA OMS" }] }),
   component: OrdersList,
 });
 
-const statusFilters: (SalesOrderStatus | "all")[] = ["all", "draft", "confirmed", "in_production", "partially_shipped", "shipped", "cancelled"];
-
+const statusFilters = ["all", ...orderStatusOptions];
 type OrdersPreset = { q: string; status: string };
 
 function OrdersList() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
+  const [openNew, setOpenNew] = useState(false);
   const role = useStore((s) => s.role);
   const perms = permissionsFor(role);
+  useRealtimeInvalidate("sales_orders", [ordersKey]);
+
+  const { data: orders = [], isLoading } = useOrders();
+  const { data: customers = [] } = useCustomers();
+  const createOrder = useCreateOrder();
+  const bulkUpdate = useBulkUpdateOrderStatus();
 
   const [confirm, setConfirm] = useState<
     | null
@@ -32,29 +42,31 @@ function OrdersList() {
   >(null);
 
   const filtered = useMemo(() => {
-    return salesOrders.filter((o) => {
+    return orders.filter((o) => {
       if (status !== "all" && o.status !== status) return false;
       if (q) {
-        const c = findCustomer(o.customerId)?.name.toLowerCase() ?? "";
+        const c = (o.customer?.name ?? "").toLowerCase();
         return o.number.toLowerCase().includes(q.toLowerCase()) || c.includes(q.toLowerCase());
       }
       return true;
     });
-  }, [q, status]);
+  }, [q, status, orders]);
 
-  const runBulk = () => {
+  const runBulk = async () => {
     if (!confirm) return;
-    store.bulkOrderStatus(confirm.ids, confirm.targetStatus, confirm.label);
-    toast.success(`${confirm.label}: ${confirm.ids.length} order(s)`);
-    confirm.clear();
-    setConfirm(null);
+    try {
+      await bulkUpdate.mutateAsync({ ids: confirm.ids, status: confirm.targetStatus, label: confirm.label });
+      toast.success(`${confirm.label}: ${confirm.ids.length} order(s)`);
+      confirm.clear();
+      setConfirm(null);
+    } catch (e: any) { toast.error(e.message ?? "Bulk update failed"); }
   };
 
   return (
     <div className="space-y-5">
       <PageHeader
         title="Sales Orders"
-        subtitle={`${filtered.length} of ${salesOrders.length} orders`}
+        subtitle={isLoading ? "Loading…" : `${filtered.length} of ${orders.length} orders`}
         actions={
           <div className="flex items-center gap-2">
             <CSVExportButton
@@ -62,17 +74,17 @@ function OrdersList() {
               rows={filtered}
               columns={[
                 { key: "number", label: "Order #" },
-                { key: "customer", label: "Customer", get: (o) => findCustomer(o.customerId)?.name },
-                { key: "orderDate", label: "Order Date" },
-                { key: "dueDate", label: "Due Date" },
+                { key: "customer", label: "Customer", get: (o) => o.customer?.name ?? "" },
+                { key: "order_date", label: "Order Date" },
+                { key: "due_date", label: "Due Date" },
                 { key: "status", label: "Status" },
-                { key: "lines", label: "Lines", get: (o) => o.lines.length },
+                { key: "lines", label: "Lines", get: (o) => o.lines_count ?? 0 },
                 { key: "total", label: "Total" },
                 { key: "currency", label: "Currency" },
               ]}
             />
             {perms.createOrder && (
-              <button onClick={() => toast.success("New order (demo)")}
+              <button onClick={() => setOpenNew(true)}
                 className="flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
                 <Plus className="h-3.5 w-3.5" /> New Order
               </button>
@@ -105,7 +117,7 @@ function OrdersList() {
         </div>
       </div>
 
-      <DataTable<SalesOrder>
+      <DataTable<OrderWithCustomer>
         rows={filtered}
         getRowId={(o) => o.id}
         defaultSort={{ key: "orderDate", dir: "desc" }}
@@ -126,7 +138,7 @@ function OrdersList() {
             <CSVExportButton filename="sales-orders-selection" rows={selected} label="Export selection"
               columns={[
                 { key: "number", label: "Order #" },
-                { key: "customer", label: "Customer", get: (o) => findCustomer(o.customerId)?.name },
+                { key: "customer", label: "Customer", get: (o) => o.customer?.name ?? "" },
                 { key: "status", label: "Status" },
                 { key: "total", label: "Total" },
               ]} />
@@ -136,14 +148,14 @@ function OrdersList() {
           { key: "number", label: "Order", sortAccessor: (o) => o.number, render: (o) => (
             <Link to="/orders/$orderId" params={{ orderId: o.id }} className="font-mono text-xs text-primary hover:underline">{o.number}</Link>
           )},
-          { key: "customer", label: "Customer", sortAccessor: (o) => findCustomer(o.customerId)?.name ?? "", render: (o) => <span className="text-sm">{findCustomer(o.customerId)?.name}</span> },
-          { key: "orderDate", label: "Ordered", sortAccessor: (o) => o.orderDate, render: (o) => <span className="font-mono text-xs text-muted-foreground">{o.orderDate}</span> },
-          { key: "dueDate", label: "Due", sortAccessor: (o) => o.dueDate, render: (o) => <span className="font-mono text-xs">{o.dueDate}</span> },
-          { key: "lines", label: "Lines", sortAccessor: (o) => o.lines.length, render: (o) => <span className="font-mono text-xs">{o.lines.length}</span> },
+          { key: "customer", label: "Customer", sortAccessor: (o) => o.customer?.name ?? "", render: (o) => <span className="text-sm">{o.customer?.name ?? "—"}</span> },
+          { key: "orderDate", label: "Ordered", sortAccessor: (o) => o.order_date ?? "", render: (o) => <span className="font-mono text-xs text-muted-foreground">{o.order_date}</span> },
+          { key: "dueDate", label: "Due", sortAccessor: (o) => o.due_date ?? "", render: (o) => <span className="font-mono text-xs">{o.due_date ?? "—"}</span> },
+          { key: "lines", label: "Lines", sortAccessor: (o) => o.lines_count ?? 0, render: (o) => <span className="font-mono text-xs">{o.lines_count ?? 0}</span> },
           { key: "status", label: "Status", sortAccessor: (o) => o.status, render: (o) => <StatusPill status={o.status} /> },
-          { key: "total", label: "Total", align: "right", sortAccessor: (o) => o.total, render: (o) => <span className="font-mono text-sm">${o.total.toLocaleString()}</span> },
+          { key: "total", label: "Total", align: "right", sortAccessor: (o) => Number(o.total), render: (o) => <span className="font-mono text-sm">${Number(o.total).toLocaleString()}</span> },
         ]}
-        empty="No orders match your filters"
+        empty={isLoading ? "Loading…" : "No orders match your filters"}
       />
 
       <ConfirmDialog
@@ -152,12 +164,39 @@ function OrdersList() {
         title={confirm?.label ?? ""}
         description={
           confirm
-            ? `This will update ${confirm.ids.length} order(s) to "${confirm.targetStatus.replace("_", " ")}" and log an audit entry for each record. This cannot be undone.`
+            ? `This will update ${confirm.ids.length} order(s) to "${confirm.targetStatus.replace("_", " ")}" and log an audit entry for each record.`
             : ""
         }
         confirmLabel={confirm?.variant === "destructive" ? "Yes, cancel orders" : "Apply update"}
         variant={confirm?.variant}
         onConfirm={runBulk}
+      />
+
+      <FormDialog
+        open={openNew}
+        onOpenChange={setOpenNew}
+        title="New Sales Order"
+        submitLabel="Create order"
+        fields={[
+          { name: "number", label: "Order #", required: true, placeholder: "SO-2026-9999" },
+          { name: "customer_id", label: "Customer", type: "select", required: true,
+            options: customers.map((c) => ({ value: c.id, label: c.name })) },
+          { name: "status", label: "Status", type: "select",
+            options: orderStatusOptions.map((s) => ({ value: s, label: s.replace("_", " ") })) },
+          { name: "order_date", label: "Order date", type: "date" },
+          { name: "due_date", label: "Due date", type: "date" },
+          { name: "total", label: "Total", type: "number", step: 0.01 },
+          { name: "currency", label: "Currency", placeholder: "USD" },
+          { name: "notes", label: "Notes", type: "textarea" },
+        ]}
+        onSubmit={async (v: any) => {
+          await createOrder.mutateAsync({
+            number: v.number, customer_id: v.customer_id || null, status: v.status || "draft",
+            order_date: v.order_date || undefined, due_date: v.due_date || null,
+            total: v.total || 0, currency: v.currency || "USD", notes: v.notes || null,
+          } as any);
+          toast.success("Order created");
+        }}
       />
     </div>
   );

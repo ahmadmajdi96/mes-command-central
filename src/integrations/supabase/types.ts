@@ -41,6 +41,142 @@ export type Database = {
         }
         Relationships: []
       }
+      customers: {
+        Row: {
+          address: string | null
+          code: string | null
+          contact: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          code?: string | null
+          contact?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          code?: string | null
+          contact?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      inventory_transactions: {
+        Row: {
+          at: string
+          id: string
+          order_id: string | null
+          product_id: string | null
+          qty: number
+          reference: string | null
+          type: string
+          user_id: string | null
+          work_order_id: string | null
+        }
+        Insert: {
+          at?: string
+          id?: string
+          order_id?: string | null
+          product_id?: string | null
+          qty: number
+          reference?: string | null
+          type: string
+          user_id?: string | null
+          work_order_id?: string | null
+        }
+        Update: {
+          at?: string
+          id?: string
+          order_id?: string | null
+          product_id?: string | null
+          qty?: number
+          reference?: string | null
+          type?: string
+          user_id?: string | null
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_transactions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_transactions_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          lead_time: number
+          name: string
+          sku: string
+          standard_cost: number
+          type: string
+          uom: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          lead_time?: number
+          name: string
+          sku: string
+          standard_cost?: number
+          type?: string
+          uom?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          lead_time?: number
+          name?: string
+          sku?: string
+          standard_cost?: number
+          type?: string
+          uom?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -58,6 +194,107 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      sales_order_lines: {
+        Row: {
+          created_at: string
+          due_date: string | null
+          id: string
+          order_id: string
+          product_id: string | null
+          qty: number
+          status: string
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          order_id: string
+          product_id?: string | null
+          qty?: number
+          status?: string
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          order_id?: string
+          product_id?: string | null
+          qty?: number
+          status?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_order_lines_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_order_lines_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_orders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          customer_id: string | null
+          due_date: string | null
+          id: string
+          notes: string | null
+          number: string
+          order_date: string
+          status: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          customer_id?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          number: string
+          order_date?: string
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          customer_id?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          number?: string
+          order_date?: string
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       saved_filter_presets: {
         Row: {
@@ -89,6 +326,97 @@ export type Database = {
         }
         Relationships: []
       }
+      shipments: {
+        Row: {
+          carrier: string | null
+          created_at: string
+          id: string
+          number: string
+          order_id: string | null
+          shipped_at: string | null
+          status: string
+          tracking: string | null
+          updated_at: string
+        }
+        Insert: {
+          carrier?: string | null
+          created_at?: string
+          id?: string
+          number: string
+          order_id?: string | null
+          shipped_at?: string | null
+          status?: string
+          tracking?: string | null
+          updated_at?: string
+        }
+        Update: {
+          carrier?: string | null
+          created_at?: string
+          id?: string
+          number?: string
+          order_id?: string | null
+          shipped_at?: string | null
+          status?: string
+          tracking?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sop_steps: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          id: string
+          instructions: string | null
+          notes: string | null
+          seq: number
+          title: string
+          work_order_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          instructions?: string | null
+          notes?: string | null
+          seq: number
+          title: string
+          work_order_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          instructions?: string | null
+          notes?: string | null
+          seq?: number
+          title?: string
+          work_order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sop_steps_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -104,6 +432,66 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      work_orders: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          labor_min: number
+          number: string
+          operation: string
+          operator_id: string | null
+          production_order_ref: string | null
+          progress: number
+          qty_produced: number
+          qty_scrap: number
+          qty_target: number
+          seq: number
+          started_at: string | null
+          status: string
+          updated_at: string
+          workstation: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          labor_min?: number
+          number: string
+          operation: string
+          operator_id?: string | null
+          production_order_ref?: string | null
+          progress?: number
+          qty_produced?: number
+          qty_scrap?: number
+          qty_target?: number
+          seq?: number
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          workstation?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          labor_min?: number
+          number?: string
+          operation?: string
+          operator_id?: string | null
+          production_order_ref?: string | null
+          progress?: number
+          qty_produced?: number
+          qty_scrap?: number
+          qty_target?: number
+          seq?: number
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          workstation?: string | null
         }
         Relationships: []
       }
