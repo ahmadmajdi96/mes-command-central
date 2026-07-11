@@ -1,7 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { inventory, findProduct, findWorkstation, inventoryTxns } from "@/lib/oms-data";
 import { PageHeader, Panel } from "@/components/page-shell";
+import { CSVExportButton } from "@/components/csv-export-button";
 import { ArrowDownCircle, ArrowUpCircle, ArrowLeftRight, Edit } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useStore } from "@/lib/store";
+import { permissionsFor } from "@/lib/roles";
 
 export const Route = createFileRoute("/inventory")({
   head: () => ({ meta: [{ title: "Inventory · CORTA OMS" }] }),
@@ -16,8 +21,26 @@ const iconFor = (type: string) => {
 };
 
 function InventoryPage() {
+  const role = useStore((s) => s.role);
+  const perms = permissionsFor(role);
+  const [q, setQ] = useState("");
   const totalOnHand = inventory.reduce((s, i) => s + i.qty, 0);
   const totalReserved = inventory.reduce((s, i) => s + i.reserved, 0);
+
+  const filteredTxns = inventoryTxns.filter((t) => {
+    if (!q) return true;
+    const p = findProduct(t.productId);
+    const s = q.toLowerCase();
+    return t.id.toLowerCase().includes(s) || t.ref.toLowerCase().includes(s) || (p?.sku.toLowerCase().includes(s) ?? false);
+  });
+
+  const filteredStock = inventory.filter((i) => {
+    if (!q) return true;
+    const p = findProduct(i.productId);
+    const s = q.toLowerCase();
+    return (p?.sku.toLowerCase().includes(s) ?? false) || (p?.name.toLowerCase().includes(s) ?? false);
+  });
+
   return (
     <div className="space-y-5">
       <PageHeader
@@ -25,10 +48,28 @@ function InventoryPage() {
         subtitle="Real-time stock on hand and reservations"
         actions={
           <div className="flex items-center gap-2">
-            <button className="rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs">Receive</button>
-            <button className="rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs">Issue</button>
-            <button className="rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs">Transfer</button>
-            <button className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">Adjust Stock</button>
+            <CSVExportButton
+              filename="inventory-transactions"
+              rows={filteredTxns}
+              columns={[
+                { key: "id", label: "Txn ID" },
+                { key: "at", label: "Timestamp" },
+                { key: "type", label: "Type" },
+                { key: "product", label: "Product", get: (t) => findProduct(t.productId)?.sku },
+                { key: "qty", label: "Quantity" },
+                { key: "ref", label: "Reference" },
+                { key: "user", label: "User" },
+              ]}
+              label="Export Txns"
+            />
+            {perms.adjustInventory && (
+              <>
+                <button onClick={() => toast.success("Receive stock (demo)")} className="rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs">Receive</button>
+                <button onClick={() => toast.success("Issue stock (demo)")} className="rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs">Issue</button>
+                <button onClick={() => toast.success("Transfer stock (demo)")} className="rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs">Transfer</button>
+                <button onClick={() => toast.success("Adjust stock (demo)")} className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">Adjust Stock</button>
+              </>
+            )}
           </div>
         }
       />
@@ -47,8 +88,14 @@ function InventoryPage() {
         </Panel>
         <Panel>
           <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Locations</div>
-          <div className="mt-2 font-mono text-2xl font-semibold">{new Set(inventory.map(i => i.workstationId ?? "WH")).size}</div>
+          <div className="mt-2 font-mono text-2xl font-semibold">{new Set(inventory.map((i) => i.workstationId ?? "WH")).size}</div>
         </Panel>
+      </div>
+
+      <div className="glass-panel rounded-2xl p-3">
+        <input value={q} onChange={(e) => setQ(e.target.value)}
+          placeholder="Filter by SKU, product, txn ref…"
+          className="h-9 w-full rounded-lg border border-border/60 bg-card/60 px-3 text-sm focus:border-primary/50 focus:outline-none" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -66,7 +113,7 @@ function InventoryPage() {
                 </tr>
               </thead>
               <tbody>
-                {inventory.map((i, idx) => {
+                {filteredStock.map((i, idx) => {
                   const p = findProduct(i.productId);
                   return (
                     <tr key={idx} className="border-b border-border/30 hover:bg-card/60">
@@ -89,7 +136,7 @@ function InventoryPage() {
         <Panel>
           <h3 className="mb-3 text-sm font-semibold">Recent Transactions</h3>
           <div className="space-y-2">
-            {inventoryTxns.map(t => {
+            {filteredTxns.map((t) => {
               const p = findProduct(t.productId);
               return (
                 <div key={t.id} className="flex items-start gap-2 rounded-lg border border-border/60 bg-card/40 p-2.5">
