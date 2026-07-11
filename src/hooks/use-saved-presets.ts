@@ -50,7 +50,7 @@ export function useSavedPresets<T extends Record<string, unknown>>(pageKey: stri
     if (!name.trim()) return;
     if (user) {
       const { data, error } = await supabase.from("saved_filter_presets")
-        .upsert({ user_id: user.id, page_key: pageKey, name, payload: current }, { onConflict: "user_id,page_key,name" })
+        .upsert({ user_id: user.id, page_key: pageKey, name, payload: current as never }, { onConflict: "user_id,page_key,name" })
         .select("id, name, payload, is_default").single();
       if (error) { toast.error(error.message); return; }
       setPresets((p) => {
