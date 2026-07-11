@@ -8,7 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { Bell, Search, ChevronRight } from "lucide-react";
+import { Bell, ChevronRight } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
