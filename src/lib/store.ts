@@ -23,6 +23,7 @@ interface State {
   workOrders: WorkOrder[];
   audit: AuditLog[];
   sop: Record<string, SopEntry[]>;
+  events: FeedEvent[];
   tick: number;
   live: boolean;
 }
@@ -33,6 +34,7 @@ const state: State = {
   workOrders: initialWO,
   audit: initialAudit,
   sop: {},
+  events: [],
   tick: 0,
   live: true,
 };
@@ -52,6 +54,21 @@ const pushAudit = (action: string, entity: string, detail: string) => {
   ];
 };
 
+let evtCounter = 0;
+const pushEvent = (kind: FeedEventKind, message: string, entity?: string, toastVariant: "info" | "success" | "warn" = "info") => {
+  const evt: FeedEvent = {
+    id: `E-${++evtCounter}-${Date.now()}`,
+    at: now(), kind, message, entity, user: state.currentUser.id,
+  };
+  state.events = [evt, ...state.events].slice(0, 100);
+  if (typeof window !== "undefined") {
+    const opts = entity ? { description: entity } : undefined;
+    if (toastVariant === "success") toast.success(message, opts);
+    else if (toastVariant === "warn") toast.warning(message, opts);
+    else toast(message, opts);
+  }
+};
+
 export const store = {
   getState: () => state,
   subscribe: (l: () => void) => {
@@ -67,21 +84,28 @@ export const store = {
     state.live = v;
     emit();
   },
-  updateWO: (id: string, patch: Partial<WorkOrder>, note?: string) => {
+  clearEvents: () => {
+    state.events = [];
+    emit();
+  },
+  updateWO: (id: string, patch: Partial<WorkOrder>, note?: string, kind: FeedEventKind = "wo_update", variant: "info" | "success" | "warn" = "info") => {
     const wo = state.workOrders.find((w) => w.id === id);
     if (!wo) return;
     Object.assign(wo, patch);
-    if (note) pushAudit("work_order.update", id, note);
+    if (note) {
+      pushAudit("work_order.update", id, note);
+      pushEvent(kind, `${wo.number}: ${note}`, id, variant);
+    }
     emit();
   },
   startWO: (id: string) => {
-    store.updateWO(id, { status: "in_progress", startedAt: now(), operatorId: state.currentUser.id }, "Started work order");
+    store.updateWO(id, { status: "in_progress", startedAt: now(), operatorId: state.currentUser.id }, "Started work order", "wo_start", "success");
   },
   pauseWO: (id: string) => {
-    store.updateWO(id, { status: "paused" }, "Paused work order");
+    store.updateWO(id, { status: "paused" }, "Paused work order", "wo_pause", "warn");
   },
   resumeWO: (id: string) => {
-    store.updateWO(id, { status: "in_progress" }, "Resumed work order");
+    store.updateWO(id, { status: "in_progress" }, "Resumed work order", "wo_resume", "success");
   },
   completeWO: (id: string) => {
     const wo = state.workOrders.find((w) => w.id === id);
@@ -90,18 +114,25 @@ export const store = {
       id,
       { status: "completed", completedAt: now(), progress: 100, qtyProduced: wo.qtyTarget },
       `Completed: ${wo.qtyTarget} units`,
+      "wo_complete", "success",
     );
   },
   toggleSop: (woId: string, step: SopStep) => {
     const list = state.sop[woId] ?? (state.sop[woId] = []);
     const existing = list.find((s) => s.stepId === step.id);
+    let nowDone: boolean;
     if (existing) {
       existing.done = !existing.done;
       existing.at = existing.done ? now() : undefined;
+      nowDone = existing.done;
     } else {
       list.push({ stepId: step.id, done: true, notes: "", at: now() });
+      nowDone = true;
     }
-    pushAudit("sop.check", woId, `${existing?.done === false ? "Unchecked" : "Checked"}: ${step.text}`);
+    const wo = state.workOrders.find((w) => w.id === woId);
+    const label = wo ? wo.number : woId;
+    pushAudit("sop.check", woId, `${nowDone ? "Checked" : "Unchecked"}: ${step.text}`);
+    pushEvent(nowDone ? "sop_check" : "sop_uncheck", `${label} · ${nowDone ? "✓" : "○"} ${step.text}`, woId, nowDone ? "success" : "info");
     emit();
   },
   setSopNote: (woId: string, stepId: string, notes: string) => {
@@ -109,6 +140,9 @@ export const store = {
     const existing = list.find((s) => s.stepId === stepId);
     if (existing) existing.notes = notes;
     else list.push({ stepId, done: false, notes, at: undefined });
+    const wo = state.workOrders.find((w) => w.id === woId);
+    pushAudit("sop.note", woId, `Note updated on ${stepId}`);
+    pushEvent("sop_note", `${wo?.number ?? woId} · note updated`, woId, "info");
     emit();
   },
   tick: () => {
