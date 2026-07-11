@@ -4,6 +4,10 @@ import { Plus, Search, Filter } from "lucide-react";
 import { salesOrders, findCustomer, type SalesOrderStatus } from "@/lib/oms-data";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
+import { CSVExportButton } from "@/components/csv-export-button";
+import { toast } from "sonner";
+import { useStore } from "@/lib/store";
+import { permissionsFor } from "@/lib/roles";
 
 export const Route = createFileRoute("/orders/")({
   head: () => ({ meta: [{ title: "Sales Orders · CORTA OMS" }] }),
@@ -15,9 +19,11 @@ const statusFilters: (SalesOrderStatus | "all")[] = ["all", "draft", "confirmed"
 function OrdersList() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
+  const role = useStore((s) => s.role);
+  const perms = permissionsFor(role);
 
   const filtered = useMemo(() => {
-    return salesOrders.filter(o => {
+    return salesOrders.filter((o) => {
       if (status !== "all" && o.status !== status) return false;
       if (q) {
         const c = findCustomer(o.customerId)?.name.toLowerCase() ?? "";
@@ -33,9 +39,28 @@ function OrdersList() {
         title="Sales Orders"
         subtitle={`${filtered.length} of ${salesOrders.length} orders`}
         actions={
-          <button className="flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
-            <Plus className="h-3.5 w-3.5" /> New Order
-          </button>
+          <div className="flex items-center gap-2">
+            <CSVExportButton
+              filename="sales-orders"
+              rows={filtered}
+              columns={[
+                { key: "number", label: "Order #" },
+                { key: "customer", label: "Customer", get: (o) => findCustomer(o.customerId)?.name },
+                { key: "orderDate", label: "Order Date" },
+                { key: "dueDate", label: "Due Date" },
+                { key: "status", label: "Status" },
+                { key: "lines", label: "Lines", get: (o) => o.lines.length },
+                { key: "total", label: "Total" },
+                { key: "currency", label: "Currency" },
+              ]}
+            />
+            {perms.createOrder && (
+              <button onClick={() => toast.success("New order (demo)")}
+                className="flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
+                <Plus className="h-3.5 w-3.5" /> New Order
+              </button>
+            )}
+          </div>
         }
       />
 

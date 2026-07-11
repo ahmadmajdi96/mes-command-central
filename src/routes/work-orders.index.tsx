@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { workOrders, findWorkstation, findPO, findProduct } from "@/lib/oms-data";
+import { findWorkstation, findPO, findProduct } from "@/lib/oms-data";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
+import { CSVExportButton } from "@/components/csv-export-button";
+import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/work-orders/")({
   head: () => ({ meta: [{ title: "Work Orders · CORTA OMS" }] }),
@@ -11,17 +13,39 @@ export const Route = createFileRoute("/work-orders/")({
 });
 
 function WOList() {
+  const workOrders = useStore((s) => s.workOrders);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
   const filters = ["all", "pending", "in_progress", "paused", "completed", "cancelled"];
-  const filtered = useMemo(() => workOrders.filter(w => {
+  const filtered = useMemo(() => workOrders.filter((w) => {
     if (status !== "all" && w.status !== status) return false;
     if (q) return w.number.toLowerCase().includes(q.toLowerCase()) || w.operation.toLowerCase().includes(q.toLowerCase());
     return true;
-  }), [q, status]);
+  }), [q, status, workOrders]);
   return (
     <div className="space-y-5">
-      <PageHeader title="Work Orders" subtitle={`${filtered.length} of ${workOrders.length}`} />
+      <PageHeader
+        title="Work Orders"
+        subtitle={`${filtered.length} of ${workOrders.length}`}
+        actions={
+          <CSVExportButton
+            filename="work-orders"
+            rows={filtered}
+            columns={[
+              { key: "number", label: "WO #" },
+              { key: "operation", label: "Operation" },
+              { key: "productionOrderId", label: "Production Order" },
+              { key: "workstation", label: "Workstation", get: (w) => findWorkstation(w.workstationId)?.name },
+              { key: "status", label: "Status" },
+              { key: "qtyTarget", label: "Target" },
+              { key: "qtyProduced", label: "Produced" },
+              { key: "qtyScrap", label: "Scrap" },
+              { key: "progress", label: "Progress %" },
+              { key: "laborMin", label: "Labor Min" },
+            ]}
+          />
+        }
+      />
       <div className="glass-panel flex flex-wrap items-center gap-3 rounded-2xl p-3">
         <div className="relative flex-1 min-w-[240px]">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />

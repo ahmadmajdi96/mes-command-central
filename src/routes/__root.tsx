@@ -8,13 +8,16 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { Bell, Search, ChevronRight } from "lucide-react";
+import { Bell, ChevronRight } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { GlobalSearch } from "@/components/global-search";
+import { RoleSwitcher } from "@/components/role-switcher";
+import { LiveIndicator } from "@/components/live-indicator";
 
 function NotFoundComponent() {
   return (
@@ -107,26 +110,13 @@ function TopBar() {
         <span className="text-foreground">Order Operations</span>
       </div>
       <div className="ml-auto flex items-center gap-2">
-        <div className="relative hidden md:block">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <input
-            placeholder="Search orders, WOs, products…"
-            className="h-9 w-72 rounded-lg border border-border/60 bg-card/60 pl-8 pr-3 text-sm placeholder:text-muted-foreground/60 focus:border-primary/50 focus:outline-none"
-          />
-        </div>
+        <LiveIndicator />
+        <GlobalSearch />
         <button className="relative grid h-9 w-9 place-items-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition hover:text-foreground">
           <Bell className="h-4 w-4" />
           <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-destructive" />
         </button>
-        <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-2 py-1">
-          <div className="grid h-6 w-6 place-items-center rounded-md bg-gradient-to-br from-primary to-info text-[10px] font-bold text-primary-foreground">
-            LH
-          </div>
-          <div className="hidden text-xs leading-tight sm:block">
-            <div className="font-medium">Leila Hariri</div>
-            <div className="text-[10px] text-muted-foreground">Order Manager</div>
-          </div>
-        </div>
+        <RoleSwitcher />
       </div>
     </header>
   );

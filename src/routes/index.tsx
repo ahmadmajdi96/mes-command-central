@@ -9,8 +9,9 @@ import {
 } from "lucide-react";
 import {
   dashboardKpis, orderTrend, productionMix, salesOrders, productionOrders,
-  workOrders, findCustomer, findProduct, workstations, auditLog,
+  findCustomer, findProduct, workstations,
 } from "@/lib/oms-data";
+import { useStore } from "@/lib/store";
 import { StatusPill } from "@/components/status-pill";
 
 export const Route = createFileRoute("/")({
@@ -70,8 +71,10 @@ function Kpi({
 }
 
 function Dashboard() {
+  const workOrders = useStore((s) => s.workOrders);
+  const auditLog = useStore((s) => s.audit);
   const runningWO = workOrders.filter((w) => w.status === "in_progress");
-  const wsActive = workstations.filter(w => w.status === "active").length;
+  const wsActive = workstations.filter((w) => w.status === "active").length;
 
   return (
     <div className="space-y-6">
