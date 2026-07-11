@@ -5,8 +5,10 @@ import { salesOrders, findCustomer, type SalesOrder, type SalesOrderStatus } fro
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { toast } from "sonner";
-import { useStore } from "@/lib/store";
+import { useStore, store } from "@/lib/store";
 import { permissionsFor } from "@/lib/roles";
 
 export const Route = createFileRoute("/orders/")({
@@ -16,11 +18,18 @@ export const Route = createFileRoute("/orders/")({
 
 const statusFilters: (SalesOrderStatus | "all")[] = ["all", "draft", "confirmed", "in_production", "partially_shipped", "shipped", "cancelled"];
 
+type OrdersPreset = { q: string; status: string };
+
 function OrdersList() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const role = useStore((s) => s.role);
   const perms = permissionsFor(role);
+
+  const [confirm, setConfirm] = useState<
+    | null
+    | { ids: string[]; clear: () => void; targetStatus: string; label: string; variant?: "destructive" }
+  >(null);
 
   const filtered = useMemo(() => {
     return salesOrders.filter((o) => {
@@ -33,9 +42,12 @@ function OrdersList() {
     });
   }, [q, status]);
 
-  const bulkAction = (label: string, count: number, cb: () => void) => {
-    cb();
-    toast.success(`${label}: ${count} order(s)`);
+  const runBulk = () => {
+    if (!confirm) return;
+    store.bulkOrderStatus(confirm.ids, confirm.targetStatus, confirm.label);
+    toast.success(`${confirm.label}: ${confirm.ids.length} order(s)`);
+    confirm.clear();
+    setConfirm(null);
   };
 
   return (
@@ -69,6 +81,12 @@ function OrdersList() {
         }
       />
 
+      <SavedPresetsBar<OrdersPreset>
+        pageKey="orders"
+        current={{ q, status }}
+        onApply={(p) => { setQ(p.q ?? ""); setStatus(p.status ?? "all"); }}
+      />
+
       <div className="glass-panel flex flex-wrap items-center gap-3 rounded-2xl p-3">
         <div className="relative flex-1 min-w-[240px]">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -93,15 +111,15 @@ function OrdersList() {
         defaultSort={{ key: "orderDate", dir: "desc" }}
         bulkActions={perms.editOrder ? (selected, clear) => (
           <>
-            <button onClick={() => bulkAction("Marked confirmed", selected.length, clear)}
+            <button onClick={() => setConfirm({ ids: selected.map((s) => s.id), clear, targetStatus: "confirmed", label: "Confirm orders" })}
               className="rounded-md border border-success/40 bg-success/10 px-2.5 py-1 text-[11px] text-success hover:bg-success/20">
               Confirm
             </button>
-            <button onClick={() => bulkAction("Marked in production", selected.length, clear)}
+            <button onClick={() => setConfirm({ ids: selected.map((s) => s.id), clear, targetStatus: "in_production", label: "Send to production" })}
               className="rounded-md border border-info/40 bg-info/10 px-2.5 py-1 text-[11px] text-info hover:bg-info/20">
               Send to Production
             </button>
-            <button onClick={() => bulkAction("Cancelled", selected.length, clear)}
+            <button onClick={() => setConfirm({ ids: selected.map((s) => s.id), clear, targetStatus: "cancelled", label: "Cancel orders", variant: "destructive" })}
               className="rounded-md border border-destructive/40 bg-destructive/10 px-2.5 py-1 text-[11px] text-destructive hover:bg-destructive/20">
               Cancel
             </button>
@@ -126,6 +144,20 @@ function OrdersList() {
           { key: "total", label: "Total", align: "right", sortAccessor: (o) => o.total, render: (o) => <span className="font-mono text-sm">${o.total.toLocaleString()}</span> },
         ]}
         empty="No orders match your filters"
+      />
+
+      <ConfirmDialog
+        open={!!confirm}
+        onOpenChange={(v) => !v && setConfirm(null)}
+        title={confirm?.label ?? ""}
+        description={
+          confirm
+            ? `This will update ${confirm.ids.length} order(s) to "${confirm.targetStatus.replace("_", " ")}" and log an audit entry for each record. This cannot be undone.`
+            : ""
+        }
+        confirmLabel={confirm?.variant === "destructive" ? "Yes, cancel orders" : "Apply update"}
+        variant={confirm?.variant}
+        onConfirm={runBulk}
       />
     </div>
   );
