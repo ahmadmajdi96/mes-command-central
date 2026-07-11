@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Plus, Search, Filter } from "lucide-react";
-import { salesOrders, findCustomer, type SalesOrderStatus } from "@/lib/oms-data";
+import { salesOrders, findCustomer, type SalesOrder, type SalesOrderStatus } from "@/lib/oms-data";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
@@ -32,6 +32,11 @@ function OrdersList() {
       return true;
     });
   }, [q, status]);
+
+  const bulkAction = (label: string, count: number, cb: () => void) => {
+    cb();
+    toast.success(`${label}: ${count} order(s)`);
+  };
 
   return (
     <div className="space-y-5">
@@ -82,18 +87,43 @@ function OrdersList() {
         </div>
       </div>
 
-      <DataTable
+      <DataTable<SalesOrder>
         rows={filtered}
+        getRowId={(o) => o.id}
+        defaultSort={{ key: "orderDate", dir: "desc" }}
+        bulkActions={perms.editOrder ? (selected, clear) => (
+          <>
+            <button onClick={() => bulkAction("Marked confirmed", selected.length, clear)}
+              className="rounded-md border border-success/40 bg-success/10 px-2.5 py-1 text-[11px] text-success hover:bg-success/20">
+              Confirm
+            </button>
+            <button onClick={() => bulkAction("Marked in production", selected.length, clear)}
+              className="rounded-md border border-info/40 bg-info/10 px-2.5 py-1 text-[11px] text-info hover:bg-info/20">
+              Send to Production
+            </button>
+            <button onClick={() => bulkAction("Cancelled", selected.length, clear)}
+              className="rounded-md border border-destructive/40 bg-destructive/10 px-2.5 py-1 text-[11px] text-destructive hover:bg-destructive/20">
+              Cancel
+            </button>
+            <CSVExportButton filename="sales-orders-selection" rows={selected} label="Export selection"
+              columns={[
+                { key: "number", label: "Order #" },
+                { key: "customer", label: "Customer", get: (o) => findCustomer(o.customerId)?.name },
+                { key: "status", label: "Status" },
+                { key: "total", label: "Total" },
+              ]} />
+          </>
+        ) : undefined}
         columns={[
-          { key: "number", label: "Order", render: (o) => (
+          { key: "number", label: "Order", sortAccessor: (o) => o.number, render: (o) => (
             <Link to="/orders/$orderId" params={{ orderId: o.id }} className="font-mono text-xs text-primary hover:underline">{o.number}</Link>
           )},
-          { key: "customer", label: "Customer", render: (o) => <span className="text-sm">{findCustomer(o.customerId)?.name}</span> },
-          { key: "orderDate", label: "Ordered", render: (o) => <span className="font-mono text-xs text-muted-foreground">{o.orderDate}</span> },
-          { key: "dueDate", label: "Due", render: (o) => <span className="font-mono text-xs">{o.dueDate}</span> },
-          { key: "lines", label: "Lines", render: (o) => <span className="font-mono text-xs">{o.lines.length}</span> },
-          { key: "status", label: "Status", render: (o) => <StatusPill status={o.status} /> },
-          { key: "total", label: "Total", align: "right", render: (o) => <span className="font-mono text-sm">${o.total.toLocaleString()}</span> },
+          { key: "customer", label: "Customer", sortAccessor: (o) => findCustomer(o.customerId)?.name ?? "", render: (o) => <span className="text-sm">{findCustomer(o.customerId)?.name}</span> },
+          { key: "orderDate", label: "Ordered", sortAccessor: (o) => o.orderDate, render: (o) => <span className="font-mono text-xs text-muted-foreground">{o.orderDate}</span> },
+          { key: "dueDate", label: "Due", sortAccessor: (o) => o.dueDate, render: (o) => <span className="font-mono text-xs">{o.dueDate}</span> },
+          { key: "lines", label: "Lines", sortAccessor: (o) => o.lines.length, render: (o) => <span className="font-mono text-xs">{o.lines.length}</span> },
+          { key: "status", label: "Status", sortAccessor: (o) => o.status, render: (o) => <StatusPill status={o.status} /> },
+          { key: "total", label: "Total", align: "right", sortAccessor: (o) => o.total, render: (o) => <span className="font-mono text-sm">${o.total.toLocaleString()}</span> },
         ]}
         empty="No orders match your filters"
       />
