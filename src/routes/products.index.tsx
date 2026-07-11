@@ -1,52 +1,79 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, Plus, Package } from "lucide-react";
-import { products, inventory, type Product } from "@/lib/oms-data";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
+import { FormDialog } from "@/components/form-dialog";
+import { SavedPresetsBar } from "@/components/saved-presets-bar";
+import { toast } from "sonner";
+import { useStore } from "@/lib/store";
+import { permissionsFor } from "@/lib/roles";
+import { useProducts, useCreateProduct, useInventoryTxns, useRealtimeInvalidate, productsKey, productTypeOptions, type Product } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/products/")({
   head: () => ({ meta: [{ title: "Products · CORTA OMS" }] }),
   component: ProductsList,
 });
 
-const onHandOf = (id: string) => inventory.filter((i) => i.productId === id).reduce((s, i) => s + i.qty, 0);
+type Preset = { q: string; type: string };
 
 function ProductsList() {
   const [q, setQ] = useState("");
   const [type, setType] = useState("all");
-  const filtered = useMemo(() => products.filter(p => {
+  const [openNew, setOpenNew] = useState(false);
+  const role = useStore((s) => s.role);
+  const perms = permissionsFor(role);
+  useRealtimeInvalidate("products", [productsKey]);
+
+  const { data: products = [], isLoading } = useProducts();
+  const { data: txns = [] } = useInventoryTxns();
+  const createProduct = useCreateProduct();
+
+  const onHandOf = (id: string) => txns.filter((t) => t.product_id === id).reduce((s, t) => s + Number(t.qty), 0);
+
+  const filtered = useMemo(() => products.filter((p) => {
     if (type !== "all" && p.type !== type) return false;
-    if (q) return p.sku.toLowerCase().includes(q.toLowerCase()) || p.name.toLowerCase().includes(q.toLowerCase());
+    if (q) {
+      const s = q.toLowerCase();
+      return p.sku.toLowerCase().includes(s) || p.name.toLowerCase().includes(s);
+    }
     return true;
-  }), [q, type]);
+  }), [q, type, products]);
+
+  const canManage = perms.createOrder || role === "production_planner" || role === "admin";
 
   return (
     <div className="space-y-5">
       <PageHeader
         title="Products"
-        subtitle={`${filtered.length} of ${products.length}`}
+        subtitle={isLoading ? "Loading…" : `${filtered.length} of ${products.length}`}
         actions={
           <div className="flex items-center gap-2">
             <CSVExportButton
-              filename="products"
-              rows={filtered}
+              filename="products" rows={filtered}
               columns={[
                 { key: "sku", label: "SKU" },
                 { key: "name", label: "Name" },
                 { key: "type", label: "Type" },
                 { key: "uom", label: "UOM" },
-                { key: "standardCost", label: "Std Cost" },
-                { key: "leadTime", label: "Lead Time" },
+                { key: "standard_cost", label: "Std Cost" },
+                { key: "lead_time", label: "Lead Time" },
                 { key: "onHand", label: "On Hand", get: (p) => onHandOf(p.id) },
               ]}
             />
-            <button className="flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
-              <Plus className="h-3.5 w-3.5" /> New Product
-            </button>
+            {canManage && (
+              <button onClick={() => setOpenNew(true)}
+                className="flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
+                <Plus className="h-3.5 w-3.5" /> New Product
+              </button>
+            )}
           </div>
         }
       />
+
+      <SavedPresetsBar<Preset> pageKey="products" current={{ q, type }}
+        onApply={(p) => { setQ(p.q ?? ""); setType(p.type ?? "all"); }} />
+
       <div className="glass-panel flex flex-wrap items-center gap-3 rounded-2xl p-3">
         <div className="relative flex-1 min-w-[240px]">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -54,7 +81,7 @@ function ProductsList() {
             className="h-9 w-full rounded-lg border border-border/60 bg-card/60 pl-8 pr-3 text-sm focus:border-primary/50 focus:outline-none" />
         </div>
         <div className="flex items-center gap-1">
-          {["all", "finished", "semi", "raw"].map(t => (
+          {["all", ...productTypeOptions].map((t) => (
             <button key={t} onClick={() => setType(t)}
               className={`rounded-lg px-2.5 py-1 text-[11px] capitalize ${type === t ? "bg-primary/15 text-primary border border-primary/30" : "border border-transparent text-muted-foreground hover:text-foreground"}`}>
               {t}
@@ -62,9 +89,11 @@ function ProductsList() {
           ))}
         </div>
       </div>
+
       <DataTable<Product>
         rows={filtered}
         defaultSort={{ key: "sku", dir: "asc" }}
+        empty={isLoading ? "Loading…" : "No products yet"}
         columns={[
           { key: "sku", label: "SKU", sortAccessor: (p) => p.sku, render: (p) => (
             <Link to="/products/$productId" params={{ productId: p.id }} className="flex items-center gap-2">
@@ -75,11 +104,36 @@ function ProductsList() {
           { key: "name", label: "Name", sortAccessor: (p) => p.name, render: (p) => <span className="text-sm">{p.name}</span> },
           { key: "type", label: "Type", sortAccessor: (p) => p.type, render: (p) => <span className="rounded-full border border-border/60 bg-card/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">{p.type}</span> },
           { key: "uom", label: "UOM", render: (p) => <span className="font-mono text-xs">{p.uom}</span> },
-          { key: "cost", label: "Std Cost", align: "right", sortAccessor: (p) => p.standardCost, render: (p) => <span className="font-mono text-sm">${p.standardCost.toLocaleString()}</span> },
+          { key: "cost", label: "Std Cost", align: "right", sortAccessor: (p) => Number(p.standard_cost), render: (p) => <span className="font-mono text-sm">${Number(p.standard_cost).toLocaleString()}</span> },
           { key: "onHand", label: "On Hand", align: "right", sortAccessor: (p) => onHandOf(p.id), render: (p) => (
             <span className="font-mono text-sm">{onHandOf(p.id).toLocaleString()}</span>
           )},
         ]}
+      />
+
+      <FormDialog
+        open={openNew}
+        onOpenChange={setOpenNew}
+        title="New Product"
+        submitLabel="Create product"
+        fields={[
+          { name: "sku", label: "SKU", required: true, placeholder: "VLV-8-CS" },
+          { name: "name", label: "Name", required: true },
+          { name: "description", label: "Description", type: "textarea" },
+          { name: "uom", label: "UOM", placeholder: "EA" },
+          { name: "type", label: "Type", type: "select",
+            options: productTypeOptions.map((t) => ({ value: t, label: t })) },
+          { name: "standard_cost", label: "Standard cost", type: "number", step: 0.01 },
+          { name: "lead_time", label: "Lead time (days)", type: "number" },
+        ]}
+        onSubmit={async (v: any) => {
+          await createProduct.mutateAsync({
+            sku: v.sku, name: v.name, description: v.description || null,
+            uom: v.uom || "EA", type: v.type || "finished",
+            standard_cost: v.standard_cost || 0, lead_time: v.lead_time || 0,
+          });
+          toast.success("Product created");
+        }}
       />
     </div>
   );
