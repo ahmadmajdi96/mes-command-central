@@ -9,38 +9,312 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WorkstationsRouteImport } from './routes/workstations'
+import { Route as UsersRouteImport } from './routes/users'
+import { Route as ShipmentsRouteImport } from './routes/shipments'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as InventoryRouteImport } from './routes/inventory'
+import { Route as ExecutionRouteImport } from './routes/execution'
+import { Route as AuditRouteImport } from './routes/audit'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkOrdersIndexRouteImport } from './routes/work-orders.index'
+import { Route as ProductsIndexRouteImport } from './routes/products.index'
+import { Route as ProductionOrdersIndexRouteImport } from './routes/production-orders.index'
+import { Route as OrdersIndexRouteImport } from './routes/orders.index'
+import { Route as CustomersIndexRouteImport } from './routes/customers.index'
+import { Route as WorkOrdersWoIdRouteImport } from './routes/work-orders.$woId'
+import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
+import { Route as ProductionOrdersPoIdRouteImport } from './routes/production-orders.$poId'
+import { Route as OrdersOrderIdRouteImport } from './routes/orders.$orderId'
+import { Route as CustomersCustomerIdRouteImport } from './routes/customers.$customerId'
 
+const WorkstationsRoute = WorkstationsRouteImport.update({
+  id: '/workstations',
+  path: '/workstations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersRoute = UsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShipmentsRoute = ShipmentsRouteImport.update({
+  id: '/shipments',
+  path: '/shipments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryRoute = InventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExecutionRoute = ExecutionRouteImport.update({
+  id: '/execution',
+  path: '/execution',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditRoute = AuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkOrdersIndexRoute = WorkOrdersIndexRouteImport.update({
+  id: '/work-orders/',
+  path: '/work-orders/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsIndexRoute = ProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductionOrdersIndexRoute = ProductionOrdersIndexRouteImport.update({
+  id: '/production-orders/',
+  path: '/production-orders/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersIndexRoute = OrdersIndexRouteImport.update({
+  id: '/orders/',
+  path: '/orders/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomersIndexRoute = CustomersIndexRouteImport.update({
+  id: '/customers/',
+  path: '/customers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkOrdersWoIdRoute = WorkOrdersWoIdRouteImport.update({
+  id: '/work-orders/$woId',
+  path: '/work-orders/$woId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsProductIdRoute = ProductsProductIdRouteImport.update({
+  id: '/products/$productId',
+  path: '/products/$productId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductionOrdersPoIdRoute = ProductionOrdersPoIdRouteImport.update({
+  id: '/production-orders/$poId',
+  path: '/production-orders/$poId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersOrderIdRoute = OrdersOrderIdRouteImport.update({
+  id: '/orders/$orderId',
+  path: '/orders/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomersCustomerIdRoute = CustomersCustomerIdRouteImport.update({
+  id: '/customers/$customerId',
+  path: '/customers/$customerId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/audit': typeof AuditRoute
+  '/execution': typeof ExecutionRoute
+  '/inventory': typeof InventoryRoute
+  '/settings': typeof SettingsRoute
+  '/shipments': typeof ShipmentsRoute
+  '/users': typeof UsersRoute
+  '/workstations': typeof WorkstationsRoute
+  '/customers/$customerId': typeof CustomersCustomerIdRoute
+  '/orders/$orderId': typeof OrdersOrderIdRoute
+  '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
+  '/products/$productId': typeof ProductsProductIdRoute
+  '/work-orders/$woId': typeof WorkOrdersWoIdRoute
+  '/customers/': typeof CustomersIndexRoute
+  '/orders/': typeof OrdersIndexRoute
+  '/production-orders/': typeof ProductionOrdersIndexRoute
+  '/products/': typeof ProductsIndexRoute
+  '/work-orders/': typeof WorkOrdersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/audit': typeof AuditRoute
+  '/execution': typeof ExecutionRoute
+  '/inventory': typeof InventoryRoute
+  '/settings': typeof SettingsRoute
+  '/shipments': typeof ShipmentsRoute
+  '/users': typeof UsersRoute
+  '/workstations': typeof WorkstationsRoute
+  '/customers/$customerId': typeof CustomersCustomerIdRoute
+  '/orders/$orderId': typeof OrdersOrderIdRoute
+  '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
+  '/products/$productId': typeof ProductsProductIdRoute
+  '/work-orders/$woId': typeof WorkOrdersWoIdRoute
+  '/customers': typeof CustomersIndexRoute
+  '/orders': typeof OrdersIndexRoute
+  '/production-orders': typeof ProductionOrdersIndexRoute
+  '/products': typeof ProductsIndexRoute
+  '/work-orders': typeof WorkOrdersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/audit': typeof AuditRoute
+  '/execution': typeof ExecutionRoute
+  '/inventory': typeof InventoryRoute
+  '/settings': typeof SettingsRoute
+  '/shipments': typeof ShipmentsRoute
+  '/users': typeof UsersRoute
+  '/workstations': typeof WorkstationsRoute
+  '/customers/$customerId': typeof CustomersCustomerIdRoute
+  '/orders/$orderId': typeof OrdersOrderIdRoute
+  '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
+  '/products/$productId': typeof ProductsProductIdRoute
+  '/work-orders/$woId': typeof WorkOrdersWoIdRoute
+  '/customers/': typeof CustomersIndexRoute
+  '/orders/': typeof OrdersIndexRoute
+  '/production-orders/': typeof ProductionOrdersIndexRoute
+  '/products/': typeof ProductsIndexRoute
+  '/work-orders/': typeof WorkOrdersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/audit'
+    | '/execution'
+    | '/inventory'
+    | '/settings'
+    | '/shipments'
+    | '/users'
+    | '/workstations'
+    | '/customers/$customerId'
+    | '/orders/$orderId'
+    | '/production-orders/$poId'
+    | '/products/$productId'
+    | '/work-orders/$woId'
+    | '/customers/'
+    | '/orders/'
+    | '/production-orders/'
+    | '/products/'
+    | '/work-orders/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/audit'
+    | '/execution'
+    | '/inventory'
+    | '/settings'
+    | '/shipments'
+    | '/users'
+    | '/workstations'
+    | '/customers/$customerId'
+    | '/orders/$orderId'
+    | '/production-orders/$poId'
+    | '/products/$productId'
+    | '/work-orders/$woId'
+    | '/customers'
+    | '/orders'
+    | '/production-orders'
+    | '/products'
+    | '/work-orders'
+  id:
+    | '__root__'
+    | '/'
+    | '/audit'
+    | '/execution'
+    | '/inventory'
+    | '/settings'
+    | '/shipments'
+    | '/users'
+    | '/workstations'
+    | '/customers/$customerId'
+    | '/orders/$orderId'
+    | '/production-orders/$poId'
+    | '/products/$productId'
+    | '/work-orders/$woId'
+    | '/customers/'
+    | '/orders/'
+    | '/production-orders/'
+    | '/products/'
+    | '/work-orders/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuditRoute: typeof AuditRoute
+  ExecutionRoute: typeof ExecutionRoute
+  InventoryRoute: typeof InventoryRoute
+  SettingsRoute: typeof SettingsRoute
+  ShipmentsRoute: typeof ShipmentsRoute
+  UsersRoute: typeof UsersRoute
+  WorkstationsRoute: typeof WorkstationsRoute
+  CustomersCustomerIdRoute: typeof CustomersCustomerIdRoute
+  OrdersOrderIdRoute: typeof OrdersOrderIdRoute
+  ProductionOrdersPoIdRoute: typeof ProductionOrdersPoIdRoute
+  ProductsProductIdRoute: typeof ProductsProductIdRoute
+  WorkOrdersWoIdRoute: typeof WorkOrdersWoIdRoute
+  CustomersIndexRoute: typeof CustomersIndexRoute
+  OrdersIndexRoute: typeof OrdersIndexRoute
+  ProductionOrdersIndexRoute: typeof ProductionOrdersIndexRoute
+  ProductsIndexRoute: typeof ProductsIndexRoute
+  WorkOrdersIndexRoute: typeof WorkOrdersIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/workstations': {
+      id: '/workstations'
+      path: '/workstations'
+      fullPath: '/workstations'
+      preLoaderRoute: typeof WorkstationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users': {
+      id: '/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shipments': {
+      id: '/shipments'
+      path: '/shipments'
+      fullPath: '/shipments'
+      preLoaderRoute: typeof ShipmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory': {
+      id: '/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof InventoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/execution': {
+      id: '/execution'
+      path: '/execution'
+      fullPath: '/execution'
+      preLoaderRoute: typeof ExecutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audit': {
+      id: '/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +322,99 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/work-orders/': {
+      id: '/work-orders/'
+      path: '/work-orders'
+      fullPath: '/work-orders/'
+      preLoaderRoute: typeof WorkOrdersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/': {
+      id: '/products/'
+      path: '/products'
+      fullPath: '/products/'
+      preLoaderRoute: typeof ProductsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/production-orders/': {
+      id: '/production-orders/'
+      path: '/production-orders'
+      fullPath: '/production-orders/'
+      preLoaderRoute: typeof ProductionOrdersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders/': {
+      id: '/orders/'
+      path: '/orders'
+      fullPath: '/orders/'
+      preLoaderRoute: typeof OrdersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customers/': {
+      id: '/customers/'
+      path: '/customers'
+      fullPath: '/customers/'
+      preLoaderRoute: typeof CustomersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/work-orders/$woId': {
+      id: '/work-orders/$woId'
+      path: '/work-orders/$woId'
+      fullPath: '/work-orders/$woId'
+      preLoaderRoute: typeof WorkOrdersWoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/$productId': {
+      id: '/products/$productId'
+      path: '/products/$productId'
+      fullPath: '/products/$productId'
+      preLoaderRoute: typeof ProductsProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/production-orders/$poId': {
+      id: '/production-orders/$poId'
+      path: '/production-orders/$poId'
+      fullPath: '/production-orders/$poId'
+      preLoaderRoute: typeof ProductionOrdersPoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders/$orderId': {
+      id: '/orders/$orderId'
+      path: '/orders/$orderId'
+      fullPath: '/orders/$orderId'
+      preLoaderRoute: typeof OrdersOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customers/$customerId': {
+      id: '/customers/$customerId'
+      path: '/customers/$customerId'
+      fullPath: '/customers/$customerId'
+      preLoaderRoute: typeof CustomersCustomerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuditRoute: AuditRoute,
+  ExecutionRoute: ExecutionRoute,
+  InventoryRoute: InventoryRoute,
+  SettingsRoute: SettingsRoute,
+  ShipmentsRoute: ShipmentsRoute,
+  UsersRoute: UsersRoute,
+  WorkstationsRoute: WorkstationsRoute,
+  CustomersCustomerIdRoute: CustomersCustomerIdRoute,
+  OrdersOrderIdRoute: OrdersOrderIdRoute,
+  ProductionOrdersPoIdRoute: ProductionOrdersPoIdRoute,
+  ProductsProductIdRoute: ProductsProductIdRoute,
+  WorkOrdersWoIdRoute: WorkOrdersWoIdRoute,
+  CustomersIndexRoute: CustomersIndexRoute,
+  OrdersIndexRoute: OrdersIndexRoute,
+  ProductionOrdersIndexRoute: ProductionOrdersIndexRoute,
+  ProductsIndexRoute: ProductsIndexRoute,
+  WorkOrdersIndexRoute: WorkOrdersIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
