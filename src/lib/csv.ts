@@ -1,4 +1,4 @@
-export function toCSV<T extends Record<string, unknown>>(rows: T[], columns: { key: keyof T | string; label: string; get?: (row: T) => unknown }[]): string {
+export function toCSV<T>(rows: T[], columns: { key: string; label: string; get?: (row: T) => unknown }[]): string {
   const escape = (v: unknown) => {
     if (v == null) return "";
     const s = String(v);
@@ -7,7 +7,7 @@ export function toCSV<T extends Record<string, unknown>>(rows: T[], columns: { k
   };
   const header = columns.map((c) => escape(c.label)).join(",");
   const body = rows
-    .map((r) => columns.map((c) => escape(c.get ? c.get(r) : (r as Record<string, unknown>)[c.key as string])).join(","))
+    .map((r) => columns.map((c) => escape(c.get ? c.get(r) : (r as Record<string, unknown>)[c.key])).join(","))
     .join("\n");
   return `${header}\n${body}`;
 }

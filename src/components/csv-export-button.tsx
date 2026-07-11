@@ -2,12 +2,12 @@ import { Download } from "lucide-react";
 import { toast } from "sonner";
 import { toCSV, downloadCSV } from "@/lib/csv";
 
-export function CSVExportButton<T extends Record<string, unknown>>({
+export function CSVExportButton<T>({
   filename, rows, columns, label = "Export CSV",
 }: {
   filename: string;
   rows: T[];
-  columns: { key: keyof T | string; label: string; get?: (row: T) => unknown }[];
+  columns: { key: string; label: string; get?: (row: T) => unknown }[];
   label?: string;
 }) {
   return (
