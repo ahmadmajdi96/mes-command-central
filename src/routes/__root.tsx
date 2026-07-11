@@ -19,6 +19,7 @@ import { GlobalSearch } from "@/components/global-search";
 import { RoleSwitcher } from "@/components/role-switcher";
 import { LiveIndicator } from "@/components/live-indicator";
 import { EventFeed } from "@/components/event-feed";
+import { UserMenu } from "@/components/user-menu";
 
 function NotFoundComponent() {
   return (
@@ -115,6 +116,7 @@ function TopBar() {
         <GlobalSearch />
         <EventFeed />
         <RoleSwitcher />
+        <UserMenu />
       </div>
     </header>
   );
