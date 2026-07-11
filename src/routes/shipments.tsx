@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { shipments, findSO, findCustomer } from "@/lib/oms-data";
+import { shipments, findSO, findCustomer, type Shipment } from "@/lib/oms-data";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
@@ -74,24 +74,28 @@ function ShipmentsPage() {
         </div>
       </div>
 
-      <DataTable
+      <DataTable<Shipment>
         rows={filtered}
+        defaultSort={{ key: "num", dir: "asc" }}
         columns={[
-          { key: "num", label: "Shipment", render: (s) => (
+          { key: "num", label: "Shipment", sortAccessor: (s) => s.number, render: (s) => (
             <span className="flex items-center gap-2"><Truck className="h-3.5 w-3.5 text-primary" /><span className="font-mono text-xs text-primary">{s.number}</span></span>
           )},
-          { key: "so", label: "Sales Order", render: (s) => {
+          { key: "so", label: "Sales Order", sortAccessor: (s) => s.salesOrderId, render: (s) => {
             const so = findSO(s.salesOrderId);
             return so ? <Link to="/orders/$orderId" params={{ orderId: so.id }} className="font-mono text-xs text-primary hover:underline">{so.number}</Link> : "—";
           }},
-          { key: "cust", label: "Customer", render: (s) => {
+          { key: "cust", label: "Customer", sortAccessor: (s) => {
+            const so = findSO(s.salesOrderId);
+            return so ? findCustomer(so.customerId)?.name ?? "" : "";
+          }, render: (s) => {
             const so = findSO(s.salesOrderId);
             return <span className="text-sm">{so ? findCustomer(so.customerId)?.name : "—"}</span>;
           }},
-          { key: "carrier", label: "Carrier", render: (s) => <span className="text-xs">{s.carrier}</span> },
+          { key: "carrier", label: "Carrier", sortAccessor: (s) => s.carrier, render: (s) => <span className="text-xs">{s.carrier}</span> },
           { key: "tracking", label: "Tracking", render: (s) => <span className="font-mono text-xs text-muted-foreground">{s.tracking}</span> },
-          { key: "shipped", label: "Shipped", render: (s) => <span className="font-mono text-xs">{s.shippedAt ?? "—"}</span> },
-          { key: "status", label: "Status", render: (s) => <StatusPill status={s.status} /> },
+          { key: "shipped", label: "Shipped", sortAccessor: (s) => s.shippedAt ?? "", render: (s) => <span className="font-mono text-xs">{s.shippedAt ?? "—"}</span> },
+          { key: "status", label: "Status", sortAccessor: (s) => s.status, render: (s) => <StatusPill status={s.status} /> },
         ]}
       />
     </div>
