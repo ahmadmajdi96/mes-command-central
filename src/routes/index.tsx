@@ -9,8 +9,9 @@ import {
 } from "lucide-react";
 import {
   dashboardKpis, orderTrend, productionMix, salesOrders, productionOrders,
-  workOrders, findCustomer, findProduct, workstations, auditLog,
+  findCustomer, findProduct, workstations,
 } from "@/lib/oms-data";
+import { useStore } from "@/lib/store";
 import { StatusPill } from "@/components/status-pill";
 
 export const Route = createFileRoute("/")({
