@@ -5,6 +5,8 @@ import { findWorkstation, findPO, findProduct, type WorkOrder } from "@/lib/oms-
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { useStore, store } from "@/lib/store";
 import { permissionsFor } from "@/lib/roles";
 import { toast } from "sonner";
@@ -14,18 +16,34 @@ export const Route = createFileRoute("/work-orders/")({
   component: WOList,
 });
 
+type WOPreset = { q: string; status: string };
+type BulkFn = "start" | "pause" | "resume" | "complete";
+
 function WOList() {
   const workOrders = useStore((s) => s.workOrders);
   const role = useStore((s) => s.role);
   const perms = permissionsFor(role);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
+  const [confirm, setConfirm] = useState<{ ids: string[]; clear: () => void; fn: BulkFn; label: string; variant?: "destructive" } | null>(null);
+
   const filters = ["all", "pending", "in_progress", "paused", "completed", "cancelled"];
   const filtered = useMemo(() => workOrders.filter((w) => {
     if (status !== "all" && w.status !== status) return false;
     if (q) return w.number.toLowerCase().includes(q.toLowerCase()) || w.operation.toLowerCase().includes(q.toLowerCase());
     return true;
   }), [q, status, workOrders]);
+
+  const runBulk = () => {
+    if (!confirm) return;
+    const map: Record<BulkFn, (id: string) => void> = {
+      start: store.startWO, pause: store.pauseWO, resume: store.resumeWO, complete: store.completeWO,
+    };
+    confirm.ids.forEach((id) => map[confirm.fn](id));
+    toast.success(`${confirm.label} · ${confirm.ids.length} work order(s)`);
+    confirm.clear();
+    setConfirm(null);
+  };
 
   return (
     <div className="space-y-5">
@@ -51,6 +69,13 @@ function WOList() {
           />
         }
       />
+
+      <SavedPresetsBar<WOPreset>
+        pageKey="work-orders"
+        current={{ q, status }}
+        onApply={(p) => { setQ(p.q ?? ""); setStatus(p.status ?? "all"); }}
+      />
+
       <div className="glass-panel flex flex-wrap items-center gap-3 rounded-2xl p-3">
         <div className="relative flex-1 min-w-[240px]">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -71,20 +96,16 @@ function WOList() {
         getRowId={(w) => w.id}
         defaultSort={{ key: "num", dir: "asc" }}
         bulkActions={perms.operateWO ? (selected, clear) => {
-          const bulk = (label: string, fn: (id: string) => void) => {
-            selected.forEach((w) => fn(w.id));
-            toast.success(`${label} · ${selected.length} work order(s)`);
-            clear();
-          };
+          const ids = selected.map((w) => w.id);
           return (
             <>
-              <button onClick={() => bulk("Started", store.startWO)}
+              <button onClick={() => setConfirm({ ids, clear, fn: "start", label: "Start work orders" })}
                 className="rounded-md border border-success/40 bg-success/10 px-2.5 py-1 text-[11px] text-success hover:bg-success/20">Start</button>
-              <button onClick={() => bulk("Paused", store.pauseWO)}
+              <button onClick={() => setConfirm({ ids, clear, fn: "pause", label: "Pause work orders" })}
                 className="rounded-md border border-warning/40 bg-warning/10 px-2.5 py-1 text-[11px] text-warning hover:bg-warning/20">Pause</button>
-              <button onClick={() => bulk("Resumed", store.resumeWO)}
+              <button onClick={() => setConfirm({ ids, clear, fn: "resume", label: "Resume work orders" })}
                 className="rounded-md border border-info/40 bg-info/10 px-2.5 py-1 text-[11px] text-info hover:bg-info/20">Resume</button>
-              <button onClick={() => bulk("Completed", store.completeWO)}
+              <button onClick={() => setConfirm({ ids, clear, fn: "complete", label: "Complete work orders" })}
                 className="rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 text-[11px] text-primary hover:bg-primary/20">Complete</button>
               <CSVExportButton filename="work-orders-selection" rows={selected} label="Export selection"
                 columns={[
@@ -121,6 +142,15 @@ function WOList() {
           )},
           { key: "status", label: "Status", sortAccessor: (w) => w.status, render: (w) => <StatusPill status={w.status} /> },
         ]}
+      />
+
+      <ConfirmDialog
+        open={!!confirm}
+        onOpenChange={(v) => !v && setConfirm(null)}
+        title={confirm?.label ?? ""}
+        description={confirm ? `This will apply to ${confirm.ids.length} work order(s) and log an audit entry for each.` : ""}
+        confirmLabel="Apply"
+        onConfirm={runBulk}
       />
     </div>
   );
