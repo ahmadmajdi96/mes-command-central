@@ -2,8 +2,8 @@ import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import { workOrders as seedWO, auditLog as seedAudit, type WorkOrder, type AuditLog } from "./oms-data";
 
-export type FeedEventKind = "wo_start" | "wo_pause" | "wo_resume" | "wo_complete" | "wo_update" | "sop_check" | "sop_uncheck" | "sop_note";
-export interface FeedEvent { id: string; at: string; kind: FeedEventKind; message: string; entity?: string; user: string; }
+export type FeedEventKind = "wo_start" | "wo_pause" | "wo_resume" | "wo_complete" | "wo_update" | "sop_check" | "sop_uncheck" | "sop_note" | "order_bulk";
+export interface FeedEvent { id: string; at: string; kind: FeedEventKind; message: string; entity?: string; entityKind?: "wo" | "order"; href?: string; user: string; read: boolean; }
 
 export type Role = "admin" | "order_manager" | "production_planner" | "supervisor" | "operator";
 export type SopStep = { id: string; text: string };
@@ -55,10 +55,15 @@ const pushAudit = (action: string, entity: string, detail: string) => {
 };
 
 let evtCounter = 0;
-const pushEvent = (kind: FeedEventKind, message: string, entity?: string, toastVariant: "info" | "success" | "warn" = "info") => {
+const pushEvent = (
+  kind: FeedEventKind, message: string, entity?: string,
+  toastVariant: "info" | "success" | "warn" = "info",
+  entityKind: "wo" | "order" | undefined = entity?.startsWith("SO-") ? "order" : entity ? "wo" : undefined,
+) => {
+  const href = entityKind === "wo" ? `/work-orders/${entity}` : entityKind === "order" ? `/orders/${entity}` : undefined;
   const evt: FeedEvent = {
     id: `E-${++evtCounter}-${Date.now()}`,
-    at: now(), kind, message, entity, user: state.currentUser.id,
+    at: now(), kind, message, entity, entityKind, href, user: state.currentUser.id, read: false,
   };
   state.events = [evt, ...state.events].slice(0, 100);
   if (typeof window !== "undefined") {
@@ -86,6 +91,22 @@ export const store = {
   },
   clearEvents: () => {
     state.events = [];
+    emit();
+  },
+  markEventRead: (id: string) => {
+    const e = state.events.find((x) => x.id === id);
+    if (e && !e.read) { e.read = true; emit(); }
+  },
+  markAllEventsRead: () => {
+    let changed = false;
+    for (const e of state.events) if (!e.read) { e.read = true; changed = true; }
+    if (changed) emit();
+  },
+  bulkOrderStatus: (ids: string[], status: string, label: string) => {
+    for (const id of ids) {
+      pushAudit("order.bulk_update", id, `Status → ${status}`);
+    }
+    pushEvent("order_bulk", `${label}: ${ids.length} order(s)`, undefined, "success");
     emit();
   },
   updateWO: (id: string, patch: Partial<WorkOrder>, note?: string, kind: FeedEventKind = "wo_update", variant: "info" | "success" | "warn" = "info") => {
