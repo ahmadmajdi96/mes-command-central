@@ -231,7 +231,7 @@ function RequestDetailPage() {
                 <div className="flex flex-wrap items-baseline gap-2">
                   <span className="font-mono text-[11px] text-primary">{e.action}</span>
                   <span className="text-[11px] text-muted-foreground">
-                    {new Date(e.created_at).toLocaleString()}
+                    {new Date(e.at).toLocaleString()}
                   </span>
                 </div>
                 {e.detail && <div className="text-xs text-muted-foreground">{e.detail}</div>}
