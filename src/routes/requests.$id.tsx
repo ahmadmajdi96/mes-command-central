@@ -112,19 +112,7 @@ function RequestDetailPage() {
     <div className="space-y-5">
       <PageHeader
         title={r.title}
-        subtitle={
-          <span className="flex items-center gap-2">
-            <Link to="/requests" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
-              <ArrowLeft className="h-3 w-3" /> Requests
-            </Link>
-            <span className="text-muted-foreground/50">·</span>
-            <span className="font-mono text-xs text-primary">{r.number}</span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-card/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-              {r.direction === "outbound" ? <Send className="h-3 w-3" /> : <Inbox className="h-3 w-3" />}
-              {r.direction}
-            </span>
-          </span>
-        }
+        subtitle={`${r.number} · ${r.direction}`}
         actions={
           <div className="flex items-center gap-2">
             {r.direction === "outbound" && r.delivery_status !== "delivered" && (
