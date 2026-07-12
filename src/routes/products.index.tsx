@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useStore } from "@/lib/store";
 import { permissionsFor } from "@/lib/roles";
 import { useProducts, useCreateProduct, useInventoryTxns, useRealtimeInvalidate, productsKey, productTypeOptions, type Product } from "@/lib/oms-db";
+import { useCreateProductRequest, deliverRequestToQc } from "@/lib/product-requests-db";
 
 export const Route = createFileRoute("/products/")({
   head: () => ({ meta: [{ title: "Products · CORTA OMS" }] }),

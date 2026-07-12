@@ -13,6 +13,7 @@ import { Route as WorkstationsRouteImport } from './routes/workstations'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as ShipmentsRouteImport } from './routes/shipments'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as QcRouteImport } from './routes/qc'
 import { Route as MesRouteImport } from './routes/mes'
 import { Route as InventoryRouteImport } from './routes/inventory'
@@ -55,6 +56,11 @@ const ShipmentsRoute = ShipmentsRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestsRoute = RequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QcRoute = QcRouteImport.update({
@@ -183,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/inventory': typeof InventoryRoute
   '/mes': typeof MesRoute
   '/qc': typeof QcRoute
+  '/requests': typeof RequestsRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
@@ -212,6 +219,7 @@ export interface FileRoutesByTo {
   '/inventory': typeof InventoryRoute
   '/mes': typeof MesRoute
   '/qc': typeof QcRoute
+  '/requests': typeof RequestsRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/inventory': typeof InventoryRoute
   '/mes': typeof MesRoute
   '/qc': typeof QcRoute
+  '/requests': typeof RequestsRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
@@ -273,6 +282,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/mes'
     | '/qc'
+    | '/requests'
     | '/settings'
     | '/shipments'
     | '/users'
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/mes'
     | '/qc'
+    | '/requests'
     | '/settings'
     | '/shipments'
     | '/users'
@@ -331,6 +342,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/mes'
     | '/qc'
+    | '/requests'
     | '/settings'
     | '/shipments'
     | '/users'
@@ -361,6 +373,7 @@ export interface RootRouteChildren {
   InventoryRoute: typeof InventoryRoute
   MesRoute: typeof MesRoute
   QcRoute: typeof QcRoute
+  RequestsRoute: typeof RequestsRoute
   SettingsRoute: typeof SettingsRoute
   ShipmentsRoute: typeof ShipmentsRoute
   UsersRoute: typeof UsersRoute
@@ -410,6 +423,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/requests': {
+      id: '/requests'
+      path: '/requests'
+      fullPath: '/requests'
+      preLoaderRoute: typeof RequestsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/qc': {
@@ -585,6 +605,7 @@ const rootRouteChildren: RootRouteChildren = {
   InventoryRoute: InventoryRoute,
   MesRoute: MesRoute,
   QcRoute: QcRoute,
+  RequestsRoute: RequestsRoute,
   SettingsRoute: SettingsRoute,
   ShipmentsRoute: ShipmentsRoute,
   UsersRoute: UsersRoute,
