@@ -7,7 +7,7 @@ import { logAudit } from "./oms-db";
 
 type T = Database["public"]["Tables"];
 export type ProductRequest = T["product_requests"]["Row"];
-export type ProductRequestInsert = T["product_requests"]["Insert"];
+export type ProductRequestInsert = Omit<T["product_requests"]["Insert"], "number"> & { number?: string };
 export type RequestDirection = Database["public"]["Enums"]["request_direction"];
 export type RequestStatus = Database["public"]["Enums"]["request_status"];
 
@@ -33,6 +33,7 @@ export function useCreateProductRequest() {
   return useMutation({
     mutationFn: async (input: ProductRequestInsert) => {
       const { data: userRes } = await supabase.auth.getUser();
+      const insertRow = { ...input, requester_id: userRes?.user?.id ?? null } as T["product_requests"]["Insert"];
       const { data, error } = await supabase
         .from("product_requests")
         .insert({ ...input, requester_id: userRes?.user?.id ?? null })
