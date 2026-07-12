@@ -129,6 +129,10 @@ function ProductsList() {
           { name: "lead_time", label: "Lead time (days)", type: "number" },
           { name: "qc_specs", label: "QC specifications / acceptance criteria", type: "textarea",
             placeholder: "Dimensions, tolerances, critical characteristics…" },
+          { name: "qc_category_id", label: "QC product category id (optional)",
+            placeholder: "product_categories.id from CORTA QC" },
+          { name: "qc_steps", label: "QC routing steps (optional, one per line: station_id | notes)", type: "textarea",
+            placeholder: "station-uuid-1 | Incoming QC\nstation-uuid-2 | Assembly check" },
           { name: "send_to_qc", label: "Send new-product request to CORTA QC", type: "select",
             options: [{ value: "yes", label: "Yes — request QC review" }, { value: "no", label: "No" }] },
         ]}
@@ -141,25 +145,41 @@ function ProductsList() {
           toast.success("Product created");
 
           if (v.send_to_qc !== "no") {
+            const steps = String(v.qc_steps || "")
+              .split("\n")
+              .map((l: string) => l.trim())
+              .filter(Boolean)
+              .map((line: string, i: number) => {
+                const [station_id, ...rest] = line.split("|").map((s) => s.trim());
+                return { sequence: i + 1, station_id: station_id || null, notes: rest.join(" | ") || null };
+              });
+
             const req = await createRequest.mutateAsync({
               kind: "new_product",
               direction: "outbound",
               target_system: "CORTA QC System",
               source_system: "CORTA OMS",
-              title: `New product: ${product.sku} — ${product.name}`,
+              title: `New product: ${product.name} (${product.sku})`,
               description: v.qc_specs || v.description || null,
               product_id: product.id,
               payload: {
-                sku: product.sku,
-                name: product.name,
-                description: product.description,
-                uom: product.uom,
-                type: product.type,
-                standard_cost: product.standard_cost,
-                lead_time: product.lead_time,
-                qc_specs: v.qc_specs || null,
+                product: {
+                  sku: product.sku,
+                  name: product.name,
+                  description: product.description,
+                  category_id: v.qc_category_id || null,
+                },
+                steps,
+                meta: {
+                  uom: product.uom,
+                  type: product.type,
+                  standard_cost: product.standard_cost,
+                  lead_time: product.lead_time,
+                  qc_specs: v.qc_specs || null,
+                },
               } as never,
             });
+
             toast.success(`Request ${req.number} created — delivering to QC…`);
             deliverRequestToQc(req.id, req.payload).then((res) => {
               if (res.ok) toast.success(`Delivered ${req.number} to QC`);
