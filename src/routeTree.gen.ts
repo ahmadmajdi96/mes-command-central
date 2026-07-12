@@ -28,6 +28,11 @@ import { Route as ProductsProductIdRouteImport } from './routes/products.$produc
 import { Route as ProductionOrdersPoIdRouteImport } from './routes/production-orders.$poId'
 import { Route as OrdersOrderIdRouteImport } from './routes/orders.$orderId'
 import { Route as CustomersCustomerIdRouteImport } from './routes/customers.$customerId'
+import { Route as ApiPublicWebhooksQcRouteImport } from './routes/api/public/webhooks.qc'
+import { Route as ApiPublicWebhooksMesRouteImport } from './routes/api/public/webhooks.mes'
+import { Route as ApiPublicWebhooksCommandCenterRouteImport } from './routes/api/public/webhooks.command-center'
+import { Route as ApiPublicOmsWorkOrdersRouteImport } from './routes/api/public/oms.work-orders'
+import { Route as ApiPublicOmsOrdersRouteImport } from './routes/api/public/oms.orders'
 
 const WorkstationsRoute = WorkstationsRouteImport.update({
   id: '/workstations',
@@ -124,6 +129,32 @@ const CustomersCustomerIdRoute = CustomersCustomerIdRouteImport.update({
   path: '/customers/$customerId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhooksQcRoute = ApiPublicWebhooksQcRouteImport.update({
+  id: '/api/public/webhooks/qc',
+  path: '/api/public/webhooks/qc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicWebhooksMesRoute = ApiPublicWebhooksMesRouteImport.update({
+  id: '/api/public/webhooks/mes',
+  path: '/api/public/webhooks/mes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicWebhooksCommandCenterRoute =
+  ApiPublicWebhooksCommandCenterRouteImport.update({
+    id: '/api/public/webhooks/command-center',
+    path: '/api/public/webhooks/command-center',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicOmsWorkOrdersRoute = ApiPublicOmsWorkOrdersRouteImport.update({
+  id: '/api/public/oms/work-orders',
+  path: '/api/public/oms/work-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOmsOrdersRoute = ApiPublicOmsOrdersRouteImport.update({
+  id: '/api/public/oms/orders',
+  path: '/api/public/oms/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -145,6 +176,11 @@ export interface FileRoutesByFullPath {
   '/production-orders/': typeof ProductionOrdersIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/work-orders/': typeof WorkOrdersIndexRoute
+  '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
+  '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
+  '/api/public/webhooks/command-center': typeof ApiPublicWebhooksCommandCenterRoute
+  '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
+  '/api/public/webhooks/qc': typeof ApiPublicWebhooksQcRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -166,6 +202,11 @@ export interface FileRoutesByTo {
   '/production-orders': typeof ProductionOrdersIndexRoute
   '/products': typeof ProductsIndexRoute
   '/work-orders': typeof WorkOrdersIndexRoute
+  '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
+  '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
+  '/api/public/webhooks/command-center': typeof ApiPublicWebhooksCommandCenterRoute
+  '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
+  '/api/public/webhooks/qc': typeof ApiPublicWebhooksQcRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -188,6 +229,11 @@ export interface FileRoutesById {
   '/production-orders/': typeof ProductionOrdersIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/work-orders/': typeof WorkOrdersIndexRoute
+  '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
+  '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
+  '/api/public/webhooks/command-center': typeof ApiPublicWebhooksCommandCenterRoute
+  '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
+  '/api/public/webhooks/qc': typeof ApiPublicWebhooksQcRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -211,6 +257,11 @@ export interface FileRouteTypes {
     | '/production-orders/'
     | '/products/'
     | '/work-orders/'
+    | '/api/public/oms/orders'
+    | '/api/public/oms/work-orders'
+    | '/api/public/webhooks/command-center'
+    | '/api/public/webhooks/mes'
+    | '/api/public/webhooks/qc'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -232,6 +283,11 @@ export interface FileRouteTypes {
     | '/production-orders'
     | '/products'
     | '/work-orders'
+    | '/api/public/oms/orders'
+    | '/api/public/oms/work-orders'
+    | '/api/public/webhooks/command-center'
+    | '/api/public/webhooks/mes'
+    | '/api/public/webhooks/qc'
   id:
     | '__root__'
     | '/'
@@ -253,6 +309,11 @@ export interface FileRouteTypes {
     | '/production-orders/'
     | '/products/'
     | '/work-orders/'
+    | '/api/public/oms/orders'
+    | '/api/public/oms/work-orders'
+    | '/api/public/webhooks/command-center'
+    | '/api/public/webhooks/mes'
+    | '/api/public/webhooks/qc'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -275,6 +336,11 @@ export interface RootRouteChildren {
   ProductionOrdersIndexRoute: typeof ProductionOrdersIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
   WorkOrdersIndexRoute: typeof WorkOrdersIndexRoute
+  ApiPublicOmsOrdersRoute: typeof ApiPublicOmsOrdersRoute
+  ApiPublicOmsWorkOrdersRoute: typeof ApiPublicOmsWorkOrdersRoute
+  ApiPublicWebhooksCommandCenterRoute: typeof ApiPublicWebhooksCommandCenterRoute
+  ApiPublicWebhooksMesRoute: typeof ApiPublicWebhooksMesRoute
+  ApiPublicWebhooksQcRoute: typeof ApiPublicWebhooksQcRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -412,6 +478,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomersCustomerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/qc': {
+      id: '/api/public/webhooks/qc'
+      path: '/api/public/webhooks/qc'
+      fullPath: '/api/public/webhooks/qc'
+      preLoaderRoute: typeof ApiPublicWebhooksQcRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/mes': {
+      id: '/api/public/webhooks/mes'
+      path: '/api/public/webhooks/mes'
+      fullPath: '/api/public/webhooks/mes'
+      preLoaderRoute: typeof ApiPublicWebhooksMesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/command-center': {
+      id: '/api/public/webhooks/command-center'
+      path: '/api/public/webhooks/command-center'
+      fullPath: '/api/public/webhooks/command-center'
+      preLoaderRoute: typeof ApiPublicWebhooksCommandCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/oms/work-orders': {
+      id: '/api/public/oms/work-orders'
+      path: '/api/public/oms/work-orders'
+      fullPath: '/api/public/oms/work-orders'
+      preLoaderRoute: typeof ApiPublicOmsWorkOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/oms/orders': {
+      id: '/api/public/oms/orders'
+      path: '/api/public/oms/orders'
+      fullPath: '/api/public/oms/orders'
+      preLoaderRoute: typeof ApiPublicOmsOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -435,6 +536,11 @@ const rootRouteChildren: RootRouteChildren = {
   ProductionOrdersIndexRoute: ProductionOrdersIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
   WorkOrdersIndexRoute: WorkOrdersIndexRoute,
+  ApiPublicOmsOrdersRoute: ApiPublicOmsOrdersRoute,
+  ApiPublicOmsWorkOrdersRoute: ApiPublicOmsWorkOrdersRoute,
+  ApiPublicWebhooksCommandCenterRoute: ApiPublicWebhooksCommandCenterRoute,
+  ApiPublicWebhooksMesRoute: ApiPublicWebhooksMesRoute,
+  ApiPublicWebhooksQcRoute: ApiPublicWebhooksQcRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
