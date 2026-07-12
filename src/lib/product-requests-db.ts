@@ -82,11 +82,29 @@ export async function deliverRequestToQc(requestId: string, payload: unknown) {
     return { ok: false, error: "QC base URL not configured" };
   }
 
-  const res = await pushToSister(settings.base_url, {
-    type: "new_product_request",
-    request_id: requestId,
-    payload,
-  });
+  // Load the request row to build a payload that matches the QC system's
+  // public.requests contract: { kind, title, description, requester_id, payload }.
+  const { data: req } = await supabase
+    .from("product_requests")
+    .select("*")
+    .eq("id", requestId)
+    .single();
+
+  const qcPayload = {
+    kind: "new_product" as const,
+    title: req?.title ?? "New product request",
+    description: req?.description ?? null,
+    requester_id: uid,
+    assignee_id: null,
+    payload: payload,
+    source: {
+      system: "CORTA OMS",
+      request_id: requestId,
+      number: req?.number ?? null,
+    },
+  };
+
+  const res = await pushToSister(settings.base_url, qcPayload);
 
   await supabase.from("product_requests").update({
     delivery_status: res.ok ? "delivered" : "failed",
@@ -97,7 +115,7 @@ export async function deliverRequestToQc(requestId: string, payload: unknown) {
     system: "qc",
     direction: "outbound",
     event_type: "new_product_request",
-    payload: payload as never,
+    payload: qcPayload as never,
     status: res.ok ? "delivered" : "failed",
   } as never);
 
