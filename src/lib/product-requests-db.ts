@@ -36,7 +36,7 @@ export function useCreateProductRequest() {
       const insertRow = { ...input, requester_id: userRes?.user?.id ?? null } as T["product_requests"]["Insert"];
       const { data, error } = await supabase
         .from("product_requests")
-        .insert({ ...input, requester_id: userRes?.user?.id ?? null })
+        .insert({ ...input, requester_id: userRes?.user?.id ?? null } as never)
         .select()
         .single();
       if (error) throw error;
