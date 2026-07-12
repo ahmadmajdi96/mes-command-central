@@ -127,16 +127,48 @@ function ProductsList() {
             options: productTypeOptions.map((t) => ({ value: t, label: t })) },
           { name: "standard_cost", label: "Standard cost", type: "number", step: 0.01 },
           { name: "lead_time", label: "Lead time (days)", type: "number" },
+          { name: "qc_specs", label: "QC specifications / acceptance criteria", type: "textarea",
+            placeholder: "Dimensions, tolerances, critical characteristics…" },
+          { name: "send_to_qc", label: "Send new-product request to CORTA QC", type: "select",
+            options: [{ value: "yes", label: "Yes — request QC review" }, { value: "no", label: "No" }] },
         ]}
         onSubmit={async (v: any) => {
-          await createProduct.mutateAsync({
+          const product = await createProduct.mutateAsync({
             sku: v.sku, name: v.name, description: v.description || null,
             uom: v.uom || "EA", type: v.type || "finished",
             standard_cost: v.standard_cost || 0, lead_time: v.lead_time || 0,
           });
           toast.success("Product created");
+
+          if (v.send_to_qc !== "no") {
+            const req = await createRequest.mutateAsync({
+              kind: "new_product",
+              direction: "outbound",
+              target_system: "CORTA QC System",
+              source_system: "CORTA OMS",
+              title: `New product: ${product.sku} — ${product.name}`,
+              description: v.qc_specs || v.description || null,
+              product_id: product.id,
+              payload: {
+                sku: product.sku,
+                name: product.name,
+                description: product.description,
+                uom: product.uom,
+                type: product.type,
+                standard_cost: product.standard_cost,
+                lead_time: product.lead_time,
+                qc_specs: v.qc_specs || null,
+              } as never,
+            });
+            toast.success(`Request ${req.number} created — delivering to QC…`);
+            deliverRequestToQc(req.id, req.payload).then((res) => {
+              if (res.ok) toast.success(`Delivered ${req.number} to QC`);
+              else toast.warning(`Request ${req.number} saved — delivery pending (${"error" in res ? res.error : "unknown"})`);
+            });
+          }
         }}
       />
+
     </div>
   );
 }
