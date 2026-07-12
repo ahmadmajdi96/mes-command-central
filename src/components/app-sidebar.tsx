@@ -16,6 +16,8 @@ import {
   Activity,
   ShieldCheck,
   Gauge,
+  Send,
+
 } from "lucide-react";
 import {
   Sidebar,
@@ -51,7 +53,9 @@ const production = [
 const integrations = [
   { title: "MES Hub", url: "/mes", icon: Activity },
   { title: "Quality Hub", url: "/qc", icon: ShieldCheck },
+  { title: "Requests", url: "/requests", icon: Send },
 ];
+
 
 const materials = [
   { title: "Inventory", url: "/inventory", icon: Boxes },
