@@ -13,6 +13,9 @@ import {
   Settings,
   History,
   Wrench,
+  Activity,
+  ShieldCheck,
+  Gauge,
 } from "lucide-react";
 import {
   Sidebar,
@@ -27,7 +30,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const overview = [{ title: "Dashboard", url: "/", icon: LayoutDashboard }];
+const overview = [
+  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Command Center", url: "/command-center", icon: Gauge },
+];
 
 const orders = [
   { title: "Sales Orders", url: "/orders", icon: ShoppingCart },
@@ -42,6 +48,11 @@ const production = [
   { title: "Workstations", url: "/workstations", icon: Cpu },
 ];
 
+const integrations = [
+  { title: "MES Hub", url: "/mes", icon: Activity },
+  { title: "Quality Hub", url: "/qc", icon: ShieldCheck },
+];
+
 const materials = [
   { title: "Inventory", url: "/inventory", icon: Boxes },
   { title: "Products", url: "/products", icon: Package },
@@ -52,6 +63,7 @@ const platform = [
   { title: "Audit Log", url: "/audit", icon: History },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
+
 
 export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
@@ -105,6 +117,7 @@ export function AppSidebar() {
         {renderGroup("Overview", overview)}
         {renderGroup("Orders", orders)}
         {renderGroup("Production", production)}
+        {renderGroup("Integrations", integrations)}
         {renderGroup("Materials", materials)}
         {renderGroup("Platform", platform)}
       </SidebarContent>
