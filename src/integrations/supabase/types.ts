@@ -80,6 +80,128 @@ export type Database = {
         }
         Relationships: []
       }
+      downtime_events: {
+        Row: {
+          category: string | null
+          created_at: string
+          ended_at: string | null
+          external_id: string | null
+          id: string
+          minutes: number | null
+          notes: string | null
+          reason: string
+          started_at: string
+          updated_at: string
+          work_order_id: string | null
+          workstation: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          ended_at?: string | null
+          external_id?: string | null
+          id?: string
+          minutes?: number | null
+          notes?: string | null
+          reason: string
+          started_at?: string
+          updated_at?: string
+          work_order_id?: string | null
+          workstation?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          ended_at?: string | null
+          external_id?: string | null
+          id?: string
+          minutes?: number | null
+          notes?: string | null
+          reason?: string
+          started_at?: string
+          updated_at?: string
+          work_order_id?: string | null
+          workstation?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "downtime_events_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_events: {
+        Row: {
+          created_at: string
+          direction: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          source: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          direction: string
+          error?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          source: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          direction?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          source?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      integration_settings: {
+        Row: {
+          base_url: string | null
+          created_at: string
+          enabled: boolean
+          id: string
+          last_status: string | null
+          last_sync_at: string | null
+          system: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          base_url?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_status?: string | null
+          last_sync_at?: string | null
+          system: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          base_url?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_status?: string | null
+          last_sync_at?: string | null
+          system?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       inventory_transactions: {
         Row: {
           at: string
@@ -131,6 +253,105 @@ export type Database = {
           },
           {
             foreignKeyName: "inventory_transactions_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kpi_snapshots: {
+        Row: {
+          captured_at: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          metric: string
+          source: string
+          unit: string | null
+          value: number
+        }
+        Insert: {
+          captured_at?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          metric: string
+          source: string
+          unit?: string | null
+          value: number
+        }
+        Update: {
+          captured_at?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          metric?: string
+          source?: string
+          unit?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
+      non_conformances: {
+        Row: {
+          closed_at: string | null
+          created_at: string
+          description: string | null
+          disposition: string | null
+          external_id: string | null
+          id: string
+          number: string
+          product_id: string | null
+          raised_at: string
+          raised_by: string | null
+          severity: string
+          status: string
+          updated_at: string
+          work_order_id: string | null
+        }
+        Insert: {
+          closed_at?: string | null
+          created_at?: string
+          description?: string | null
+          disposition?: string | null
+          external_id?: string | null
+          id?: string
+          number: string
+          product_id?: string | null
+          raised_at?: string
+          raised_by?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+          work_order_id?: string | null
+        }
+        Update: {
+          closed_at?: string | null
+          created_at?: string
+          description?: string | null
+          disposition?: string | null
+          external_id?: string | null
+          id?: string
+          number?: string
+          product_id?: string | null
+          raised_at?: string
+          raised_by?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "non_conformances_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "non_conformances_work_order_id_fkey"
             columns: ["work_order_id"]
             isOneToOne: false
             referencedRelation: "work_orders"
@@ -194,6 +415,69 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      qc_inspections: {
+        Row: {
+          created_at: string
+          defects_found: number | null
+          external_id: string | null
+          id: string
+          inspected_at: string | null
+          inspection_type: string
+          inspector: string | null
+          notes: string | null
+          product_id: string | null
+          sample_size: number | null
+          status: string
+          updated_at: string
+          work_order_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          defects_found?: number | null
+          external_id?: string | null
+          id?: string
+          inspected_at?: string | null
+          inspection_type?: string
+          inspector?: string | null
+          notes?: string | null
+          product_id?: string | null
+          sample_size?: number | null
+          status?: string
+          updated_at?: string
+          work_order_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          defects_found?: number | null
+          external_id?: string | null
+          id?: string
+          inspected_at?: string | null
+          inspection_type?: string
+          inspector?: string | null
+          notes?: string | null
+          product_id?: string | null
+          sample_size?: number | null
+          status?: string
+          updated_at?: string
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qc_inspections_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qc_inspections_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sales_order_lines: {
         Row: {
@@ -411,6 +695,50 @@ export type Database = {
           {
             foreignKeyName: "sop_steps_work_order_id_fkey"
             columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      station_status: {
+        Row: {
+          current_wo_id: string | null
+          id: string
+          last_heartbeat_at: string
+          name: string
+          oee: number | null
+          operator: string | null
+          state: string
+          station_code: string
+          updated_at: string
+        }
+        Insert: {
+          current_wo_id?: string | null
+          id?: string
+          last_heartbeat_at?: string
+          name: string
+          oee?: number | null
+          operator?: string | null
+          state?: string
+          station_code: string
+          updated_at?: string
+        }
+        Update: {
+          current_wo_id?: string | null
+          id?: string
+          last_heartbeat_at?: string
+          name?: string
+          oee?: number | null
+          operator?: string | null
+          state?: string
+          station_code?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "station_status_current_wo_id_fkey"
+            columns: ["current_wo_id"]
             isOneToOne: false
             referencedRelation: "work_orders"
             referencedColumns: ["id"]
