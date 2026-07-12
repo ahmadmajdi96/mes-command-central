@@ -13,8 +13,11 @@ import { Route as WorkstationsRouteImport } from './routes/workstations'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as ShipmentsRouteImport } from './routes/shipments'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as QcRouteImport } from './routes/qc'
+import { Route as MesRouteImport } from './routes/mes'
 import { Route as InventoryRouteImport } from './routes/inventory'
 import { Route as ExecutionRouteImport } from './routes/execution'
+import { Route as CommandCenterRouteImport } from './routes/command-center'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as IndexRouteImport } from './routes/index'
@@ -54,6 +57,16 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QcRoute = QcRouteImport.update({
+  id: '/qc',
+  path: '/qc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MesRoute = MesRouteImport.update({
+  id: '/mes',
+  path: '/mes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InventoryRoute = InventoryRouteImport.update({
   id: '/inventory',
   path: '/inventory',
@@ -62,6 +75,11 @@ const InventoryRoute = InventoryRouteImport.update({
 const ExecutionRoute = ExecutionRouteImport.update({
   id: '/execution',
   path: '/execution',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommandCenterRoute = CommandCenterRouteImport.update({
+  id: '/command-center',
+  path: '/command-center',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -160,8 +178,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/command-center': typeof CommandCenterRoute
   '/execution': typeof ExecutionRoute
   '/inventory': typeof InventoryRoute
+  '/mes': typeof MesRoute
+  '/qc': typeof QcRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
@@ -186,8 +207,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/command-center': typeof CommandCenterRoute
   '/execution': typeof ExecutionRoute
   '/inventory': typeof InventoryRoute
+  '/mes': typeof MesRoute
+  '/qc': typeof QcRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
@@ -213,8 +237,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/command-center': typeof CommandCenterRoute
   '/execution': typeof ExecutionRoute
   '/inventory': typeof InventoryRoute
+  '/mes': typeof MesRoute
+  '/qc': typeof QcRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
@@ -241,8 +268,11 @@ export interface FileRouteTypes {
     | '/'
     | '/audit'
     | '/auth'
+    | '/command-center'
     | '/execution'
     | '/inventory'
+    | '/mes'
+    | '/qc'
     | '/settings'
     | '/shipments'
     | '/users'
@@ -267,8 +297,11 @@ export interface FileRouteTypes {
     | '/'
     | '/audit'
     | '/auth'
+    | '/command-center'
     | '/execution'
     | '/inventory'
+    | '/mes'
+    | '/qc'
     | '/settings'
     | '/shipments'
     | '/users'
@@ -293,8 +326,11 @@ export interface FileRouteTypes {
     | '/'
     | '/audit'
     | '/auth'
+    | '/command-center'
     | '/execution'
     | '/inventory'
+    | '/mes'
+    | '/qc'
     | '/settings'
     | '/shipments'
     | '/users'
@@ -320,8 +356,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuditRoute: typeof AuditRoute
   AuthRoute: typeof AuthRoute
+  CommandCenterRoute: typeof CommandCenterRoute
   ExecutionRoute: typeof ExecutionRoute
   InventoryRoute: typeof InventoryRoute
+  MesRoute: typeof MesRoute
+  QcRoute: typeof QcRoute
   SettingsRoute: typeof SettingsRoute
   ShipmentsRoute: typeof ShipmentsRoute
   UsersRoute: typeof UsersRoute
@@ -373,6 +412,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/qc': {
+      id: '/qc'
+      path: '/qc'
+      fullPath: '/qc'
+      preLoaderRoute: typeof QcRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mes': {
+      id: '/mes'
+      path: '/mes'
+      fullPath: '/mes'
+      preLoaderRoute: typeof MesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inventory': {
       id: '/inventory'
       path: '/inventory'
@@ -385,6 +438,13 @@ declare module '@tanstack/react-router' {
       path: '/execution'
       fullPath: '/execution'
       preLoaderRoute: typeof ExecutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/command-center': {
+      id: '/command-center'
+      path: '/command-center'
+      fullPath: '/command-center'
+      preLoaderRoute: typeof CommandCenterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -520,8 +580,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuditRoute: AuditRoute,
   AuthRoute: AuthRoute,
+  CommandCenterRoute: CommandCenterRoute,
   ExecutionRoute: ExecutionRoute,
   InventoryRoute: InventoryRoute,
+  MesRoute: MesRoute,
+  QcRoute: QcRoute,
   SettingsRoute: SettingsRoute,
   ShipmentsRoute: ShipmentsRoute,
   UsersRoute: UsersRoute,
