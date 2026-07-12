@@ -28,6 +28,7 @@ import { Route as ProductionOrdersIndexRouteImport } from './routes/production-o
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as CustomersIndexRouteImport } from './routes/customers.index'
 import { Route as WorkOrdersWoIdRouteImport } from './routes/work-orders.$woId'
+import { Route as RequestsIdRouteImport } from './routes/requests.$id'
 import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
 import { Route as ProductionOrdersPoIdRouteImport } from './routes/production-orders.$poId'
 import { Route as OrdersOrderIdRouteImport } from './routes/orders.$orderId'
@@ -133,6 +134,11 @@ const WorkOrdersWoIdRoute = WorkOrdersWoIdRouteImport.update({
   path: '/work-orders/$woId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RequestsIdRoute = RequestsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => RequestsRoute,
+} as any)
 const ProductsProductIdRoute = ProductsProductIdRouteImport.update({
   id: '/products/$productId',
   path: '/products/$productId',
@@ -189,7 +195,7 @@ export interface FileRoutesByFullPath {
   '/inventory': typeof InventoryRoute
   '/mes': typeof MesRoute
   '/qc': typeof QcRoute
-  '/requests': typeof RequestsRoute
+  '/requests': typeof RequestsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
@@ -198,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/orders/$orderId': typeof OrdersOrderIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
+  '/requests/$id': typeof RequestsIdRoute
   '/work-orders/$woId': typeof WorkOrdersWoIdRoute
   '/customers/': typeof CustomersIndexRoute
   '/orders/': typeof OrdersIndexRoute
@@ -219,7 +226,7 @@ export interface FileRoutesByTo {
   '/inventory': typeof InventoryRoute
   '/mes': typeof MesRoute
   '/qc': typeof QcRoute
-  '/requests': typeof RequestsRoute
+  '/requests': typeof RequestsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
@@ -228,6 +235,7 @@ export interface FileRoutesByTo {
   '/orders/$orderId': typeof OrdersOrderIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
+  '/requests/$id': typeof RequestsIdRoute
   '/work-orders/$woId': typeof WorkOrdersWoIdRoute
   '/customers': typeof CustomersIndexRoute
   '/orders': typeof OrdersIndexRoute
@@ -250,7 +258,7 @@ export interface FileRoutesById {
   '/inventory': typeof InventoryRoute
   '/mes': typeof MesRoute
   '/qc': typeof QcRoute
-  '/requests': typeof RequestsRoute
+  '/requests': typeof RequestsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
@@ -259,6 +267,7 @@ export interface FileRoutesById {
   '/orders/$orderId': typeof OrdersOrderIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
+  '/requests/$id': typeof RequestsIdRoute
   '/work-orders/$woId': typeof WorkOrdersWoIdRoute
   '/customers/': typeof CustomersIndexRoute
   '/orders/': typeof OrdersIndexRoute
@@ -291,6 +300,7 @@ export interface FileRouteTypes {
     | '/orders/$orderId'
     | '/production-orders/$poId'
     | '/products/$productId'
+    | '/requests/$id'
     | '/work-orders/$woId'
     | '/customers/'
     | '/orders/'
@@ -321,6 +331,7 @@ export interface FileRouteTypes {
     | '/orders/$orderId'
     | '/production-orders/$poId'
     | '/products/$productId'
+    | '/requests/$id'
     | '/work-orders/$woId'
     | '/customers'
     | '/orders'
@@ -351,6 +362,7 @@ export interface FileRouteTypes {
     | '/orders/$orderId'
     | '/production-orders/$poId'
     | '/products/$productId'
+    | '/requests/$id'
     | '/work-orders/$woId'
     | '/customers/'
     | '/orders/'
@@ -373,7 +385,7 @@ export interface RootRouteChildren {
   InventoryRoute: typeof InventoryRoute
   MesRoute: typeof MesRoute
   QcRoute: typeof QcRoute
-  RequestsRoute: typeof RequestsRoute
+  RequestsRoute: typeof RequestsRouteWithChildren
   SettingsRoute: typeof SettingsRoute
   ShipmentsRoute: typeof ShipmentsRoute
   UsersRoute: typeof UsersRoute
@@ -530,6 +542,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkOrdersWoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/requests/$id': {
+      id: '/requests/$id'
+      path: '/$id'
+      fullPath: '/requests/$id'
+      preLoaderRoute: typeof RequestsIdRouteImport
+      parentRoute: typeof RequestsRoute
+    }
     '/products/$productId': {
       id: '/products/$productId'
       path: '/products/$productId'
@@ -596,6 +615,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface RequestsRouteChildren {
+  RequestsIdRoute: typeof RequestsIdRoute
+}
+
+const RequestsRouteChildren: RequestsRouteChildren = {
+  RequestsIdRoute: RequestsIdRoute,
+}
+
+const RequestsRouteWithChildren = RequestsRoute._addFileChildren(
+  RequestsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuditRoute: AuditRoute,
@@ -605,7 +636,7 @@ const rootRouteChildren: RootRouteChildren = {
   InventoryRoute: InventoryRoute,
   MesRoute: MesRoute,
   QcRoute: QcRoute,
-  RequestsRoute: RequestsRoute,
+  RequestsRoute: RequestsRouteWithChildren,
   SettingsRoute: SettingsRoute,
   ShipmentsRoute: ShipmentsRoute,
   UsersRoute: UsersRoute,
