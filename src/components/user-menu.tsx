@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { LogOut, User as UserIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useSession, signOut } from "@/hooks/use-session";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
@@ -9,7 +10,9 @@ import { toast } from "sonner";
 
 export function UserMenu() {
   const { user, loading } = useSession();
-  if (loading) return null;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted || loading) return <div className="h-9 w-9" aria-hidden />;
   if (!user) {
     return (
       <Link to="/auth"
