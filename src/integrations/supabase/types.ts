@@ -359,6 +359,74 @@ export type Database = {
           },
         ]
       }
+      product_requests: {
+        Row: {
+          created_at: string
+          delivery_error: string | null
+          delivery_status: string | null
+          description: string | null
+          direction: Database["public"]["Enums"]["request_direction"]
+          external_ref: string | null
+          id: string
+          kind: Database["public"]["Enums"]["request_kind"]
+          number: string
+          payload: Json
+          product_id: string | null
+          requester_id: string | null
+          source_system: string | null
+          status: Database["public"]["Enums"]["request_status"]
+          target_system: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_error?: string | null
+          delivery_status?: string | null
+          description?: string | null
+          direction: Database["public"]["Enums"]["request_direction"]
+          external_ref?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["request_kind"]
+          number: string
+          payload?: Json
+          product_id?: string | null
+          requester_id?: string | null
+          source_system?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          target_system: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          delivery_error?: string | null
+          delivery_status?: string | null
+          description?: string | null
+          direction?: Database["public"]["Enums"]["request_direction"]
+          external_ref?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["request_kind"]
+          number?: string
+          payload?: Json
+          product_id?: string | null
+          requester_id?: string | null
+          source_system?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          target_system?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_requests_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           created_at: string
@@ -843,6 +911,16 @@ export type Database = {
         | "production_planner"
         | "supervisor"
         | "operator"
+      request_direction: "outbound" | "inbound"
+      request_kind: "new_product" | "other"
+      request_status:
+        | "pending"
+        | "in_review"
+        | "approved"
+        | "rejected"
+        | "completed"
+        | "cancelled"
+        | "failed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -976,6 +1054,17 @@ export const Constants = {
         "production_planner",
         "supervisor",
         "operator",
+      ],
+      request_direction: ["outbound", "inbound"],
+      request_kind: ["new_product", "other"],
+      request_status: [
+        "pending",
+        "in_review",
+        "approved",
+        "rejected",
+        "completed",
+        "cancelled",
+        "failed",
       ],
     },
   },
