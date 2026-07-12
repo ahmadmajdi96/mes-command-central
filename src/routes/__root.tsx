@@ -4,6 +4,8 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
+  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -20,6 +22,8 @@ import { RoleSwitcher } from "@/components/role-switcher";
 import { LiveIndicator } from "@/components/live-indicator";
 import { EventFeed } from "@/components/event-feed";
 import { UserMenu } from "@/components/user-menu";
+import { useSession } from "@/hooks/use-session";
+
 
 function NotFoundComponent() {
   return (
@@ -124,20 +128,42 @@ function TopBar() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { session, loading } = useSession();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const isAuthRoute = pathname === "/auth";
+
+  useEffect(() => {
+    if (!loading && !session && !isAuthRoute) {
+      navigate({ to: "/auth", replace: true });
+    }
+  }, [loading, session, isAuthRoute, navigate]);
+
   return (
     <QueryClientProvider client={queryClient}>
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full">
-          <AppSidebar />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <TopBar />
-            <main className="flex-1 p-4 sm:p-6">
-              <Outlet />
-            </main>
+      {isAuthRoute ? (
+        <Outlet />
+      ) : !session ? (
+        <div className="flex min-h-screen items-center justify-center bg-background">
+          <div className="text-sm text-muted-foreground">
+            {loading ? "Loading…" : "Redirecting to sign in…"}
           </div>
         </div>
-      </SidebarProvider>
+      ) : (
+        <SidebarProvider>
+          <div className="flex min-h-screen w-full">
+            <AppSidebar />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <TopBar />
+              <main className="flex-1 p-4 sm:p-6">
+                <Outlet />
+              </main>
+            </div>
+          </div>
+        </SidebarProvider>
+      )}
       <Toaster theme="dark" position="bottom-right" richColors />
     </QueryClientProvider>
   );
 }
+
