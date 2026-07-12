@@ -155,7 +155,7 @@ function RequestDetailPage() {
         <Field label="Target system"><span className="text-sm">{r.target_system}</span></Field>
         <Field label="Source system"><span className="text-sm">{r.source_system ?? "—"}</span></Field>
         <Field label="Assignee">
-          <span className="font-mono text-xs text-muted-foreground">{r.assignee_id ?? "unassigned"}</span>
+          <span className="font-mono text-xs text-muted-foreground">{(r as { assignee_id?: string | null }).assignee_id ?? "unassigned"}</span>
         </Field>
         <Field label="Requester">
           <span className="font-mono text-xs text-muted-foreground">{r.requester_id ?? "—"}</span>
