@@ -29,6 +29,7 @@ function ProductsList() {
   const { data: products = [], isLoading } = useProducts();
   const { data: txns = [] } = useInventoryTxns();
   const createProduct = useCreateProduct();
+  const createRequest = useCreateProductRequest();
 
   const onHandOf = (id: string) => txns.filter((t) => t.product_id === id).reduce((s, t) => s + Number(t.qty), 0);
 
