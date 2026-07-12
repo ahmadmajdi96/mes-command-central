@@ -25,7 +25,7 @@ export const Route = createFileRoute("/requests/$id")({
 
 type AuditRow = {
   id: string;
-  created_at: string;
+  at: string;
   action: string;
   entity: string;
   detail: string | null;
@@ -54,11 +54,11 @@ function useRequestEvents(id: string) {
     queryFn: async (): Promise<AuditRow[]> => {
       const { data, error } = await supabase
         .from("audit_log")
-        .select("id,created_at,action,entity,detail,user_id")
+        .select("id,at,action,entity,detail,user_id")
         .eq("entity", id)
-        .order("created_at", { ascending: true });
+        .order("at", { ascending: true });
       if (error) throw error;
-      return (data ?? []) as AuditRow[];
+      return (data ?? []) as unknown as AuditRow[];
     },
   });
 }
