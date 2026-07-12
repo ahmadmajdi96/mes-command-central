@@ -13,8 +13,11 @@ import { Route as WorkstationsRouteImport } from './routes/workstations'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as ShipmentsRouteImport } from './routes/shipments'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as QcRouteImport } from './routes/qc'
+import { Route as MesRouteImport } from './routes/mes'
 import { Route as InventoryRouteImport } from './routes/inventory'
 import { Route as ExecutionRouteImport } from './routes/execution'
+import { Route as CommandCenterRouteImport } from './routes/command-center'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as IndexRouteImport } from './routes/index'
@@ -28,6 +31,11 @@ import { Route as ProductsProductIdRouteImport } from './routes/products.$produc
 import { Route as ProductionOrdersPoIdRouteImport } from './routes/production-orders.$poId'
 import { Route as OrdersOrderIdRouteImport } from './routes/orders.$orderId'
 import { Route as CustomersCustomerIdRouteImport } from './routes/customers.$customerId'
+import { Route as ApiPublicWebhooksQcRouteImport } from './routes/api/public/webhooks.qc'
+import { Route as ApiPublicWebhooksMesRouteImport } from './routes/api/public/webhooks.mes'
+import { Route as ApiPublicWebhooksCommandCenterRouteImport } from './routes/api/public/webhooks.command-center'
+import { Route as ApiPublicOmsWorkOrdersRouteImport } from './routes/api/public/oms.work-orders'
+import { Route as ApiPublicOmsOrdersRouteImport } from './routes/api/public/oms.orders'
 
 const WorkstationsRoute = WorkstationsRouteImport.update({
   id: '/workstations',
@@ -49,6 +57,16 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QcRoute = QcRouteImport.update({
+  id: '/qc',
+  path: '/qc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MesRoute = MesRouteImport.update({
+  id: '/mes',
+  path: '/mes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InventoryRoute = InventoryRouteImport.update({
   id: '/inventory',
   path: '/inventory',
@@ -57,6 +75,11 @@ const InventoryRoute = InventoryRouteImport.update({
 const ExecutionRoute = ExecutionRouteImport.update({
   id: '/execution',
   path: '/execution',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommandCenterRoute = CommandCenterRouteImport.update({
+  id: '/command-center',
+  path: '/command-center',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -124,13 +147,42 @@ const CustomersCustomerIdRoute = CustomersCustomerIdRouteImport.update({
   path: '/customers/$customerId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhooksQcRoute = ApiPublicWebhooksQcRouteImport.update({
+  id: '/api/public/webhooks/qc',
+  path: '/api/public/webhooks/qc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicWebhooksMesRoute = ApiPublicWebhooksMesRouteImport.update({
+  id: '/api/public/webhooks/mes',
+  path: '/api/public/webhooks/mes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicWebhooksCommandCenterRoute =
+  ApiPublicWebhooksCommandCenterRouteImport.update({
+    id: '/api/public/webhooks/command-center',
+    path: '/api/public/webhooks/command-center',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicOmsWorkOrdersRoute = ApiPublicOmsWorkOrdersRouteImport.update({
+  id: '/api/public/oms/work-orders',
+  path: '/api/public/oms/work-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOmsOrdersRoute = ApiPublicOmsOrdersRouteImport.update({
+  id: '/api/public/oms/orders',
+  path: '/api/public/oms/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/command-center': typeof CommandCenterRoute
   '/execution': typeof ExecutionRoute
   '/inventory': typeof InventoryRoute
+  '/mes': typeof MesRoute
+  '/qc': typeof QcRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
@@ -145,13 +197,21 @@ export interface FileRoutesByFullPath {
   '/production-orders/': typeof ProductionOrdersIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/work-orders/': typeof WorkOrdersIndexRoute
+  '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
+  '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
+  '/api/public/webhooks/command-center': typeof ApiPublicWebhooksCommandCenterRoute
+  '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
+  '/api/public/webhooks/qc': typeof ApiPublicWebhooksQcRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/command-center': typeof CommandCenterRoute
   '/execution': typeof ExecutionRoute
   '/inventory': typeof InventoryRoute
+  '/mes': typeof MesRoute
+  '/qc': typeof QcRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
@@ -166,14 +226,22 @@ export interface FileRoutesByTo {
   '/production-orders': typeof ProductionOrdersIndexRoute
   '/products': typeof ProductsIndexRoute
   '/work-orders': typeof WorkOrdersIndexRoute
+  '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
+  '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
+  '/api/public/webhooks/command-center': typeof ApiPublicWebhooksCommandCenterRoute
+  '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
+  '/api/public/webhooks/qc': typeof ApiPublicWebhooksQcRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/command-center': typeof CommandCenterRoute
   '/execution': typeof ExecutionRoute
   '/inventory': typeof InventoryRoute
+  '/mes': typeof MesRoute
+  '/qc': typeof QcRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
@@ -188,6 +256,11 @@ export interface FileRoutesById {
   '/production-orders/': typeof ProductionOrdersIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/work-orders/': typeof WorkOrdersIndexRoute
+  '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
+  '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
+  '/api/public/webhooks/command-center': typeof ApiPublicWebhooksCommandCenterRoute
+  '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
+  '/api/public/webhooks/qc': typeof ApiPublicWebhooksQcRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -195,8 +268,11 @@ export interface FileRouteTypes {
     | '/'
     | '/audit'
     | '/auth'
+    | '/command-center'
     | '/execution'
     | '/inventory'
+    | '/mes'
+    | '/qc'
     | '/settings'
     | '/shipments'
     | '/users'
@@ -211,13 +287,21 @@ export interface FileRouteTypes {
     | '/production-orders/'
     | '/products/'
     | '/work-orders/'
+    | '/api/public/oms/orders'
+    | '/api/public/oms/work-orders'
+    | '/api/public/webhooks/command-center'
+    | '/api/public/webhooks/mes'
+    | '/api/public/webhooks/qc'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/audit'
     | '/auth'
+    | '/command-center'
     | '/execution'
     | '/inventory'
+    | '/mes'
+    | '/qc'
     | '/settings'
     | '/shipments'
     | '/users'
@@ -232,13 +316,21 @@ export interface FileRouteTypes {
     | '/production-orders'
     | '/products'
     | '/work-orders'
+    | '/api/public/oms/orders'
+    | '/api/public/oms/work-orders'
+    | '/api/public/webhooks/command-center'
+    | '/api/public/webhooks/mes'
+    | '/api/public/webhooks/qc'
   id:
     | '__root__'
     | '/'
     | '/audit'
     | '/auth'
+    | '/command-center'
     | '/execution'
     | '/inventory'
+    | '/mes'
+    | '/qc'
     | '/settings'
     | '/shipments'
     | '/users'
@@ -253,14 +345,22 @@ export interface FileRouteTypes {
     | '/production-orders/'
     | '/products/'
     | '/work-orders/'
+    | '/api/public/oms/orders'
+    | '/api/public/oms/work-orders'
+    | '/api/public/webhooks/command-center'
+    | '/api/public/webhooks/mes'
+    | '/api/public/webhooks/qc'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuditRoute: typeof AuditRoute
   AuthRoute: typeof AuthRoute
+  CommandCenterRoute: typeof CommandCenterRoute
   ExecutionRoute: typeof ExecutionRoute
   InventoryRoute: typeof InventoryRoute
+  MesRoute: typeof MesRoute
+  QcRoute: typeof QcRoute
   SettingsRoute: typeof SettingsRoute
   ShipmentsRoute: typeof ShipmentsRoute
   UsersRoute: typeof UsersRoute
@@ -275,6 +375,11 @@ export interface RootRouteChildren {
   ProductionOrdersIndexRoute: typeof ProductionOrdersIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
   WorkOrdersIndexRoute: typeof WorkOrdersIndexRoute
+  ApiPublicOmsOrdersRoute: typeof ApiPublicOmsOrdersRoute
+  ApiPublicOmsWorkOrdersRoute: typeof ApiPublicOmsWorkOrdersRoute
+  ApiPublicWebhooksCommandCenterRoute: typeof ApiPublicWebhooksCommandCenterRoute
+  ApiPublicWebhooksMesRoute: typeof ApiPublicWebhooksMesRoute
+  ApiPublicWebhooksQcRoute: typeof ApiPublicWebhooksQcRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -307,6 +412,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/qc': {
+      id: '/qc'
+      path: '/qc'
+      fullPath: '/qc'
+      preLoaderRoute: typeof QcRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mes': {
+      id: '/mes'
+      path: '/mes'
+      fullPath: '/mes'
+      preLoaderRoute: typeof MesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inventory': {
       id: '/inventory'
       path: '/inventory'
@@ -319,6 +438,13 @@ declare module '@tanstack/react-router' {
       path: '/execution'
       fullPath: '/execution'
       preLoaderRoute: typeof ExecutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/command-center': {
+      id: '/command-center'
+      path: '/command-center'
+      fullPath: '/command-center'
+      preLoaderRoute: typeof CommandCenterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -412,6 +538,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomersCustomerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/qc': {
+      id: '/api/public/webhooks/qc'
+      path: '/api/public/webhooks/qc'
+      fullPath: '/api/public/webhooks/qc'
+      preLoaderRoute: typeof ApiPublicWebhooksQcRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/mes': {
+      id: '/api/public/webhooks/mes'
+      path: '/api/public/webhooks/mes'
+      fullPath: '/api/public/webhooks/mes'
+      preLoaderRoute: typeof ApiPublicWebhooksMesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/command-center': {
+      id: '/api/public/webhooks/command-center'
+      path: '/api/public/webhooks/command-center'
+      fullPath: '/api/public/webhooks/command-center'
+      preLoaderRoute: typeof ApiPublicWebhooksCommandCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/oms/work-orders': {
+      id: '/api/public/oms/work-orders'
+      path: '/api/public/oms/work-orders'
+      fullPath: '/api/public/oms/work-orders'
+      preLoaderRoute: typeof ApiPublicOmsWorkOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/oms/orders': {
+      id: '/api/public/oms/orders'
+      path: '/api/public/oms/orders'
+      fullPath: '/api/public/oms/orders'
+      preLoaderRoute: typeof ApiPublicOmsOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -419,8 +580,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuditRoute: AuditRoute,
   AuthRoute: AuthRoute,
+  CommandCenterRoute: CommandCenterRoute,
   ExecutionRoute: ExecutionRoute,
   InventoryRoute: InventoryRoute,
+  MesRoute: MesRoute,
+  QcRoute: QcRoute,
   SettingsRoute: SettingsRoute,
   ShipmentsRoute: ShipmentsRoute,
   UsersRoute: UsersRoute,
@@ -435,6 +599,11 @@ const rootRouteChildren: RootRouteChildren = {
   ProductionOrdersIndexRoute: ProductionOrdersIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
   WorkOrdersIndexRoute: WorkOrdersIndexRoute,
+  ApiPublicOmsOrdersRoute: ApiPublicOmsOrdersRoute,
+  ApiPublicOmsWorkOrdersRoute: ApiPublicOmsWorkOrdersRoute,
+  ApiPublicWebhooksCommandCenterRoute: ApiPublicWebhooksCommandCenterRoute,
+  ApiPublicWebhooksMesRoute: ApiPublicWebhooksMesRoute,
+  ApiPublicWebhooksQcRoute: ApiPublicWebhooksQcRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
