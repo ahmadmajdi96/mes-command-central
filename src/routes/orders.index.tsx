@@ -32,8 +32,6 @@ function OrdersList() {
   useRealtimeInvalidate("sales_orders", [ordersKey]);
 
   const { data: orders = [], isLoading } = useOrders();
-  const { data: customers = [] } = useCustomers();
-  const createOrder = useCreateOrder();
   const bulkUpdate = useBulkUpdateOrderStatus();
 
   const [confirm, setConfirm] = useState<
