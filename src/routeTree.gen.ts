@@ -21,11 +21,13 @@ import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductionOrdersIndexRouteImport } from './routes/production-orders.index'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as CustomersIndexRouteImport } from './routes/customers.index'
+import { Route as BatchesIndexRouteImport } from './routes/batches.index'
 import { Route as RequestsIdRouteImport } from './routes/requests.$id'
 import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
 import { Route as ProductionOrdersPoIdRouteImport } from './routes/production-orders.$poId'
 import { Route as OrdersOrderIdRouteImport } from './routes/orders.$orderId'
 import { Route as CustomersCustomerIdRouteImport } from './routes/customers.$customerId'
+import { Route as BatchesBatchIdRouteImport } from './routes/batches.$batchId'
 import { Route as ApiPublicWebhooksQcRouteImport } from './routes/api/public/webhooks.qc'
 import { Route as ApiPublicWebhooksMesRouteImport } from './routes/api/public/webhooks.mes'
 import { Route as ApiPublicWebhooksCommandCenterRouteImport } from './routes/api/public/webhooks.command-center'
@@ -92,6 +94,11 @@ const CustomersIndexRoute = CustomersIndexRouteImport.update({
   path: '/customers/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BatchesIndexRoute = BatchesIndexRouteImport.update({
+  id: '/batches/',
+  path: '/batches/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RequestsIdRoute = RequestsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -115,6 +122,11 @@ const OrdersOrderIdRoute = OrdersOrderIdRouteImport.update({
 const CustomersCustomerIdRoute = CustomersCustomerIdRouteImport.update({
   id: '/customers/$customerId',
   path: '/customers/$customerId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BatchesBatchIdRoute = BatchesBatchIdRouteImport.update({
+  id: '/batches/$batchId',
+  path: '/batches/$batchId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicWebhooksQcRoute = ApiPublicWebhooksQcRouteImport.update({
@@ -153,11 +165,13 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
+  '/batches/$batchId': typeof BatchesBatchIdRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/requests/$id': typeof RequestsIdRoute
+  '/batches/': typeof BatchesIndexRoute
   '/customers/': typeof CustomersIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/production-orders/': typeof ProductionOrdersIndexRoute
@@ -177,11 +191,13 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
+  '/batches/$batchId': typeof BatchesBatchIdRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/requests/$id': typeof RequestsIdRoute
+  '/batches': typeof BatchesIndexRoute
   '/customers': typeof CustomersIndexRoute
   '/orders': typeof OrdersIndexRoute
   '/production-orders': typeof ProductionOrdersIndexRoute
@@ -202,11 +218,13 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
+  '/batches/$batchId': typeof BatchesBatchIdRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/requests/$id': typeof RequestsIdRoute
+  '/batches/': typeof BatchesIndexRoute
   '/customers/': typeof CustomersIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/production-orders/': typeof ProductionOrdersIndexRoute
@@ -228,11 +246,13 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shipments'
     | '/users'
+    | '/batches/$batchId'
     | '/customers/$customerId'
     | '/orders/$orderId'
     | '/production-orders/$poId'
     | '/products/$productId'
     | '/requests/$id'
+    | '/batches/'
     | '/customers/'
     | '/orders/'
     | '/production-orders/'
@@ -252,11 +272,13 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shipments'
     | '/users'
+    | '/batches/$batchId'
     | '/customers/$customerId'
     | '/orders/$orderId'
     | '/production-orders/$poId'
     | '/products/$productId'
     | '/requests/$id'
+    | '/batches'
     | '/customers'
     | '/orders'
     | '/production-orders'
@@ -276,11 +298,13 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shipments'
     | '/users'
+    | '/batches/$batchId'
     | '/customers/$customerId'
     | '/orders/$orderId'
     | '/production-orders/$poId'
     | '/products/$productId'
     | '/requests/$id'
+    | '/batches/'
     | '/customers/'
     | '/orders/'
     | '/production-orders/'
@@ -301,10 +325,12 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   ShipmentsRoute: typeof ShipmentsRoute
   UsersRoute: typeof UsersRoute
+  BatchesBatchIdRoute: typeof BatchesBatchIdRoute
   CustomersCustomerIdRoute: typeof CustomersCustomerIdRoute
   OrdersOrderIdRoute: typeof OrdersOrderIdRoute
   ProductionOrdersPoIdRoute: typeof ProductionOrdersPoIdRoute
   ProductsProductIdRoute: typeof ProductsProductIdRoute
+  BatchesIndexRoute: typeof BatchesIndexRoute
   CustomersIndexRoute: typeof CustomersIndexRoute
   OrdersIndexRoute: typeof OrdersIndexRoute
   ProductionOrdersIndexRoute: typeof ProductionOrdersIndexRoute
@@ -402,6 +428,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/batches/': {
+      id: '/batches/'
+      path: '/batches'
+      fullPath: '/batches/'
+      preLoaderRoute: typeof BatchesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/requests/$id': {
       id: '/requests/$id'
       path: '/$id'
@@ -435,6 +468,13 @@ declare module '@tanstack/react-router' {
       path: '/customers/$customerId'
       fullPath: '/customers/$customerId'
       preLoaderRoute: typeof CustomersCustomerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/batches/$batchId': {
+      id: '/batches/$batchId'
+      path: '/batches/$batchId'
+      fullPath: '/batches/$batchId'
+      preLoaderRoute: typeof BatchesBatchIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/webhooks/qc': {
@@ -496,10 +536,12 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   ShipmentsRoute: ShipmentsRoute,
   UsersRoute: UsersRoute,
+  BatchesBatchIdRoute: BatchesBatchIdRoute,
   CustomersCustomerIdRoute: CustomersCustomerIdRoute,
   OrdersOrderIdRoute: OrdersOrderIdRoute,
   ProductionOrdersPoIdRoute: ProductionOrdersPoIdRoute,
   ProductsProductIdRoute: ProductsProductIdRoute,
+  BatchesIndexRoute: BatchesIndexRoute,
   CustomersIndexRoute: CustomersIndexRoute,
   OrdersIndexRoute: OrdersIndexRoute,
   ProductionOrdersIndexRoute: ProductionOrdersIndexRoute,
@@ -513,13 +555,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

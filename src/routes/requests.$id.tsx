@@ -7,10 +7,13 @@ import { StatusPill } from "@/components/status-pill";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
-  useUpdateProductRequest,
+  useApproveRequest,
+  useRejectRequest,
   deliverRequestToQc,
   type ProductRequest,
 } from "@/lib/product-requests-db";
+import { useRequestEvents } from "@/lib/request-events-db";
+
 
 export const Route = createFileRoute("/requests/$id")({
   head: ({ params }) => ({ meta: [{ title: `Request ${params.id.slice(0, 8)} · CORTA OMS` }] }),
@@ -22,15 +25,6 @@ export const Route = createFileRoute("/requests/$id")({
     <div className="glass-panel rounded-2xl p-6 text-sm text-muted-foreground">Request not found.</div>
   ),
 });
-
-type AuditRow = {
-  id: string;
-  at: string;
-  action: string;
-  entity: string;
-  detail: string | null;
-  user_id: string | null;
-};
 
 function useRequest(id: string) {
   return useQuery({
@@ -48,27 +42,14 @@ function useRequest(id: string) {
   });
 }
 
-function useRequestEvents(id: string) {
-  return useQuery({
-    queryKey: ["product_request_events", id],
-    queryFn: async (): Promise<AuditRow[]> => {
-      const { data, error } = await supabase
-        .from("audit_log")
-        .select("id,at,action,entity,detail,user_id")
-        .eq("entity", id)
-        .order("at", { ascending: true });
-      if (error) throw error;
-      return (data ?? []) as unknown as AuditRow[];
-    },
-  });
-}
 
 function RequestDetailPage() {
   const { id } = Route.useParams();
   const router = useRouter();
   const req = useRequest(id);
   const events = useRequestEvents(id);
-  const update = useUpdateProductRequest();
+  const approve = useApproveRequest();
+  const reject = useRejectRequest();
 
   useEffect(() => {
     const ch = supabase
@@ -76,10 +57,11 @@ function RequestDetailPage() {
       .on("postgres_changes", { event: "*", schema: "public", table: "product_requests", filter: `id=eq.${id}` }, () => {
         req.refetch();
       })
-      .on("postgres_changes", { event: "*", schema: "public", table: "audit_log", filter: `entity=eq.${id}` }, () => {
+      .on("postgres_changes", { event: "*", schema: "public", table: "request_events", filter: `request_id=eq.${id}` }, () => {
         events.refetch();
       })
       .subscribe();
+
     return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -123,10 +105,11 @@ function RequestDetailPage() {
             )}
             {r.direction === "inbound" && r.status === "pending" && (
               <>
-                <button onClick={() => update.mutate({ id: r.id, patch: { status: "approved" } })}
+                <button onClick={() => approve.mutate({ id: r.id })}
                   className="rounded-lg border border-success/40 bg-success/10 px-3 py-1.5 text-xs text-success">Approve</button>
-                <button onClick={() => update.mutate({ id: r.id, patch: { status: "rejected" } })}
+                <button onClick={() => reject.mutate({ id: r.id })}
                   className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs text-destructive">Reject</button>
+
               </>
             )}
             {r.product_id && (
@@ -229,15 +212,19 @@ function RequestDetailPage() {
               <li key={e.id} className="relative">
                 <span className="absolute -left-[21px] top-1.5 h-2 w-2 rounded-full bg-primary" />
                 <div className="flex flex-wrap items-baseline gap-2">
-                  <span className="font-mono text-[11px] text-primary">{e.action}</span>
+                  <span className="font-mono text-[11px] text-primary">{e.event_type}</span>
+                  {e.from_status && e.to_status && (
+                    <span className="text-[10px] text-muted-foreground">{e.from_status} → {e.to_status}</span>
+                  )}
                   <span className="text-[11px] text-muted-foreground">
-                    {new Date(e.at).toLocaleString()}
+                    {new Date(e.created_at).toLocaleString()}
                   </span>
                 </div>
-                {e.detail && <div className="text-xs text-muted-foreground">{e.detail}</div>}
-                {e.user_id && <div className="font-mono text-[10px] text-muted-foreground/70">by {e.user_id.slice(0, 8)}…</div>}
+                {e.notes && <div className="text-xs text-muted-foreground">{e.notes}</div>}
+                {e.actor_id && <div className="font-mono text-[10px] text-muted-foreground/70">by {e.actor_id.slice(0, 8)}…</div>}
               </li>
             ))}
+
           </ol>
         )}
       </section>

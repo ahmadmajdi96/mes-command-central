@@ -8,12 +8,14 @@ import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { toast } from "sonner";
 import {
   useProductRequests,
-  useUpdateProductRequest,
+  useApproveRequest,
+  useRejectRequest,
   deliverRequestToQc,
   type ProductRequest,
   type RequestDirection,
   type RequestStatus,
 } from "@/lib/product-requests-db";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -32,7 +34,9 @@ function RequestsPage() {
   const [dir, setDir] = useState<RequestDirection | "all">("all");
   const [status, setStatus] = useState<RequestStatus | "all">("all");
   const { data: rows = [], isLoading, refetch } = useProductRequests();
-  const update = useUpdateProductRequest();
+  const approve = useApproveRequest();
+  const reject = useRejectRequest();
+
   const qc = useQueryClient();
 
   useEffect(() => {
@@ -183,9 +187,9 @@ function RequestsPage() {
               )}
               {r.direction === "inbound" && r.status === "pending" && (
                 <>
-                  <button onClick={() => update.mutate({ id: r.id, patch: { status: "approved" } })}
+                  <button onClick={() => approve.mutate({ id: r.id })}
                     className="rounded-md border border-success/40 bg-success/10 px-2 py-1 text-[10px] text-success">Approve</button>
-                  <button onClick={() => update.mutate({ id: r.id, patch: { status: "rejected" } })}
+                  <button onClick={() => reject.mutate({ id: r.id })}
                     className="rounded-md border border-destructive/40 bg-destructive/10 px-2 py-1 text-[10px] text-destructive">Reject</button>
                 </>
               )}

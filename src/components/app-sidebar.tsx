@@ -11,7 +11,9 @@ import {
   History,
   Gauge,
   Send,
+  Boxes,
 } from "lucide-react";
+
 
 import {
   Sidebar,
@@ -39,7 +41,9 @@ const orders = [
 
 const production = [
   { title: "Production Orders", url: "/production-orders", icon: Factory },
+  { title: "Batches", url: "/batches", icon: Boxes },
 ];
+
 
 const integrations = [
   { title: "Requests", url: "/requests", icon: Send },

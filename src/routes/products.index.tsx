@@ -4,12 +4,14 @@ import { Search, Plus, Package } from "lucide-react";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
 import { FormDialog } from "@/components/form-dialog";
+import { NewProductDialog } from "@/components/new-product-dialog";
 import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { toast } from "sonner";
 import { useStore } from "@/lib/store";
 import { permissionsFor } from "@/lib/roles";
 import { useProducts, useCreateProduct, useInventoryTxns, useRealtimeInvalidate, productsKey, productTypeOptions, type Product } from "@/lib/oms-db";
 import { useCreateProductRequest, deliverRequestToQc } from "@/lib/product-requests-db";
+
 
 export const Route = createFileRoute("/products/")({
   head: () => ({ meta: [{ title: "Products · CORTA OMS" }] }),
@@ -113,30 +115,10 @@ function ProductsList() {
         ]}
       />
 
-      <FormDialog
+      <NewProductDialog
         open={openNew}
         onOpenChange={setOpenNew}
-        title="New Product"
-        submitLabel="Create product"
-        fields={[
-          { name: "sku", label: "SKU", required: true, placeholder: "VLV-8-CS" },
-          { name: "name", label: "Name", required: true },
-          { name: "description", label: "Description", type: "textarea" },
-          { name: "uom", label: "UOM", placeholder: "EA" },
-          { name: "type", label: "Type", type: "select",
-            options: productTypeOptions.map((t) => ({ value: t, label: t })) },
-          { name: "standard_cost", label: "Standard cost", type: "number", step: 0.01 },
-          { name: "lead_time", label: "Lead time (days)", type: "number" },
-          { name: "qc_specs", label: "QC specifications / acceptance criteria", type: "textarea",
-            placeholder: "Dimensions, tolerances, critical characteristics…" },
-          { name: "qc_category_id", label: "QC product category id (optional)",
-            placeholder: "product_categories.id from CORTA QC" },
-          { name: "qc_steps", label: "QC routing steps (optional, one per line: station_id | notes)", type: "textarea",
-            placeholder: "station-uuid-1 | Incoming QC\nstation-uuid-2 | Assembly check" },
-          { name: "send_to_qc", label: "Send new-product request to CORTA QC", type: "select",
-            options: [{ value: "yes", label: "Yes — request QC review" }, { value: "no", label: "No" }] },
-        ]}
-        onSubmit={async (v: any) => {
+        onSubmit={async (v) => {
           const product = await createProduct.mutateAsync({
             sku: v.sku, name: v.name, description: v.description || null,
             uom: v.uom || "EA", type: v.type || "finished",
@@ -144,15 +126,13 @@ function ProductsList() {
           });
           toast.success("Product created");
 
-          if (v.send_to_qc !== "no") {
-            const steps = String(v.qc_steps || "")
-              .split("\n")
-              .map((l: string) => l.trim())
-              .filter(Boolean)
-              .map((line: string, i: number) => {
-                const [station_id, ...rest] = line.split("|").map((s) => s.trim());
-                return { sequence: i + 1, station_id: station_id || null, notes: rest.join(" | ") || null };
-              });
+          if (v.send_to_qc) {
+            const steps = v.steps.map((s) => ({
+              sequence: s.sequence,
+              station_id: s.station_id || null,
+              operation: s.operation || null,
+              notes: s.notes || null,
+            }));
 
             const req = await createRequest.mutateAsync({
               kind: "new_product",
@@ -192,3 +172,4 @@ function ProductsList() {
     </div>
   );
 }
+
