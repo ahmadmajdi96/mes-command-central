@@ -34,7 +34,9 @@ function RequestsPage() {
   const [dir, setDir] = useState<RequestDirection | "all">("all");
   const [status, setStatus] = useState<RequestStatus | "all">("all");
   const { data: rows = [], isLoading, refetch } = useProductRequests();
-  const update = useUpdateProductRequest();
+  const approve = useApproveRequest();
+  const reject = useRejectRequest();
+
   const qc = useQueryClient();
 
   useEffect(() => {
