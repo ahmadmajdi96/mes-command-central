@@ -6,12 +6,12 @@ import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { SavedPresetsBar } from "@/components/saved-presets-bar";
-import { FormDialog } from "@/components/form-dialog";
+import { NewOrderDialog } from "@/components/new-order-dialog";
 import { toast } from "sonner";
 import { useStore } from "@/lib/store";
 import { permissionsFor } from "@/lib/roles";
 import {
-  useOrders, useCreateOrder, useBulkUpdateOrderStatus, useCustomers, useRealtimeInvalidate,
+  useOrders, useBulkUpdateOrderStatus, useRealtimeInvalidate,
   ordersKey, orderStatusOptions, type OrderWithCustomer,
 } from "@/lib/oms-db";
 
