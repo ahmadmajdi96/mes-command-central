@@ -48,7 +48,8 @@ function RequestDetailPage() {
   const router = useRouter();
   const req = useRequest(id);
   const events = useRequestEvents(id);
-  const update = useUpdateProductRequest();
+  const approve = useApproveRequest();
+  const reject = useRejectRequest();
 
   useEffect(() => {
     const ch = supabase
@@ -56,10 +57,11 @@ function RequestDetailPage() {
       .on("postgres_changes", { event: "*", schema: "public", table: "product_requests", filter: `id=eq.${id}` }, () => {
         req.refetch();
       })
-      .on("postgres_changes", { event: "*", schema: "public", table: "audit_log", filter: `entity=eq.${id}` }, () => {
+      .on("postgres_changes", { event: "*", schema: "public", table: "request_events", filter: `request_id=eq.${id}` }, () => {
         events.refetch();
       })
       .subscribe();
+
     return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
