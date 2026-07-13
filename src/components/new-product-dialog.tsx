@@ -97,6 +97,7 @@ export function NewProductDialog({
               options={productTypeOptions.map((t) => ({ value: t, label: t }))} />
             <TextField label="Standard cost" type="number" value={String(v.standard_cost)} onChange={(x) => setV((s) => ({ ...s, standard_cost: Number(x) || 0 }))} />
             <TextField label="Lead time (days)" type="number" value={String(v.lead_time)} onChange={(x) => setV((s) => ({ ...s, lead_time: Number(x) || 0 }))} />
+            <TextField label="Batching limit (units / batch, 0 = none)" type="number" value={String(v.batching_limit)} onChange={(x) => setV((s) => ({ ...s, batching_limit: Number(x) || 0 }))} />
           </div>
           <TextAreaField label="Description" value={v.description} onChange={(x) => setV((s) => ({ ...s, description: x }))} />
           <TextAreaField label="QC specifications / acceptance criteria" value={v.qc_specs}
