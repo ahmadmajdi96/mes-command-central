@@ -130,7 +130,7 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
       <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>New Sales Order</DialogTitle>
-          <DialogDescription>Order # auto-generated (SO-YYYY-####). Lines exceeding a product's batching limit split automatically.</DialogDescription>
+          <DialogDescription>Order # auto-generated (SO-YYYY-####). Unit price auto-fills from each product's sale price; batches are created only when the order is sent to production.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
