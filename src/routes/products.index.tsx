@@ -7,8 +7,6 @@ import { FormDialog } from "@/components/form-dialog";
 import { NewProductDialog } from "@/components/new-product-dialog";
 import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { toast } from "sonner";
-import { useStore } from "@/lib/store";
-import { permissionsFor } from "@/lib/roles";
 import { useProducts, useCreateProduct, useInventoryTxns, useRealtimeInvalidate, productsKey, productTypeOptions, type Product } from "@/lib/oms-db";
 import { useCreateProductRequest, deliverRequestToQc } from "@/lib/product-requests-db";
 
@@ -24,8 +22,6 @@ function ProductsList() {
   const [q, setQ] = useState("");
   const [type, setType] = useState("all");
   const [openNew, setOpenNew] = useState(false);
-  const role = useStore((s) => s.role);
-  const perms = permissionsFor(role);
   useRealtimeInvalidate("products", [productsKey]);
 
   const { data: products = [], isLoading } = useProducts();
@@ -44,7 +40,7 @@ function ProductsList() {
     return true;
   }), [q, type, products]);
 
-  const canManage = perms.createOrder || role === "production_planner" || role === "admin";
+  const canManage = true;
 
   return (
     <div className="space-y-5">

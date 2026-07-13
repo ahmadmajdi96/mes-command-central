@@ -1,46 +1,55 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
-import { customers, salesOrders, findCustomer } from "@/lib/oms-data";
 import { PageHeader, Panel, Field } from "@/components/page-shell";
 import { StatusPill } from "@/components/status-pill";
+import { useCustomers, useOrders, useRealtimeInvalidate, customersKey, ordersKey } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/customers/$customerId")({
-  head: ({ params }) => ({ meta: [{ title: `${params.customerId} · Customer · CORTA OMS` }] }),
-  loader: ({ params }) => {
-    const c = findCustomer(params.customerId);
-    if (!c) throw notFound();
-    return c;
-  },
+  head: ({ params }) => ({ meta: [{ title: `Customer · CORTA OMS` }] }),
   component: CustomerDetail,
   notFoundComponent: () => <p className="text-sm text-muted-foreground">Customer not found.</p>,
 });
 
 function CustomerDetail() {
-  const c = Route.useLoaderData();
-  const orders = salesOrders.filter(s => s.customerId === c.id);
-  const total = orders.reduce((s, o) => s + o.total, 0);
+  const { customerId } = Route.useParams();
+  useRealtimeInvalidate("customers", [customersKey]);
+  const { data: customers = [], isLoading } = useCustomers();
+  const { data: orders = [] } = useOrders();
+
+  const c = customers.find((x) => x.id === customerId || x.code === customerId);
+  if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  if (!c) return (
+    <div className="glass-panel rounded-2xl p-8 text-center">
+      <p className="text-sm text-muted-foreground">Customer not found.</p>
+      <Link to="/customers" className="mt-3 inline-flex text-xs text-primary hover:underline">Back to customers</Link>
+    </div>
+  );
+
+  const custOrders = orders.filter((o) => o.customer_id === c.id);
+  const total = custOrders.reduce((s, o) => s + Number(o.total ?? 0), 0);
+
   return (
     <div className="space-y-5">
       <PageHeader
         breadcrumb={<Link to="/customers" className="hover:text-foreground"><span className="inline-flex items-center gap-1"><ArrowLeft className="h-3 w-3" /> Customers</span></Link>}
         title={c.name}
-        subtitle={`${c.contact} · onboarded ${c.createdAt}`}
+        subtitle={`${c.contact ?? "—"} · ${c.code ?? ""}`}
       />
       <div className="grid gap-4 lg:grid-cols-3">
         <Panel>
           <h3 className="mb-3 text-sm font-semibold">Contact</h3>
           <div className="space-y-3">
-            <Field label="Email" value={c.email} />
-            <Field label="Phone" value={c.phone} mono />
-            <Field label="Address" value={c.address} />
+            <Field label="Email" value={c.email ?? "—"} />
+            <Field label="Phone" value={c.phone ?? "—"} mono />
+            <Field label="Address" value={c.address ?? "—"} />
           </div>
         </Panel>
         <Panel>
           <h3 className="mb-3 text-sm font-semibold">Activity</h3>
           <div className="space-y-3">
-            <Field label="Total Orders" value={orders.length} mono />
+            <Field label="Total Orders" value={custOrders.length} mono />
             <Field label="Lifetime Value" value={`$${total.toLocaleString()}`} mono />
-            <Field label="Open Orders" value={orders.filter(o => !["shipped","cancelled"].includes(o.status)).length} mono />
+            <Field label="Open Orders" value={custOrders.filter(o => !["shipped","cancelled"].includes(o.status)).length} mono />
           </div>
         </Panel>
         <Panel>
@@ -50,7 +59,7 @@ function CustomerDetail() {
       </div>
       <Panel>
         <h3 className="mb-3 text-sm font-semibold">Orders</h3>
-        {orders.length === 0 ? <p className="text-xs text-muted-foreground">No orders yet.</p> : (
+        {custOrders.length === 0 ? <p className="text-xs text-muted-foreground">No orders yet.</p> : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -62,12 +71,12 @@ function CustomerDetail() {
                 </tr>
               </thead>
               <tbody>
-                {orders.map(o => (
+                {custOrders.map(o => (
                   <tr key={o.id} className="border-b border-border/30">
                     <td className="py-3"><Link to="/orders/$orderId" params={{ orderId: o.id }} className="font-mono text-xs text-primary hover:underline">{o.number}</Link></td>
-                    <td className="py-3 font-mono text-xs">{o.dueDate}</td>
+                    <td className="py-3 font-mono text-xs">{o.due_date ?? "—"}</td>
                     <td className="py-3"><StatusPill status={o.status} /></td>
-                    <td className="py-3 text-right font-mono text-sm">${o.total.toLocaleString()}</td>
+                    <td className="py-3 text-right font-mono text-sm">${Number(o.total ?? 0).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>

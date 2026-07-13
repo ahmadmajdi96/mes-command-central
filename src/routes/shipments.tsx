@@ -8,8 +8,6 @@ import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { Plus, Truck, Search, Pencil, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { useStore } from "@/lib/store";
-import { permissionsFor } from "@/lib/roles";
 import {
   useShipments, useCreateShipment, useUpdateShipment, useDeleteShipment,
   useOrders, useCustomers,
@@ -30,8 +28,6 @@ function ShipmentsPage() {
   const [openNew, setOpenNew] = useState(false);
   const [editing, setEditing] = useState<ShipmentWithOrder | null>(null);
   const [deleting, setDeleting] = useState<ShipmentWithOrder | null>(null);
-  const role = useStore((s) => s.role);
-  const perms = permissionsFor(role);
   useRealtimeInvalidate("shipments", [shipmentsKey]);
 
   const { data: shipments = [], isLoading } = useShipments();
@@ -77,7 +73,7 @@ function ShipmentsPage() {
                 { key: "shipped_at", label: "Shipped At" },
               ]}
             />
-            {perms.createShipment && (
+            {true && (
               <button onClick={() => setOpenNew(true)}
                 className="flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
                 <Plus className="h-3.5 w-3.5" /> New Shipment
@@ -123,7 +119,7 @@ function ShipmentsPage() {
           { key: "tracking", label: "Tracking", render: (s) => <span className="font-mono text-xs text-muted-foreground">{s.tracking ?? "—"}</span> },
           { key: "shipped", label: "Shipped", sortAccessor: (s) => s.shipped_at ?? "", render: (s) => <span className="font-mono text-xs">{s.shipped_at ? new Date(s.shipped_at).toLocaleDateString() : "—"}</span> },
           { key: "status", label: "Status", sortAccessor: (s) => s.status, render: (s) => <StatusPill status={s.status} /> },
-          ...(perms.createShipment ? [{
+          ...(true ? [{
             key: "actions", label: "", render: (s: ShipmentWithOrder) => (
               <div className="flex items-center justify-end gap-1">
                 <button onClick={() => setEditing(s)}

@@ -3,8 +3,6 @@ import { ArrowLeft, Edit, Trash2, XCircle, Truck } from "lucide-react";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, Panel, Field } from "@/components/page-shell";
 import { useOrder, useUpdateOrder, useDeleteOrder, useShipments, useRealtimeInvalidate, ordersKey, orderKey } from "@/lib/oms-db";
-import { useStore } from "@/lib/store";
-import { permissionsFor } from "@/lib/roles";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "@tanstack/react-router";
@@ -27,8 +25,6 @@ export const Route = createFileRoute("/orders/$orderId")({
 function OrderDetail() {
   const { orderId } = Route.useParams();
   const router = useRouter();
-  const role = useStore((s) => s.role);
-  const perms = permissionsFor(role);
   useRealtimeInvalidate("sales_orders", [ordersKey, orderKey(orderId)]);
 
   const { data: so, isLoading } = useOrder(orderId);
@@ -55,7 +51,7 @@ function OrderDetail() {
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <StatusPill status={so.status} />
-            {perms.editOrder && (
+            {true && (
               <>
                 <button onClick={() => setOpenEdit(true)} className="flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs hover:bg-card"><Edit className="h-3.5 w-3.5" /> Edit</button>
                 <button onClick={() => update.mutate({ id: so.id, patch: { status: "cancelled" }, note: "Cancelled order" })}

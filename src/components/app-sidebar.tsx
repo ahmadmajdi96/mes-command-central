@@ -4,7 +4,7 @@ import {
   ShoppingCart,
   Factory,
   Package,
-  Users,
+  
   Truck,
   UserCircle,
   Settings,
@@ -56,7 +56,6 @@ const materials = [
 
 
 const platform = [
-  { title: "Users & Roles", url: "/users", icon: Users },
   { title: "Audit Log", url: "/audit", icon: History },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
