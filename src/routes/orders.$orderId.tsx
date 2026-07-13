@@ -30,10 +30,12 @@ function OrderDetail() {
   const { data: so, isLoading } = useOrder(orderId);
   const { data: shipments = [] } = useShipments();
   const update = useUpdateOrder();
+  const updateLine = useUpdateOrderLine();
   const del = useDeleteOrder();
 
   const [openEdit, setOpenEdit] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [editingQty, setEditingQty] = useState<Record<string, number>>({});
 
   if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (!so) return <p className="text-sm text-muted-foreground">Not found</p>;
@@ -41,6 +43,35 @@ function OrderDetail() {
   const lines = (so.lines as any[]) ?? [];
   const customer = (so as any).customer;
   const relatedShipments = shipments.filter((s) => s.order_id === so.id);
+  const currency = so.currency ?? "USD";
+
+  // Auto-recalc: revenue, cost, margin per line + totals
+  const computed = lines.map((line: any) => {
+    const qty = editingQty[line.id] ?? Number(line.qty);
+    const unit = Number(line.unit_price) || 0;
+    const cost = Number(line.product?.standard_cost ?? 0);
+    const revenue = qty * unit;
+    const costTotal = qty * cost;
+    return { line, qty, unit, cost, revenue, costTotal, margin: revenue - costTotal };
+  });
+  const totals = computed.reduce(
+    (a, r) => ({ revenue: a.revenue + r.revenue, cost: a.cost + r.costTotal, margin: a.margin + r.margin }),
+    { revenue: 0, cost: 0, margin: 0 },
+  );
+
+  const saveQty = async (lineId: string, orderId: string) => {
+    const q = editingQty[lineId];
+    if (q === undefined || !(q > 0)) return;
+    await updateLine.mutateAsync({ id: lineId, patch: { qty: q }, orderId });
+    // recompute order total with new qty applied
+    const newTotal = lines.reduce((s: number, ln: any) => {
+      const qty = ln.id === lineId ? q : (editingQty[ln.id] ?? Number(ln.qty));
+      return s + qty * (Number(ln.unit_price) || 0);
+    }, 0);
+    await update.mutateAsync({ id: orderId, patch: { total: newTotal }, note: "Recalculated total from qty edit" });
+    setEditingQty((s) => { const n = { ...s }; delete n[lineId]; return n; });
+    toast.success("Line quantity updated");
+  };
 
   return (
     <div className="space-y-5">
