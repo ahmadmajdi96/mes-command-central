@@ -7,10 +7,13 @@ import { StatusPill } from "@/components/status-pill";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
-  useUpdateProductRequest,
+  useApproveRequest,
+  useRejectRequest,
   deliverRequestToQc,
   type ProductRequest,
 } from "@/lib/product-requests-db";
+import { useRequestEvents } from "@/lib/request-events-db";
+
 
 export const Route = createFileRoute("/requests/$id")({
   head: ({ params }) => ({ meta: [{ title: `Request ${params.id.slice(0, 8)} · CORTA OMS` }] }),
