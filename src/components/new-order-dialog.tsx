@@ -101,45 +101,20 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
         notes: notes || null,
       });
 
-      // Split each line by batching_limit and insert
-      const rows: Array<{
-        order_id: string;
-        product_id: string;
-        qty: number;
-        unit_price: number;
-        due_date: string | null;
-        batch_index: number | null;
-        batch_of: number | null;
-        status: string;
-      }> = [];
-      for (const l of lines) {
-        const prod = productMap[l.product_id];
-        const limit = Number(prod?.batching_limit ?? 0);
-        const qty = Number(l.qty);
-        const price = Number(l.unit_price) || 0;
-        const due = l.due_date || null;
-        if (!limit || limit <= 0 || qty <= limit) {
-          rows.push({
-            order_id: created.id, product_id: l.product_id, qty, unit_price: price,
-            due_date: due, batch_index: null, batch_of: null, status: "pending",
-          });
-        } else {
-          const count = Math.ceil(qty / limit);
-          let remaining = qty;
-          for (let i = 1; i <= count; i++) {
-            const size = Math.min(limit, remaining);
-            rows.push({
-              order_id: created.id, product_id: l.product_id, qty: size, unit_price: price,
-              due_date: due, batch_index: i, batch_of: count, status: "pending",
-            });
-            remaining -= size;
-          }
-        }
-      }
+      // One sales_order_line per product. Batching is applied later when the order
+      // is sent to production (explodeOrderToProduction reads product.batching_limit).
+      const rows = lines.map((l) => ({
+        order_id: created.id,
+        product_id: l.product_id,
+        qty: Number(l.qty) || 0,
+        unit_price: Number(l.unit_price) || 0,
+        due_date: l.due_date || null,
+        status: "pending",
+      }));
       const { error } = await supabase.from("sales_order_lines").insert(rows);
       if (error) throw error;
 
-      await logAudit("sales_order.lines", created.id, `Added ${rows.length} line(s) across ${lines.length} product(s)`);
+      await logAudit("sales_order.lines", created.id, `Added ${rows.length} line(s)`);
       qc.invalidateQueries({ queryKey: ordersKey });
       toast.success(`Order ${created.number} created — ${rows.length} line(s)`);
       onOpenChange(false);
