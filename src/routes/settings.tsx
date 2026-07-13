@@ -12,7 +12,7 @@ export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
 
-const SYSTEMS: SisterSystem[] = ["mes", "qc", "command_center"];
+const SYSTEMS: SisterSystem[] = ["mes", "qc"];
 
 function SettingsPage() {
   const { user } = useSession();
@@ -54,7 +54,7 @@ function SettingsPage() {
           <h3 className="text-sm font-semibold">Sister-system integrations</h3>
         </div>
         <p className="mb-4 text-xs text-muted-foreground">
-          Point this OMS at your <span className="text-foreground">MES Command Center</span>, <span className="text-foreground">CORTA QC System</span>, and <span className="text-foreground">Command Center Pro</span> deployments.
+          Point this OMS at your <span className="text-foreground">MES</span> and <span className="text-foreground">CORTA QC System</span> deployments.
           Settings are stored per user. Sister systems can push events into the endpoints below.
         </p>
 
@@ -102,7 +102,6 @@ function SettingsPage() {
           {[
             { label: "MES → OMS", path: "/api/public/webhooks/mes", hint: "station.heartbeat · downtime.started · downtime.ended" },
             { label: "QC → OMS", path: "/api/public/webhooks/qc", hint: "inspection.created · inspection.updated · ncr.raised · ncr.closed" },
-            { label: "Command Center → OMS", path: "/api/public/webhooks/command-center", hint: "kpi.snapshot" },
           ].map((w) => {
             const full = `${webhookBase}${w.path}`;
             return (

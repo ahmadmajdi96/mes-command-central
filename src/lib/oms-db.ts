@@ -219,6 +219,72 @@ export function useDeleteOrder() {
   });
 }
 
+/** Explode a sales order into production orders (one per line) + batches split by product.batching_limit. */
+export async function explodeOrderToProduction(orderId: string) {
+  const { data: lines, error: linesErr } = await supabase
+    .from("sales_order_lines")
+    .select("id, order_id, product_id, qty")
+    .eq("order_id", orderId);
+  if (linesErr) throw linesErr;
+  if (!lines || lines.length === 0) return { pos: 0, batches: 0 };
+
+  const productIds = Array.from(new Set(lines.map((l) => l.product_id).filter(Boolean))) as string[];
+  const { data: products } = productIds.length
+    ? await supabase.from("products").select("id, batching_limit").in("id", productIds)
+    : { data: [] as { id: string; batching_limit: number }[] };
+  const limitByProduct = new Map((products ?? []).map((p) => [p.id, Number(p.batching_limit) || 0]));
+
+  let poCount = 0;
+  let batchCount = 0;
+  for (const line of lines) {
+    if (!line.product_id) continue;
+    // Skip if a PO for this order/product already exists
+    const { data: existing } = await supabase
+      .from("production_orders")
+      .select("id")
+      .eq("sales_order_id", orderId)
+      .eq("product_id", line.product_id)
+      .limit(1)
+      .maybeSingle();
+    if (existing) continue;
+
+    const qty = Number(line.qty) || 0;
+    const { data: po, error: poErr } = await supabase
+      .from("production_orders")
+      .insert({ product_id: line.product_id, sales_order_id: orderId, qty, status: "released" } as Tables["production_orders"]["Insert"])
+      .select()
+      .single();
+    if (poErr) throw poErr;
+    poCount++;
+    await logAudit("production_order.create", po.id, `Auto-created ${po.number} from sales order`);
+
+    const limit = limitByProduct.get(line.product_id) || 0;
+    const perBatch = limit > 0 ? limit : qty;
+    if (perBatch <= 0) continue;
+    const count = Math.max(1, Math.ceil(qty / perBatch));
+    const rows: Tables["batches"]["Insert"][] = [];
+    let remaining = qty;
+    const year = new Date().getFullYear();
+    for (let i = 0; i < count; i++) {
+      const q = Math.min(perBatch, remaining);
+      remaining -= q;
+      rows.push({
+        production_order_id: po.id,
+        product_id: line.product_id,
+        qty: q,
+        status: "planned",
+        lot_code: `LOT-${year}-${po.id.slice(0, 6).toUpperCase()}-${String(i + 1).padStart(2, "0")}`,
+      });
+    }
+    if (rows.length) {
+      const { error: bErr } = await supabase.from("batches").insert(rows);
+      if (bErr) throw bErr;
+      batchCount += rows.length;
+    }
+  }
+  return { pos: poCount, batches: batchCount };
+}
+
 export function useBulkUpdateOrderStatus() {
   const qc = useQueryClient();
   return useMutation({
@@ -232,8 +298,20 @@ export function useBulkUpdateOrderStatus() {
           ids.map((id) => ({ action: "sales_order.bulk_update", entity: id, detail: `${label} → ${status}`, user_id: uid })),
         );
       }
+      let pos = 0, batches = 0;
+      if (status === "in_production") {
+        for (const id of ids) {
+          const r = await explodeOrderToProduction(id);
+          pos += r.pos; batches += r.batches;
+        }
+      }
+      return { pos, batches };
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ordersKey }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ordersKey });
+      qc.invalidateQueries({ queryKey: ["production_orders"] });
+      qc.invalidateQueries({ queryKey: ["batches"] });
+    },
   });
 }
 
