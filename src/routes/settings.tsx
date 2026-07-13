@@ -102,7 +102,6 @@ function SettingsPage() {
           {[
             { label: "MES → OMS", path: "/api/public/webhooks/mes", hint: "station.heartbeat · downtime.started · downtime.ended" },
             { label: "QC → OMS", path: "/api/public/webhooks/qc", hint: "inspection.created · inspection.updated · ncr.raised · ncr.closed" },
-            { label: "Command Center → OMS", path: "/api/public/webhooks/command-center", hint: "kpi.snapshot" },
           ].map((w) => {
             const full = `${webhookBase}${w.path}`;
             return (
