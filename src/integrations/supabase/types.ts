@@ -41,6 +41,75 @@ export type Database = {
         }
         Relationships: []
       }
+      batches: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          expiry_date: string | null
+          id: string
+          lot_code: string | null
+          notes: string | null
+          number: string | null
+          product_id: string | null
+          production_order_id: string | null
+          qty: number
+          qty_good: number
+          qty_scrap: number
+          started_at: string | null
+          status: Database["public"]["Enums"]["batch_status"]
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          lot_code?: string | null
+          notes?: string | null
+          number?: string | null
+          product_id?: string | null
+          production_order_id?: string | null
+          qty?: number
+          qty_good?: number
+          qty_scrap?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["batch_status"]
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          lot_code?: string | null
+          notes?: string | null
+          number?: string | null
+          product_id?: string | null
+          production_order_id?: string | null
+          qty?: number
+          qty_good?: number
+          qty_scrap?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["batch_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batches_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batches_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           address: string | null
@@ -427,6 +496,142 @@ export type Database = {
           },
         ]
       }
+      product_routings: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          operation: string | null
+          product_id: string | null
+          request_id: string | null
+          run_min: number
+          seq: number
+          setup_min: number
+          station_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          operation?: string | null
+          product_id?: string | null
+          request_id?: string | null
+          run_min?: number
+          seq: number
+          setup_min?: number
+          station_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          operation?: string | null
+          product_id?: string | null
+          request_id?: string | null
+          run_min?: number
+          seq?: number
+          setup_min?: number
+          station_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_routings_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_routings_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "product_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_routings_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "station_status"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_orders: {
+        Row: {
+          actual_end: string | null
+          actual_start: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          number: string | null
+          planned_end: string | null
+          planned_start: string | null
+          priority: number
+          product_id: string | null
+          qty: number
+          qty_produced: number
+          qty_scrap: number
+          sales_order_id: string | null
+          status: Database["public"]["Enums"]["production_order_status"]
+          updated_at: string
+        }
+        Insert: {
+          actual_end?: string | null
+          actual_start?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          number?: string | null
+          planned_end?: string | null
+          planned_start?: string | null
+          priority?: number
+          product_id?: string | null
+          qty?: number
+          qty_produced?: number
+          qty_scrap?: number
+          sales_order_id?: string | null
+          status?: Database["public"]["Enums"]["production_order_status"]
+          updated_at?: string
+        }
+        Update: {
+          actual_end?: string | null
+          actual_start?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          number?: string | null
+          planned_end?: string | null
+          planned_start?: string | null
+          priority?: number
+          product_id?: string | null
+          qty?: number
+          qty_produced?: number
+          qty_scrap?: number
+          sales_order_id?: string | null
+          status?: Database["public"]["Enums"]["production_order_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_sales_order_id_fkey"
+            columns: ["sales_order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           created_at: string
@@ -543,6 +748,50 @@ export type Database = {
             columns: ["work_order_id"]
             isOneToOne: false
             referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      request_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_type: string
+          from_status: string | null
+          id: string
+          notes: string | null
+          payload: Json | null
+          request_id: string
+          to_status: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_type: string
+          from_status?: string | null
+          id?: string
+          notes?: string | null
+          payload?: Json | null
+          request_id: string
+          to_status?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_type?: string
+          from_status?: string | null
+          id?: string
+          notes?: string | null
+          payload?: Json | null
+          request_id?: string
+          to_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_events_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "product_requests"
             referencedColumns: ["id"]
           },
         ]
@@ -911,6 +1160,19 @@ export type Database = {
         | "production_planner"
         | "supervisor"
         | "operator"
+      batch_status:
+        | "planned"
+        | "in_progress"
+        | "on_hold"
+        | "released"
+        | "completed"
+        | "rejected"
+      production_order_status:
+        | "planned"
+        | "released"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
       request_direction: "outbound" | "inbound"
       request_kind: "new_product" | "other"
       request_status:
@@ -1054,6 +1316,21 @@ export const Constants = {
         "production_planner",
         "supervisor",
         "operator",
+      ],
+      batch_status: [
+        "planned",
+        "in_progress",
+        "on_hold",
+        "released",
+        "completed",
+        "rejected",
+      ],
+      production_order_status: [
+        "planned",
+        "released",
+        "in_progress",
+        "completed",
+        "cancelled",
       ],
       request_direction: ["outbound", "inbound"],
       request_kind: ["new_product", "other"],
