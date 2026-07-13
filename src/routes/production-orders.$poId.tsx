@@ -99,7 +99,8 @@ function PODetail() {
                   </div>
                   <StatusPill status={w.status} />
                 </div>
-              </Link>
+              </div>
+
             );
           })}
         </div>
