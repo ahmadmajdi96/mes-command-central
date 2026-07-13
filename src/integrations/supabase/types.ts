@@ -640,6 +640,7 @@ export type Database = {
           id: string
           lead_time: number
           name: string
+          sale_price: number
           sku: string
           standard_cost: number
           type: string
@@ -653,6 +654,7 @@ export type Database = {
           id?: string
           lead_time?: number
           name: string
+          sale_price?: number
           sku: string
           standard_cost?: number
           type?: string
@@ -666,6 +668,7 @@ export type Database = {
           id?: string
           lead_time?: number
           name?: string
+          sale_price?: number
           sku?: string
           standard_cost?: number
           type?: string
