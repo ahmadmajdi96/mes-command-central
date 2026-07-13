@@ -187,9 +187,9 @@ function RequestsPage() {
               )}
               {r.direction === "inbound" && r.status === "pending" && (
                 <>
-                  <button onClick={() => update.mutate({ id: r.id, patch: { status: "approved" } })}
+                  <button onClick={() => approve.mutate({ id: r.id })}
                     className="rounded-md border border-success/40 bg-success/10 px-2 py-1 text-[10px] text-success">Approve</button>
-                  <button onClick={() => update.mutate({ id: r.id, patch: { status: "rejected" } })}
+                  <button onClick={() => reject.mutate({ id: r.id })}
                     className="rounded-md border border-destructive/40 bg-destructive/10 px-2 py-1 text-[10px] text-destructive">Reject</button>
                 </>
               )}
