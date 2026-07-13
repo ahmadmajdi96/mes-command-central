@@ -85,17 +85,8 @@ export function GlobalSearch() {
             ))}
           </CommandGroup>
 
-          <CommandGroup heading="Work Orders">
-            {workOrders.map((w) => (
-              <CommandItem key={w.id} value={`${w.number} ${w.operation}`}
-                onSelect={() => go(`/work-orders/${w.id}`)}>
-                <ClipboardList className="h-3.5 w-3.5 text-primary" />
-                <span className="font-mono text-xs">{w.number}</span>
-                <span className="text-xs">· {w.operation}</span>
-                <span className="ml-auto text-[10px] text-muted-foreground capitalize">{w.status.replace("_"," ")}</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
+
+
 
           <CommandGroup heading="Production Orders">
             {productionOrders.map((p) => (
