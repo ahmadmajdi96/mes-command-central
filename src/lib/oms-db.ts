@@ -181,7 +181,8 @@ export function useCreateOrder() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: Partial<SalesOrder>) => {
-      const { data, error } = await supabase.from("sales_orders").insert(input).select().single();
+      const { data, error } = await supabase.from("sales_orders").insert(input as any).select().single();
+
       if (error) throw error;
       await logAudit("sales_order.create", data.id, `Created ${data.number}`);
       return data;
