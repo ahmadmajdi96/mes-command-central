@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Search, ShoppingCart, UserCircle, Package, ClipboardList, Factory, Truck } from "lucide-react";
+import { Search, ShoppingCart, UserCircle, Package, Factory, Truck } from "lucide-react";
 import {
   CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem,
 } from "@/components/ui/command";
 import { salesOrders, customers, products, productionOrders, shipments, findCustomer, findProduct } from "@/lib/oms-data";
-import { useStore } from "@/lib/store";
 
 export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const workOrders = useStore((s) => s.workOrders);
+
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
