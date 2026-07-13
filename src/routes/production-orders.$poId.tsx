@@ -80,8 +80,9 @@ function PODetail() {
           {wos.map(w => {
             const ws = findWorkstation(w.workstationId);
             return (
-              <Link to="/work-orders/$woId" params={{ woId: w.id }} key={w.id}
-                className="flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-card/40 p-3 hover:border-primary/40">
+              <div key={w.id}
+                className="flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-card/40 p-3">
+
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 font-mono text-xs text-primary">{w.seq}</span>
                   <div className="min-w-0">
