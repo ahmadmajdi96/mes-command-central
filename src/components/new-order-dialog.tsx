@@ -160,9 +160,19 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
               <input value={currency} onChange={(e) => setCurrency(e.target.value)}
                 className="h-9 w-full rounded-lg border border-border/60 bg-card/60 px-2 text-sm" />
             </Labeled>
-            <Labeled label="Total (auto)">
+            <Labeled label="Revenue total (auto)">
               <div className="flex h-9 items-center rounded-lg border border-border/60 bg-card/40 px-3 font-mono text-sm">
                 {currency} {total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </Labeled>
+            <Labeled label="Cost total (auto)">
+              <div className="flex h-9 items-center rounded-lg border border-border/60 bg-card/40 px-3 font-mono text-sm text-muted-foreground">
+                {currency} {costTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </Labeled>
+            <Labeled label="Margin (auto)">
+              <div className="flex h-9 items-center rounded-lg border border-border/60 bg-card/40 px-3 font-mono text-sm">
+                {currency} {(total - costTotal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
             </Labeled>
           </div>
