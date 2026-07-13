@@ -123,7 +123,8 @@ function ProductsList() {
             sku: v.sku, name: v.name, description: v.description || null,
             uom: v.uom || "EA", type: v.type || "finished",
             standard_cost: v.standard_cost || 0, lead_time: v.lead_time || 0,
-          });
+            batching_limit: v.batching_limit || 0,
+          } as never);
           toast.success("Product created");
 
           if (v.send_to_qc) {
