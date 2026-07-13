@@ -12,7 +12,7 @@ export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
 
-const SYSTEMS: SisterSystem[] = ["mes", "qc", "command_center"];
+const SYSTEMS: SisterSystem[] = ["mes", "qc"];
 
 function SettingsPage() {
   const { user } = useSession();
