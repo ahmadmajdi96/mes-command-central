@@ -66,6 +66,65 @@ export function useUpdateProductRequest() {
   });
 }
 
+/** Approve an inbound request: flip status, log request_event, generate product_routings from payload.steps. */
+export function useApproveRequest() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, notes }: { id: string; notes?: string }) => {
+      const { data: cur } = await supabase.from("product_requests").select("*").eq("id", id).single();
+      if (!cur) throw new Error("Request not found");
+      const from = cur.status as string;
+      const { data, error } = await supabase
+        .from("product_requests")
+        .update({ status: "approved" as never })
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      await addRequestEvent(id, "request.approved", from, "approved", notes);
+      const payload = (cur.payload ?? {}) as Record<string, unknown>;
+      const steps = Array.isArray(payload.steps) ? (payload.steps as never[]) : [];
+      if (cur.product_id && steps.length > 0) {
+        const res = await createRoutingsFromSteps({ requestId: id, productId: cur.product_id, steps });
+        await addRequestEvent(id, "routings.created", null, null, `Created ${res.inserted} routing steps`);
+      }
+      await logAudit("product_request.approve", id, `${cur.number} approved`);
+      return data;
+    },
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: productRequestsKey });
+      qc.invalidateQueries({ queryKey: ["request_events", v.id] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+export function useRejectRequest() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, notes }: { id: string; notes?: string }) => {
+      const { data: cur } = await supabase.from("product_requests").select("status,number").eq("id", id).single();
+      const from = (cur?.status ?? null) as string | null;
+      const { data, error } = await supabase
+        .from("product_requests")
+        .update({ status: "rejected" as never })
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      await addRequestEvent(id, "request.rejected", from, "rejected", notes);
+      await logAudit("product_request.reject", id, `${cur?.number ?? id} rejected`);
+      return data;
+    },
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: productRequestsKey });
+      qc.invalidateQueries({ queryKey: ["request_events", v.id] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
+
 /** Look up the QC base URL for the current user, then attempt an HTTP push. */
 export async function deliverRequestToQc(requestId: string, payload: unknown) {
   const { data: userRes } = await supabase.auth.getUser();
