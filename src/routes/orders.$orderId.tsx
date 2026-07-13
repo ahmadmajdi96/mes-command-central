@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Edit, Trash2, XCircle, Truck } from "lucide-react";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, Panel, Field } from "@/components/page-shell";
-import { useOrder, useUpdateOrder, useDeleteOrder, useShipments, useRealtimeInvalidate, ordersKey, orderKey } from "@/lib/oms-db";
+import { useOrder, useUpdateOrder, useDeleteOrder, useShipments, useRealtimeInvalidate, useUpdateOrderLine, ordersKey, orderKey } from "@/lib/oms-db";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "@tanstack/react-router";
