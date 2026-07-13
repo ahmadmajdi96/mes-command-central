@@ -19,6 +19,7 @@ export type NewProductValues = {
   uom: string;
   type: string;
   standard_cost: number;
+  sale_price: number;
   lead_time: number;
   batching_limit: number;
   qc_specs: string;
