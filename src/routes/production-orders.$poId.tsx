@@ -80,19 +80,9 @@ function PODetail() {
                 <Play className="h-3.5 w-3.5" /> Release
               </button>
             )}
-            {r.status === "released" && (
-              <button onClick={() => transition("in_progress")} className="flex items-center gap-1.5 rounded-lg border border-info/40 bg-info/10 px-3 py-1.5 text-xs font-medium text-info">
-                <Play className="h-3.5 w-3.5" /> Start
-              </button>
-            )}
             {r.status === "in_progress" && (
               <button onClick={() => transition("completed")} className="flex items-center gap-1.5 rounded-lg border border-success/40 bg-success/10 px-3 py-1.5 text-xs font-medium text-success">
                 <CheckCircle2 className="h-3.5 w-3.5" /> Complete
-              </button>
-            )}
-            {r.status !== "completed" && r.status !== "cancelled" && (
-              <button onClick={() => transition("cancelled")} className="flex items-center gap-1.5 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs text-destructive">
-                <XCircle className="h-3.5 w-3.5" /> Cancel
               </button>
             )}
             <button onClick={() => setConfirmDel(true)} className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs text-destructive">
