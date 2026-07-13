@@ -176,9 +176,9 @@ function OrdersList() {
         open={openNew}
         onOpenChange={setOpenNew}
         title="New Sales Order"
+        description="Order # is auto-generated (SO-YYYY-####)."
         submitLabel="Create order"
         fields={[
-          { name: "number", label: "Order #", required: true, placeholder: "SO-2026-9999" },
           { name: "customer_id", label: "Customer", type: "select", required: true,
             options: customers.map((c) => ({ value: c.id, label: c.name })) },
           { name: "status", label: "Status", type: "select",
@@ -190,14 +190,15 @@ function OrdersList() {
           { name: "notes", label: "Notes", type: "textarea" },
         ]}
         onSubmit={async (v: any) => {
-          await createOrder.mutateAsync({
-            number: v.number, customer_id: v.customer_id || null, status: v.status || "draft",
+          const created = await createOrder.mutateAsync({
+            customer_id: v.customer_id || null, status: v.status || "draft",
             order_date: v.order_date || undefined, due_date: v.due_date || null,
             total: v.total || 0, currency: v.currency || "USD", notes: v.notes || null,
           } as any);
-          toast.success("Order created");
+          toast.success(`Order ${created.number} created`);
         }}
       />
+
     </div>
   );
 }

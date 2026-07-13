@@ -3,14 +3,16 @@ import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
 import { FormDialog } from "@/components/form-dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { SavedPresetsBar } from "@/components/saved-presets-bar";
-import { Plus, Truck, Search } from "lucide-react";
+import { Plus, Truck, Search, Pencil, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useStore } from "@/lib/store";
 import { permissionsFor } from "@/lib/roles";
 import {
-  useShipments, useCreateShipment, useOrders, useCustomers,
+  useShipments, useCreateShipment, useUpdateShipment, useDeleteShipment,
+  useOrders, useCustomers,
   useRealtimeInvalidate, shipmentsKey, shipmentStatusOptions, type ShipmentWithOrder,
 } from "@/lib/oms-db";
 
@@ -26,6 +28,8 @@ function ShipmentsPage() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
   const [openNew, setOpenNew] = useState(false);
+  const [editing, setEditing] = useState<ShipmentWithOrder | null>(null);
+  const [deleting, setDeleting] = useState<ShipmentWithOrder | null>(null);
   const role = useStore((s) => s.role);
   const perms = permissionsFor(role);
   useRealtimeInvalidate("shipments", [shipmentsKey]);
@@ -34,6 +38,8 @@ function ShipmentsPage() {
   const { data: orders = [] } = useOrders();
   const { data: customers = [] } = useCustomers();
   const createShipment = useCreateShipment();
+  const updateShipment = useUpdateShipment();
+  const deleteShipment = useDeleteShipment();
 
   const customerFor = (orderId?: string | null) => {
     const o = orders.find((x) => x.id === orderId);
@@ -117,6 +123,22 @@ function ShipmentsPage() {
           { key: "tracking", label: "Tracking", render: (s) => <span className="font-mono text-xs text-muted-foreground">{s.tracking ?? "—"}</span> },
           { key: "shipped", label: "Shipped", sortAccessor: (s) => s.shipped_at ?? "", render: (s) => <span className="font-mono text-xs">{s.shipped_at ? new Date(s.shipped_at).toLocaleDateString() : "—"}</span> },
           { key: "status", label: "Status", sortAccessor: (s) => s.status, render: (s) => <StatusPill status={s.status} /> },
+          ...(perms.createShipment ? [{
+            key: "actions", label: "", render: (s: ShipmentWithOrder) => (
+              <div className="flex items-center justify-end gap-1">
+                <button onClick={() => setEditing(s)}
+                  className="rounded-md border border-border/60 bg-card/60 p-1.5 text-muted-foreground hover:text-foreground"
+                  aria-label="Edit shipment">
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+                <button onClick={() => setDeleting(s)}
+                  className="rounded-md border border-destructive/40 bg-destructive/10 p-1.5 text-destructive hover:bg-destructive/20"
+                  aria-label="Delete shipment">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ),
+          }] : []),
         ]}
       />
 
@@ -124,9 +146,9 @@ function ShipmentsPage() {
         open={openNew}
         onOpenChange={setOpenNew}
         title="New Shipment"
+        description="Shipment # is auto-generated (SHP-YYYY-####)."
         submitLabel="Create shipment"
         fields={[
-          { name: "number", label: "Shipment #", required: true, placeholder: "SHP-0778" },
           { name: "order_id", label: "Sales Order", type: "select", required: true,
             options: orders.map((o) => ({ value: o.id, label: o.number })) },
           { name: "carrier", label: "Carrier" },
@@ -136,12 +158,65 @@ function ShipmentsPage() {
           { name: "shipped_at", label: "Shipped date", type: "date" },
         ]}
         onSubmit={async (v: any) => {
-          await createShipment.mutateAsync({
-            number: v.number, order_id: v.order_id || null, carrier: v.carrier || null,
+          const created = await createShipment.mutateAsync({
+            order_id: v.order_id || null, carrier: v.carrier || null,
             tracking: v.tracking || null, status: v.status || "draft",
             shipped_at: v.shipped_at ? new Date(v.shipped_at).toISOString() : null,
           });
-          toast.success("Shipment created");
+          toast.success(`Shipment ${created.number} created`);
+        }}
+      />
+
+      <FormDialog
+        open={!!editing}
+        onOpenChange={(v) => !v && setEditing(null)}
+        title={editing ? `Edit ${editing.number}` : "Edit shipment"}
+        submitLabel="Save changes"
+        initial={editing ? {
+          order_id: editing.order_id ?? "",
+          carrier: editing.carrier ?? "",
+          tracking: editing.tracking ?? "",
+          status: editing.status,
+          shipped_at: editing.shipped_at ? editing.shipped_at.slice(0, 10) : "",
+        } as any : undefined}
+        fields={[
+          { name: "order_id", label: "Sales Order", type: "select",
+            options: orders.map((o) => ({ value: o.id, label: o.number })) },
+          { name: "carrier", label: "Carrier" },
+          { name: "tracking", label: "Tracking" },
+          { name: "status", label: "Status", type: "select",
+            options: shipmentStatusOptions.map((s) => ({ value: s, label: s })) },
+          { name: "shipped_at", label: "Shipped date", type: "date" },
+        ]}
+        onSubmit={async (v: any) => {
+          if (!editing) return;
+          await updateShipment.mutateAsync({
+            id: editing.id,
+            patch: {
+              order_id: v.order_id || null,
+              carrier: v.carrier || null,
+              tracking: v.tracking || null,
+              status: v.status || editing.status,
+              shipped_at: v.shipped_at ? new Date(v.shipped_at).toISOString() : null,
+            },
+          });
+          toast.success("Shipment updated");
+          setEditing(null);
+        }}
+      />
+
+      <ConfirmDialog
+        open={!!deleting}
+        onOpenChange={(v) => !v && setDeleting(null)}
+        title={deleting ? `Delete ${deleting.number}?` : "Delete shipment?"}
+        description="This permanently removes the shipment record."
+        confirmLabel="Delete shipment"
+        variant="destructive"
+        onConfirm={async () => {
+          if (!deleting) return;
+          await deleteShipment.mutateAsync(deleting.id);
+          toast.success("Shipment deleted");
+          setDeleting(null);
         }}
       />
     </div>

@@ -180,8 +180,9 @@ export function useOrder(id: string) {
 export function useCreateOrder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: Partial<SalesOrder> & { number: string }) => {
-      const { data, error } = await supabase.from("sales_orders").insert(input).select().single();
+    mutationFn: async (input: Partial<SalesOrder>) => {
+      const { data, error } = await supabase.from("sales_orders").insert(input as any).select().single();
+
       if (error) throw error;
       await logAudit("sales_order.create", data.id, `Created ${data.number}`);
       return data;
@@ -459,8 +460,9 @@ export function useShipments() {
 export function useCreateShipment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: Partial<Shipment> & { number: string }) => {
-      const { data, error } = await supabase.from("shipments").insert(input).select().single();
+    mutationFn: async (input: Partial<Shipment>) => {
+      const { data, error } = await supabase.from("shipments").insert(input as any).select().single();
+
       if (error) throw error;
       await logAudit("shipment.create", data.id, `Created ${data.number}`);
       return data;

@@ -115,9 +115,9 @@ function CustomersList() {
         open={openNew}
         onOpenChange={setOpenNew}
         title="New Customer"
+        description="Customer code is generated automatically (CUS-####)."
         submitLabel="Create customer"
         fields={[
-          { name: "code", label: "Code", placeholder: "CUS-007" },
           { name: "name", label: "Name", required: true },
           { name: "contact", label: "Contact" },
           { name: "email", label: "Email", type: "email" },
@@ -125,10 +125,17 @@ function CustomersList() {
           { name: "address", label: "Address", type: "textarea" },
         ]}
         onSubmit={async (v: any) => {
-          await createCustomer.mutateAsync(v);
-          toast.success("Customer created");
+          const created = await createCustomer.mutateAsync({
+            name: v.name,
+            contact: v.contact || null,
+            email: v.email || null,
+            phone: v.phone || null,
+            address: v.address || null,
+          } as any);
+          toast.success(`Customer ${created.code} created`);
         }}
       />
+
     </div>
   );
 }
