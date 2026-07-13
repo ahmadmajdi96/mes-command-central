@@ -182,7 +182,7 @@ export function NewProductDialog({
 function seed(): NewProductValues {
   return {
     sku: "", name: "", description: "", uom: "EA", type: "finished",
-    standard_cost: 0, lead_time: 0, batching_limit: 0, qc_specs: "", qc_category_id: "",
+    standard_cost: 0, sale_price: 0, lead_time: 0, batching_limit: 0, qc_specs: "", qc_category_id: "",
     send_to_qc: true, steps: [],
   };
 }
