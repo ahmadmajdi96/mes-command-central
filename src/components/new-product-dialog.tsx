@@ -39,26 +39,6 @@ export function NewProductDialog({
 
   useEffect(() => { if (open) setV(seed()); }, [open]);
 
-  const addStep = () => setV((s) => ({
-    ...s,
-    steps: [...s.steps, { sequence: s.steps.length + 1, station_id: "", operation: "", notes: "" }],
-  }));
-  const removeStep = (i: number) => setV((s) => ({
-    ...s,
-    steps: s.steps.filter((_, idx) => idx !== i).map((st, idx) => ({ ...st, sequence: idx + 1 })),
-  }));
-  const updateStep = (i: number, patch: Partial<NewProductStep>) => setV((s) => ({
-    ...s,
-    steps: s.steps.map((st, idx) => idx === i ? { ...st, ...patch } : st),
-  }));
-  const moveStep = (i: number, dir: -1 | 1) => setV((s) => {
-    const j = i + dir;
-    if (j < 0 || j >= s.steps.length) return s;
-    const arr = [...s.steps];
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-    return { ...s, steps: arr.map((st, idx) => ({ ...st, sequence: idx + 1 })) };
-  });
-
   const submit = async () => {
     if (!v.sku.trim()) return toast.error("SKU is required");
     if (!v.name.trim()) return toast.error("Name is required");
@@ -66,14 +46,6 @@ export function NewProductDialog({
     if (!(v.standard_cost >= 0)) return toast.error("Standard cost must be a non-negative number");
     if (!Number.isInteger(v.batching_limit) || v.batching_limit < 0) {
       return toast.error("Batching limit must be a non-negative whole number");
-    }
-    if (v.send_to_qc) {
-      const seen = new Set<number>();
-      for (const s of v.steps) {
-        if (!s.station_id) return toast.error(`Step ${s.sequence}: station is required`);
-        if (seen.has(s.sequence)) return toast.error(`Duplicate sequence ${s.sequence}`);
-        seen.add(s.sequence);
-      }
     }
     try {
       setBusy(true);
