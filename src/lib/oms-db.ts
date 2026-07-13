@@ -167,7 +167,7 @@ export function useOrder(id: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sales_orders")
-        .select("*, customer:customers(*), lines:sales_order_lines(*, product:products(id,sku,name))")
+        .select("*, customer:customers(*), lines:sales_order_lines(*, product:products(id,sku,name,uom,standard_cost,sale_price,batching_limit))")
         .eq("id", id)
         .single();
       if (error) throw error;
