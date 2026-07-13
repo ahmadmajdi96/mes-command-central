@@ -8,8 +8,18 @@ const CORS = {
 } as const;
 
 const Schema = z.object({
-  event_type: z.enum(["inspection.created", "inspection.updated", "ncr.raised", "ncr.updated", "ncr.closed"]),
+  event_type: z.enum([
+    "inspection.created", "inspection.updated",
+    "ncr.raised", "ncr.updated", "ncr.closed",
+    "request.acknowledged", "request.in_review", "request.approved", "request.rejected", "request.completed", "request.failed",
+  ]),
   external_id: z.string().max(128).optional(),
+  // Correlation to OMS product_requests
+  request_id: z.string().uuid().optional(),
+  request_number: z.string().max(64).optional(),
+  from_status: z.string().max(32).optional(),
+  to_status: z.string().max(32).optional(),
+  actor: z.string().max(128).optional(),
   work_order_id: z.string().uuid().optional(),
   product_id: z.string().uuid().optional(),
   inspection_type: z.string().max(64).optional(),
@@ -27,6 +37,7 @@ const Schema = z.object({
   raised_at: z.string().datetime().optional(),
   closed_at: z.string().datetime().optional(),
 });
+
 
 export const Route = createFileRoute("/api/public/webhooks/qc")({
   server: {
@@ -53,7 +64,50 @@ export const Route = createFileRoute("/api/public/webhooks/qc")({
         const e = parsed.data;
 
         try {
-          if (e.event_type.startsWith("inspection.")) {
+          if (e.event_type.startsWith("request.")) {
+            // Resolve target OMS request by id or number
+            let requestId: string | null = e.request_id ?? null;
+            let fromStatus: string | null = e.from_status ?? null;
+            if (!requestId && e.request_number) {
+              const { data: r } = await supabaseAdmin
+                .from("product_requests")
+                .select("id,status")
+                .eq("number", e.request_number)
+                .maybeSingle();
+              if (r) { requestId = r.id; fromStatus = fromStatus ?? (r.status as string); }
+            } else if (requestId && !fromStatus) {
+              const { data: r } = await supabaseAdmin
+                .from("product_requests")
+                .select("status")
+                .eq("id", requestId)
+                .maybeSingle();
+              fromStatus = (r?.status as string) ?? null;
+            }
+
+            if (!requestId) {
+              throw new Error("request_id or request_number required for request.* events");
+            }
+
+            const toStatus = e.to_status ?? e.event_type.replace("request.", "");
+            const validStatuses = new Set(["pending","in_review","approved","rejected","completed","cancelled","failed","acknowledged"]);
+            const statusPatch: Record<string, unknown> = {};
+            if (validStatuses.has(toStatus)) statusPatch.status = toStatus;
+            if (e.event_type === "request.completed") statusPatch.delivery_status = "delivered";
+            if (e.event_type === "request.failed") { statusPatch.delivery_status = "failed"; statusPatch.delivery_error = e.notes ?? "Reported by QC"; }
+
+            if (Object.keys(statusPatch).length > 0) {
+              await supabaseAdmin.from("product_requests").update(statusPatch as never).eq("id", requestId);
+            }
+
+            await supabaseAdmin.from("request_events").insert({
+              request_id: requestId,
+              event_type: e.event_type,
+              from_status: fromStatus,
+              to_status: toStatus,
+              notes: e.notes ?? null,
+              payload: e as never,
+            } as never);
+          } else if (e.event_type.startsWith("inspection.")) {
             await supabaseAdmin.from("qc_inspections").upsert({
               external_id: e.external_id ?? null,
               work_order_id: e.work_order_id ?? null,
@@ -90,6 +144,7 @@ export const Route = createFileRoute("/api/public/webhooks/qc")({
             source: "qc", direction: "inbound", event_type: e.event_type, status: "error",
             payload: e as never, error: err instanceof Error ? err.message : String(err),
           });
+
           return new Response(JSON.stringify({ error: "Persist failed" }), {
             status: 500, headers: { "Content-Type": "application/json", ...CORS },
           });
