@@ -64,6 +64,11 @@ export function NewProductDialog({
   const submit = async () => {
     if (!v.sku.trim()) return toast.error("SKU is required");
     if (!v.name.trim()) return toast.error("Name is required");
+    if (!(v.sale_price >= 0) || Number.isNaN(v.sale_price)) return toast.error("Sale price must be a non-negative number");
+    if (!(v.standard_cost >= 0)) return toast.error("Standard cost must be a non-negative number");
+    if (!Number.isInteger(v.batching_limit) || v.batching_limit < 0) {
+      return toast.error("Batching limit must be a non-negative whole number");
+    }
     if (v.send_to_qc) {
       const seen = new Set<number>();
       for (const s of v.steps) {
