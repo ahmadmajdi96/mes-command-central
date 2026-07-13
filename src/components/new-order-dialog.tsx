@@ -39,11 +39,27 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
 
   const productMap = useMemo(() => Object.fromEntries(products.map((p) => [p.id, p])), [products]);
 
-  const addLine = () =>
-    setLines((l) => [...l, { product_id: products[0]?.id ?? "", qty: 1, unit_price: 0, due_date: dueDate }]);
+  const addLine = () => {
+    const p = products[0];
+    setLines((l) => [...l, {
+      product_id: p?.id ?? "",
+      qty: 1,
+      unit_price: Number((p as any)?.sale_price ?? 0),
+      due_date: dueDate,
+    }]);
+  };
   const removeLine = (i: number) => setLines((l) => l.filter((_, idx) => idx !== i));
   const patchLine = (i: number, patch: Partial<OrderLineInput>) =>
-    setLines((l) => l.map((row, idx) => (idx === i ? { ...row, ...patch } : row)));
+    setLines((l) => l.map((row, idx) => {
+      if (idx !== i) return row;
+      const next = { ...row, ...patch };
+      // When product changes, auto-fill unit_price from product.sale_price
+      if (patch.product_id && patch.product_id !== row.product_id) {
+        const prod = productMap[patch.product_id];
+        next.unit_price = Number((prod as any)?.sale_price ?? 0);
+      }
+      return next;
+    }));
 
   const previews = useMemo(() =>
     lines.map((l) => {
@@ -57,6 +73,13 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
   const total = useMemo(
     () => lines.reduce((s, l) => s + (Number(l.qty) || 0) * (Number(l.unit_price) || 0), 0),
     [lines],
+  );
+  const costTotal = useMemo(
+    () => lines.reduce((s, l) => {
+      const c = Number((productMap[l.product_id] as any)?.standard_cost ?? 0);
+      return s + (Number(l.qty) || 0) * c;
+    }, 0),
+    [lines, productMap],
   );
 
   const submit = async () => {
@@ -78,45 +101,20 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
         notes: notes || null,
       });
 
-      // Split each line by batching_limit and insert
-      const rows: Array<{
-        order_id: string;
-        product_id: string;
-        qty: number;
-        unit_price: number;
-        due_date: string | null;
-        batch_index: number | null;
-        batch_of: number | null;
-        status: string;
-      }> = [];
-      for (const l of lines) {
-        const prod = productMap[l.product_id];
-        const limit = Number(prod?.batching_limit ?? 0);
-        const qty = Number(l.qty);
-        const price = Number(l.unit_price) || 0;
-        const due = l.due_date || null;
-        if (!limit || limit <= 0 || qty <= limit) {
-          rows.push({
-            order_id: created.id, product_id: l.product_id, qty, unit_price: price,
-            due_date: due, batch_index: null, batch_of: null, status: "pending",
-          });
-        } else {
-          const count = Math.ceil(qty / limit);
-          let remaining = qty;
-          for (let i = 1; i <= count; i++) {
-            const size = Math.min(limit, remaining);
-            rows.push({
-              order_id: created.id, product_id: l.product_id, qty: size, unit_price: price,
-              due_date: due, batch_index: i, batch_of: count, status: "pending",
-            });
-            remaining -= size;
-          }
-        }
-      }
+      // One sales_order_line per product. Batching is applied later when the order
+      // is sent to production (explodeOrderToProduction reads product.batching_limit).
+      const rows = lines.map((l) => ({
+        order_id: created.id,
+        product_id: l.product_id,
+        qty: Number(l.qty) || 0,
+        unit_price: Number(l.unit_price) || 0,
+        due_date: l.due_date || null,
+        status: "pending",
+      }));
       const { error } = await supabase.from("sales_order_lines").insert(rows);
       if (error) throw error;
 
-      await logAudit("sales_order.lines", created.id, `Added ${rows.length} line(s) across ${lines.length} product(s)`);
+      await logAudit("sales_order.lines", created.id, `Added ${rows.length} line(s)`);
       qc.invalidateQueries({ queryKey: ordersKey });
       toast.success(`Order ${created.number} created — ${rows.length} line(s)`);
       onOpenChange(false);
@@ -132,7 +130,7 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
       <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>New Sales Order</DialogTitle>
-          <DialogDescription>Order # auto-generated (SO-YYYY-####). Lines exceeding a product's batching limit split automatically.</DialogDescription>
+          <DialogDescription>Order # auto-generated (SO-YYYY-####). Unit price auto-fills from each product's sale price; batches are created only when the order is sent to production.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -162,9 +160,19 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
               <input value={currency} onChange={(e) => setCurrency(e.target.value)}
                 className="h-9 w-full rounded-lg border border-border/60 bg-card/60 px-2 text-sm" />
             </Labeled>
-            <Labeled label="Total (auto)">
+            <Labeled label="Revenue total (auto)">
               <div className="flex h-9 items-center rounded-lg border border-border/60 bg-card/40 px-3 font-mono text-sm">
                 {currency} {total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </Labeled>
+            <Labeled label="Cost total (auto)">
+              <div className="flex h-9 items-center rounded-lg border border-border/60 bg-card/40 px-3 font-mono text-sm text-muted-foreground">
+                {currency} {costTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </Labeled>
+            <Labeled label="Margin (auto)">
+              <div className="flex h-9 items-center rounded-lg border border-border/60 bg-card/40 px-3 font-mono text-sm">
+                {currency} {(total - costTotal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
             </Labeled>
           </div>
@@ -217,21 +225,20 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
                           <Trash2 className="h-3 w-3" />
                         </button>
                       </div>
-                      <div className="mt-1.5 flex items-center gap-3 pl-1 text-[11px] text-muted-foreground">
+                      <div className="mt-1.5 flex flex-wrap items-center gap-3 pl-1 text-[11px] text-muted-foreground">
                         <span className="inline-flex items-center gap-1"><Info className="h-3 w-3" />
                           Batching limit: <span className="font-mono">{limit > 0 ? limit : "—"}</span>
                         </span>
                         {preview.batches > 1 ? (
                           <span className="text-info">
-                            → will split into <span className="font-mono">{preview.batches}</span> batch lines of{" "}
-                            <span className="font-mono">{preview.size}</span> {prod?.uom ?? ""}
-                            {Number(l.qty) % (limit || 1) !== 0 && (
-                              <> (last {(Number(l.qty) - preview.size * (preview.batches - 1))})</>
-                            )}
+                            → {preview.batches} batch(es) of {preview.size} {prod?.uom ?? ""} on production
                           </span>
                         ) : (
-                          <span>→ single line</span>
+                          <span>→ 1 batch on production</span>
                         )}
+                        <span className="inline-flex items-center gap-1">
+                          Cost: <span className="font-mono">{currency} {Number((prod as any)?.standard_cost ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        </span>
                         <span className="ml-auto font-mono text-foreground/80">
                           {currency} {((Number(l.qty) || 0) * (Number(l.unit_price) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </span>

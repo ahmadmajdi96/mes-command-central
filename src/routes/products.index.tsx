@@ -120,6 +120,7 @@ function ProductsList() {
             uom: v.uom || "EA", type: v.type || "finished",
             standard_cost: v.standard_cost || 0, lead_time: v.lead_time || 0,
             batching_limit: v.batching_limit || 0,
+            sale_price: v.sale_price || 0,
           } as never);
           toast.success("Product created");
 
