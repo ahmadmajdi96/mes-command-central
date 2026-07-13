@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShipmentsRouteImport } from './routes/shipments'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RequestsRouteImport } from './routes/requests'
-import { Route as CommandCenterRouteImport } from './routes/command-center'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as IndexRouteImport } from './routes/index'
@@ -29,7 +28,6 @@ import { Route as CustomersCustomerIdRouteImport } from './routes/customers.$cus
 import { Route as BatchesBatchIdRouteImport } from './routes/batches.$batchId'
 import { Route as ApiPublicWebhooksQcRouteImport } from './routes/api/public/webhooks.qc'
 import { Route as ApiPublicWebhooksMesRouteImport } from './routes/api/public/webhooks.mes'
-import { Route as ApiPublicWebhooksCommandCenterRouteImport } from './routes/api/public/webhooks.command-center'
 import { Route as ApiPublicOmsWorkOrdersRouteImport } from './routes/api/public/oms.work-orders'
 import { Route as ApiPublicOmsOrdersRouteImport } from './routes/api/public/oms.orders'
 
@@ -46,11 +44,6 @@ const SettingsRoute = SettingsRouteImport.update({
 const RequestsRoute = RequestsRouteImport.update({
   id: '/requests',
   path: '/requests',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CommandCenterRoute = CommandCenterRouteImport.update({
-  id: '/command-center',
-  path: '/command-center',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -133,12 +126,6 @@ const ApiPublicWebhooksMesRoute = ApiPublicWebhooksMesRouteImport.update({
   path: '/api/public/webhooks/mes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicWebhooksCommandCenterRoute =
-  ApiPublicWebhooksCommandCenterRouteImport.update({
-    id: '/api/public/webhooks/command-center',
-    path: '/api/public/webhooks/command-center',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicOmsWorkOrdersRoute = ApiPublicOmsWorkOrdersRouteImport.update({
   id: '/api/public/oms/work-orders',
   path: '/api/public/oms/work-orders',
@@ -154,7 +141,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
-  '/command-center': typeof CommandCenterRoute
   '/requests': typeof RequestsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
@@ -171,7 +157,6 @@ export interface FileRoutesByFullPath {
   '/products/': typeof ProductsIndexRoute
   '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
   '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
-  '/api/public/webhooks/command-center': typeof ApiPublicWebhooksCommandCenterRoute
   '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
   '/api/public/webhooks/qc': typeof ApiPublicWebhooksQcRoute
 }
@@ -179,7 +164,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
-  '/command-center': typeof CommandCenterRoute
   '/requests': typeof RequestsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
@@ -196,7 +180,6 @@ export interface FileRoutesByTo {
   '/products': typeof ProductsIndexRoute
   '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
   '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
-  '/api/public/webhooks/command-center': typeof ApiPublicWebhooksCommandCenterRoute
   '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
   '/api/public/webhooks/qc': typeof ApiPublicWebhooksQcRoute
 }
@@ -205,7 +188,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
-  '/command-center': typeof CommandCenterRoute
   '/requests': typeof RequestsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
@@ -222,7 +204,6 @@ export interface FileRoutesById {
   '/products/': typeof ProductsIndexRoute
   '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
   '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
-  '/api/public/webhooks/command-center': typeof ApiPublicWebhooksCommandCenterRoute
   '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
   '/api/public/webhooks/qc': typeof ApiPublicWebhooksQcRoute
 }
@@ -232,7 +213,6 @@ export interface FileRouteTypes {
     | '/'
     | '/audit'
     | '/auth'
-    | '/command-center'
     | '/requests'
     | '/settings'
     | '/shipments'
@@ -249,7 +229,6 @@ export interface FileRouteTypes {
     | '/products/'
     | '/api/public/oms/orders'
     | '/api/public/oms/work-orders'
-    | '/api/public/webhooks/command-center'
     | '/api/public/webhooks/mes'
     | '/api/public/webhooks/qc'
   fileRoutesByTo: FileRoutesByTo
@@ -257,7 +236,6 @@ export interface FileRouteTypes {
     | '/'
     | '/audit'
     | '/auth'
-    | '/command-center'
     | '/requests'
     | '/settings'
     | '/shipments'
@@ -274,7 +252,6 @@ export interface FileRouteTypes {
     | '/products'
     | '/api/public/oms/orders'
     | '/api/public/oms/work-orders'
-    | '/api/public/webhooks/command-center'
     | '/api/public/webhooks/mes'
     | '/api/public/webhooks/qc'
   id:
@@ -282,7 +259,6 @@ export interface FileRouteTypes {
     | '/'
     | '/audit'
     | '/auth'
-    | '/command-center'
     | '/requests'
     | '/settings'
     | '/shipments'
@@ -299,7 +275,6 @@ export interface FileRouteTypes {
     | '/products/'
     | '/api/public/oms/orders'
     | '/api/public/oms/work-orders'
-    | '/api/public/webhooks/command-center'
     | '/api/public/webhooks/mes'
     | '/api/public/webhooks/qc'
   fileRoutesById: FileRoutesById
@@ -308,7 +283,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuditRoute: typeof AuditRoute
   AuthRoute: typeof AuthRoute
-  CommandCenterRoute: typeof CommandCenterRoute
   RequestsRoute: typeof RequestsRouteWithChildren
   SettingsRoute: typeof SettingsRoute
   ShipmentsRoute: typeof ShipmentsRoute
@@ -324,7 +298,6 @@ export interface RootRouteChildren {
   ProductsIndexRoute: typeof ProductsIndexRoute
   ApiPublicOmsOrdersRoute: typeof ApiPublicOmsOrdersRoute
   ApiPublicOmsWorkOrdersRoute: typeof ApiPublicOmsWorkOrdersRoute
-  ApiPublicWebhooksCommandCenterRoute: typeof ApiPublicWebhooksCommandCenterRoute
   ApiPublicWebhooksMesRoute: typeof ApiPublicWebhooksMesRoute
   ApiPublicWebhooksQcRoute: typeof ApiPublicWebhooksQcRoute
 }
@@ -350,13 +323,6 @@ declare module '@tanstack/react-router' {
       path: '/requests'
       fullPath: '/requests'
       preLoaderRoute: typeof RequestsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/command-center': {
-      id: '/command-center'
-      path: '/command-center'
-      fullPath: '/command-center'
-      preLoaderRoute: typeof CommandCenterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -471,13 +437,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksMesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/webhooks/command-center': {
-      id: '/api/public/webhooks/command-center'
-      path: '/api/public/webhooks/command-center'
-      fullPath: '/api/public/webhooks/command-center'
-      preLoaderRoute: typeof ApiPublicWebhooksCommandCenterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/oms/work-orders': {
       id: '/api/public/oms/work-orders'
       path: '/api/public/oms/work-orders'
@@ -511,7 +470,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuditRoute: AuditRoute,
   AuthRoute: AuthRoute,
-  CommandCenterRoute: CommandCenterRoute,
   RequestsRoute: RequestsRouteWithChildren,
   SettingsRoute: SettingsRoute,
   ShipmentsRoute: ShipmentsRoute,
@@ -527,7 +485,6 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsIndexRoute: ProductsIndexRoute,
   ApiPublicOmsOrdersRoute: ApiPublicOmsOrdersRoute,
   ApiPublicOmsWorkOrdersRoute: ApiPublicOmsWorkOrdersRoute,
-  ApiPublicWebhooksCommandCenterRoute: ApiPublicWebhooksCommandCenterRoute,
   ApiPublicWebhooksMesRoute: ApiPublicWebhooksMesRoute,
   ApiPublicWebhooksQcRoute: ApiPublicWebhooksQcRoute,
 }

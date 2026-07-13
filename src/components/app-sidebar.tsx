@@ -30,7 +30,6 @@ import {
 
 const overview = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Command Center", url: "/command-center", icon: Gauge },
 ];
 
 const orders = [
