@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Play, XCircle, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Play, XCircle, CheckCircle2, Plus, Trash2, Layers } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { PageHeader, Panel, Field, DataTable } from "@/components/page-shell";
 import { StatusPill } from "@/components/status-pill";
 import { FormDialog } from "@/components/form-dialog";
