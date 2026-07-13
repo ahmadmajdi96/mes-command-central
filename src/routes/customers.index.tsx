@@ -6,8 +6,6 @@ import { CSVExportButton } from "@/components/csv-export-button";
 import { FormDialog } from "@/components/form-dialog";
 import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { toast } from "sonner";
-import { useStore } from "@/lib/store";
-import { permissionsFor } from "@/lib/roles";
 import { useCustomers, useCreateCustomer, useOrders, useRealtimeInvalidate, customersKey, type Customer } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/customers/")({
@@ -21,8 +19,6 @@ function CustomersList() {
   const [q, setQ] = useState("");
   const [region, setRegion] = useState("all");
   const [openNew, setOpenNew] = useState(false);
-  const role = useStore((s) => s.role);
-  const perms = permissionsFor(role);
   useRealtimeInvalidate("customers", [customersKey]);
 
   const { data: customers = [], isLoading } = useCustomers();
@@ -63,7 +59,7 @@ function CustomersList() {
                 { key: "orders", label: "Orders", get: (c) => ordersOf(c.id) },
               ]}
             />
-            {perms.createOrder && (
+            {true && (
               <button onClick={() => setOpenNew(true)}
                 className="flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
                 <Plus className="h-3.5 w-3.5" /> New Customer

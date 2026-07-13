@@ -8,8 +8,6 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { NewOrderDialog } from "@/components/new-order-dialog";
 import { toast } from "sonner";
-import { useStore } from "@/lib/store";
-import { permissionsFor } from "@/lib/roles";
 import {
   useOrders, useBulkUpdateOrderStatus, useRealtimeInvalidate,
   ordersKey, orderStatusOptions, type OrderWithCustomer,
@@ -27,8 +25,6 @@ function OrdersList() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [openNew, setOpenNew] = useState(false);
-  const role = useStore((s) => s.role);
-  const perms = permissionsFor(role);
   useRealtimeInvalidate("sales_orders", [ordersKey]);
 
   const { data: orders = [], isLoading } = useOrders();
@@ -81,7 +77,7 @@ function OrdersList() {
                 { key: "currency", label: "Currency" },
               ]}
             />
-            {perms.createOrder && (
+            {true && (
               <button onClick={() => setOpenNew(true)}
                 className="flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
                 <Plus className="h-3.5 w-3.5" /> New Order
@@ -119,7 +115,7 @@ function OrdersList() {
         rows={filtered}
         getRowId={(o) => o.id}
         defaultSort={{ key: "orderDate", dir: "desc" }}
-        bulkActions={perms.editOrder ? (selected, clear) => (
+        bulkActions={true ? (selected, clear) => (
           <>
             <button onClick={() => setConfirm({ ids: selected.map((s) => s.id), clear, targetStatus: "confirmed", label: "Confirm orders" })}
               className="rounded-md border border-success/40 bg-success/10 px-2.5 py-1 text-[11px] text-success hover:bg-success/20">
