@@ -33,7 +33,7 @@ export function NewProductDialog({
   onOpenChange: (v: boolean) => void;
   onSubmit: (v: NewProductValues) => Promise<void>;
 }) {
-  const { data: stations = [] } = useStations();
+  
   const [busy, setBusy] = useState(false);
   const [v, setV] = useState<NewProductValues>(seed());
 
