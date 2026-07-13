@@ -14,7 +14,7 @@ import {
   type ProductionOrder,
 } from "@/lib/production-orders-db";
 import { useBatches, useCreateBatch, useUpdateBatch, useDeleteBatch, type Batch } from "@/lib/batches-db";
-import { useProducts, useSalesOrders } from "@/lib/oms-db";
+import { useProducts, useOrders } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/production-orders/$poId")({
   head: ({ params }) => ({ meta: [{ title: `PO ${params.poId.slice(0, 8)} · CORTA OMS` }] }),
@@ -30,7 +30,7 @@ function PODetail() {
   const upd = useUpdateProductionOrder();
   const del = useDeleteProductionOrder();
   const { data: products = [] } = useProducts();
-  const { data: orders = [] } = useSalesOrders();
+  const { data: orders = [] } = useOrders();
   const { data: batches = [] } = useBatches(poId);
   const createBatch = useCreateBatch();
   const updBatch = useUpdateBatch();
@@ -53,7 +53,7 @@ function PODetail() {
   if (!po.data) throw notFound();
   const r: ProductionOrder = po.data;
   const product = products.find((p) => p.id === r.product_id);
-  const so = orders.find((o) => o.id === r.sales_order_id);
+  const so = orders.find((o: { id: string; number: string }) => o.id === r.sales_order_id);
   const pct = Number(r.qty) > 0 ? Math.round((Number(r.qty_produced) / Number(r.qty)) * 100) : 0;
 
   const transition = async (status: ProductionOrder["status"]) => {

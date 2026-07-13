@@ -14,7 +14,7 @@ import {
   type ProductionOrder,
   type ProductionOrderStatus,
 } from "@/lib/production-orders-db";
-import { useProducts, useSalesOrders } from "@/lib/oms-db";
+import { useProducts, useOrders } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/production-orders/")({
   head: () => ({ meta: [{ title: "Production Orders · CORTA OMS" }] }),
@@ -29,7 +29,7 @@ function POList() {
   const [openNew, setOpenNew] = useState(false);
   const { data: rows = [], isLoading } = useProductionOrders();
   const { data: products = [] } = useProducts();
-  const { data: orders = [] } = useSalesOrders();
+  const { data: orders = [] } = useOrders();
   const create = useCreateProductionOrder();
   const qc = useQueryClient();
 
@@ -44,7 +44,7 @@ function POList() {
   }, [qc]);
 
   const productName = (id: string | null) => products.find((p) => p.id === id)?.name ?? "—";
-  const soNumber = (id: string | null) => orders.find((o) => o.id === id)?.number ?? null;
+  const soNumber = (id: string | null) => orders.find((o: { id: string; number: string }) => o.id === id)?.number ?? null;
 
   const filtered = useMemo(() => rows.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
@@ -132,7 +132,7 @@ function POList() {
           { name: "product_id", label: "Product", required: true, type: "select",
             options: products.map((p) => ({ value: p.id, label: `${p.sku} — ${p.name}` })) },
           { name: "sales_order_id", label: "Sales Order (optional)", type: "select",
-            options: orders.map((o) => ({ value: o.id, label: o.number })) },
+            options: orders.map((o: { id: string; number: string }) => ({ value: o.id, label: o.number })) },
           { name: "qty", label: "Quantity", type: "number", required: true, step: 1 },
           { name: "priority", label: "Priority (1-5)", type: "number", step: 1 },
           { name: "planned_start", label: "Planned start", type: "date" },
