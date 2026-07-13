@@ -139,6 +139,14 @@ function PODetail() {
           </div>
         </Panel>
       </div>
+      <BatchingSummary
+        totalQty={Number(r.qty)}
+        limit={Number((product as any)?.batching_limit ?? 0)}
+        uom={product?.uom ?? ""}
+        existingBatchQty={batches.reduce((s, b) => s + Number(b.qty || 0), 0)}
+        status={r.status}
+      />
+
 
       <Panel>
         <div className="mb-3 flex items-center justify-between">
