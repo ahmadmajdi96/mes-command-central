@@ -54,7 +54,7 @@ function SettingsPage() {
           <h3 className="text-sm font-semibold">Sister-system integrations</h3>
         </div>
         <p className="mb-4 text-xs text-muted-foreground">
-          Point this OMS at your <span className="text-foreground">MES Command Center</span>, <span className="text-foreground">CORTA QC System</span>, and <span className="text-foreground">Command Center Pro</span> deployments.
+          Point this OMS at your <span className="text-foreground">MES</span> and <span className="text-foreground">CORTA QC System</span> deployments.
           Settings are stored per user. Sister systems can push events into the endpoints below.
         </p>
 
