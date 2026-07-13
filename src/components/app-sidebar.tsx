@@ -104,7 +104,7 @@ export function AppSidebar() {
           <div className="flex min-w-0 flex-col leading-tight group-data-[collapsible=icon]:hidden">
             <span className="text-sm font-semibold tracking-tight">CORTA OMS</span>
             <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              Order Ops · v1.0
+              FACTORY FLOOR · V1.0
             </span>
           </div>
         </Link>
