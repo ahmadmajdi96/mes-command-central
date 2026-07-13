@@ -634,6 +634,7 @@ export type Database = {
       }
       products: {
         Row: {
+          batching_limit: number
           created_at: string
           description: string | null
           id: string
@@ -646,6 +647,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          batching_limit?: number
           created_at?: string
           description?: string | null
           id?: string
@@ -658,6 +660,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          batching_limit?: number
           created_at?: string
           description?: string | null
           id?: string
@@ -798,6 +801,8 @@ export type Database = {
       }
       sales_order_lines: {
         Row: {
+          batch_index: number | null
+          batch_of: number | null
           created_at: string
           due_date: string | null
           id: string
@@ -808,6 +813,8 @@ export type Database = {
           unit_price: number
         }
         Insert: {
+          batch_index?: number | null
+          batch_of?: number | null
           created_at?: string
           due_date?: string | null
           id?: string
@@ -818,6 +825,8 @@ export type Database = {
           unit_price?: number
         }
         Update: {
+          batch_index?: number | null
+          batch_of?: number | null
           created_at?: string
           due_date?: string | null
           id?: string

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Play, XCircle, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Play, XCircle, CheckCircle2, Plus, Trash2, Layers } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { PageHeader, Panel, Field, DataTable } from "@/components/page-shell";
 import { StatusPill } from "@/components/status-pill";
 import { FormDialog } from "@/components/form-dialog";
@@ -38,6 +39,7 @@ function PODetail() {
   const [openBatch, setOpenBatch] = useState(false);
   const [editBatch, setEditBatch] = useState<Batch | null>(null);
   const [confirmDel, setConfirmDel] = useState(false);
+  const [openBulk, setOpenBulk] = useState(false);
 
   useEffect(() => {
     const ch = supabase
@@ -141,10 +143,16 @@ function PODetail() {
       <Panel>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold">Batches ({batches.length})</h3>
-          <button onClick={() => { setEditBatch(null); setOpenBatch(true); }}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary">
-            <Plus className="h-3.5 w-3.5" /> New Batch
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setOpenBulk(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-info/40 bg-info/10 px-3 py-1.5 text-xs text-info">
+              <Layers className="h-3.5 w-3.5" /> Split into batches
+            </button>
+            <button onClick={() => { setEditBatch(null); setOpenBatch(true); }}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary">
+              <Plus className="h-3.5 w-3.5" /> New Batch
+            </button>
+          </div>
         </div>
         <DataTable<Batch>
           rows={batches}
@@ -222,6 +230,126 @@ function PODetail() {
           router.navigate({ to: "/production-orders" });
         }}
       />
+
+      <BulkBatchesDialog
+        open={openBulk}
+        onOpenChange={setOpenBulk}
+        defaultQty={Math.max(0, Number(r.qty) - Number(r.qty_produced))}
+        productUom={product?.uom ?? ""}
+        onSubmit={async ({ count, size, lotPrefix, expiry, notes }) => {
+          for (let i = 1; i <= count; i++) {
+            await createBatch.mutateAsync({
+              production_order_id: r.id,
+              product_id: r.product_id,
+              qty: size,
+              qty_good: 0,
+              qty_scrap: 0,
+              lot_code: lotPrefix ? `${lotPrefix}-${String(i).padStart(3, "0")}` : null,
+              expiry_date: expiry || null,
+              notes: notes || null,
+              status: "planned",
+            });
+          }
+          toast.success(`Created ${count} batch(es)`);
+        }}
+      />
     </div>
+  );
+}
+
+function BulkBatchesDialog({
+  open, onOpenChange, defaultQty, productUom, onSubmit,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  defaultQty: number;
+  productUom: string;
+  onSubmit: (v: { count: number; size: number; lotPrefix: string; expiry: string; notes: string }) => Promise<void>;
+}) {
+  const [count, setCount] = useState(1);
+  const [size, setSize] = useState(0);
+  const [lotPrefix, setLotPrefix] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [notes, setNotes] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setCount(1);
+      setSize(defaultQty);
+      setLotPrefix(`LOT-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}`);
+      setExpiry("");
+      setNotes("");
+    }
+  }, [open, defaultQty]);
+
+  const totalQty = (Number(count) || 0) * (Number(size) || 0);
+
+  const submit = async () => {
+    if (!(count > 0)) return toast.error("Count must be > 0");
+    if (!(size > 0)) return toast.error("Qty per batch must be > 0");
+    try {
+      setBusy(true);
+      await onSubmit({ count, size, lotPrefix, expiry, notes });
+      onOpenChange(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Split into batches</DialogTitle>
+          <DialogDescription>
+            Creates multiple batches linked to this production order. Lot codes are auto-numbered from the prefix.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <label className="text-xs">
+              <span className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Number of batches</span>
+              <input type="number" min={1} value={count} onChange={(e) => setCount(Number(e.target.value) || 0)}
+                className="mt-1 h-9 w-full rounded-lg border border-border/60 bg-card/60 px-2 text-sm" />
+            </label>
+            <label className="text-xs">
+              <span className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Qty per batch ({productUom || "units"})</span>
+              <input type="number" min={0} value={size} onChange={(e) => setSize(Number(e.target.value) || 0)}
+                className="mt-1 h-9 w-full rounded-lg border border-border/60 bg-card/60 px-2 text-sm" />
+            </label>
+            <label className="text-xs col-span-2">
+              <span className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Lot prefix</span>
+              <input value={lotPrefix} onChange={(e) => setLotPrefix(e.target.value)}
+                placeholder="LOT-20260713"
+                className="mt-1 h-9 w-full rounded-lg border border-border/60 bg-card/60 px-2 text-sm" />
+            </label>
+            <label className="text-xs col-span-2">
+              <span className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Expiry date (optional)</span>
+              <input type="date" value={expiry} onChange={(e) => setExpiry(e.target.value)}
+                className="mt-1 h-9 w-full rounded-lg border border-border/60 bg-card/60 px-2 text-sm" />
+            </label>
+            <label className="text-xs col-span-2">
+              <span className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Notes</span>
+              <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-border/60 bg-card/60 p-2 text-sm" />
+            </label>
+          </div>
+          <div className="rounded-lg border border-info/30 bg-info/5 p-2 text-[11px] text-info">
+            Will create <span className="font-mono">{count}</span> batches ·{" "}
+            total planned qty <span className="font-mono">{totalQty}</span> {productUom}
+          </div>
+        </div>
+        <DialogFooter>
+          <button onClick={() => onOpenChange(false)} className="rounded-lg border border-border/60 px-3 py-1.5 text-xs">Cancel</button>
+          <button onClick={submit} disabled={busy}
+            className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary disabled:opacity-50">
+            {busy ? "Creating…" : "Create batches"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

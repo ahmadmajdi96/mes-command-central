@@ -94,7 +94,14 @@ function OrderDetail() {
                   {lines.map((line: any) => (
                     <tr key={line.id} className="border-b border-border/30">
                       <td className="py-3">
-                        <div className="text-sm">{line.product?.name ?? "—"}</div>
+                        <div className="flex items-center gap-2 text-sm">
+                          {line.product?.name ?? "—"}
+                          {line.batch_of && (
+                            <span className="rounded-full border border-info/40 bg-info/10 px-2 py-0.5 font-mono text-[10px] text-info">
+                              batch {line.batch_index}/{line.batch_of}
+                            </span>
+                          )}
+                        </div>
                         <div className="font-mono text-[11px] text-muted-foreground">{line.product?.sku}</div>
                       </td>
                       <td className="py-3 font-mono text-xs">{line.due_date ?? "—"}</td>
