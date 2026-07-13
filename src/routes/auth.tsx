@@ -46,12 +46,6 @@ function AuthPage() {
     } finally { setBusy(false); }
   };
 
-  const google = async () => {
-    setBusy(true);
-    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (res.error) { toast.error(res.error.message ?? "Google sign-in failed"); setBusy(false); }
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="glass-panel w-full max-w-md rounded-2xl p-8">
