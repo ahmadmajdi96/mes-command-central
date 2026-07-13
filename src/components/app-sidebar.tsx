@@ -3,22 +3,16 @@ import {
   LayoutDashboard,
   ShoppingCart,
   Factory,
-  ClipboardList,
-  Boxes,
   Package,
   Users,
   Truck,
-  Cpu,
   UserCircle,
   Settings,
   History,
-  Wrench,
-  Activity,
-  ShieldCheck,
   Gauge,
   Send,
-
 } from "lucide-react";
+
 import {
   Sidebar,
   SidebarContent,
