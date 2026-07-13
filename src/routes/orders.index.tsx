@@ -170,32 +170,7 @@ function OrdersList() {
         onConfirm={runBulk}
       />
 
-      <FormDialog
-        open={openNew}
-        onOpenChange={setOpenNew}
-        title="New Sales Order"
-        description="Order # is auto-generated (SO-YYYY-####)."
-        submitLabel="Create order"
-        fields={[
-          { name: "customer_id", label: "Customer", type: "select", required: true,
-            options: customers.map((c) => ({ value: c.id, label: c.name })) },
-          { name: "status", label: "Status", type: "select",
-            options: orderStatusOptions.map((s) => ({ value: s, label: s.replace("_", " ") })) },
-          { name: "order_date", label: "Order date", type: "date" },
-          { name: "due_date", label: "Due date", type: "date" },
-          { name: "total", label: "Total", type: "number", step: 0.01 },
-          { name: "currency", label: "Currency", placeholder: "USD" },
-          { name: "notes", label: "Notes", type: "textarea" },
-        ]}
-        onSubmit={async (v: any) => {
-          const created = await createOrder.mutateAsync({
-            customer_id: v.customer_id || null, status: v.status || "draft",
-            order_date: v.order_date || undefined, due_date: v.due_date || null,
-            total: v.total || 0, currency: v.currency || "USD", notes: v.notes || null,
-          } as any);
-          toast.success(`Order ${created.number} created`);
-        }}
-      />
+      <NewOrderDialog open={openNew} onOpenChange={setOpenNew} />
 
     </div>
   );
