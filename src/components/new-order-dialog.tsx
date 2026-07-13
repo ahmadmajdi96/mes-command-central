@@ -225,21 +225,20 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
                           <Trash2 className="h-3 w-3" />
                         </button>
                       </div>
-                      <div className="mt-1.5 flex items-center gap-3 pl-1 text-[11px] text-muted-foreground">
+                      <div className="mt-1.5 flex flex-wrap items-center gap-3 pl-1 text-[11px] text-muted-foreground">
                         <span className="inline-flex items-center gap-1"><Info className="h-3 w-3" />
                           Batching limit: <span className="font-mono">{limit > 0 ? limit : "—"}</span>
                         </span>
                         {preview.batches > 1 ? (
                           <span className="text-info">
-                            → will split into <span className="font-mono">{preview.batches}</span> batch lines of{" "}
-                            <span className="font-mono">{preview.size}</span> {prod?.uom ?? ""}
-                            {Number(l.qty) % (limit || 1) !== 0 && (
-                              <> (last {(Number(l.qty) - preview.size * (preview.batches - 1))})</>
-                            )}
+                            → {preview.batches} batch(es) of {preview.size} {prod?.uom ?? ""} on production
                           </span>
                         ) : (
-                          <span>→ single line</span>
+                          <span>→ 1 batch on production</span>
                         )}
+                        <span className="inline-flex items-center gap-1">
+                          Cost: <span className="font-mono">{currency} {Number((prod as any)?.standard_cost ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        </span>
                         <span className="ml-auto font-mono text-foreground/80">
                           {currency} {((Number(l.qty) || 0) * (Number(l.unit_price) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </span>
