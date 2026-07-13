@@ -72,10 +72,9 @@ function Kpi({
 }
 
 function Dashboard() {
-  const workOrders = useStore((s) => s.workOrders);
   const auditLog = useStore((s) => s.audit);
-  const runningWO = workOrders.filter((w) => w.status === "in_progress");
-  const wsActive = workstations.filter((w) => w.status === "active").length;
+
+
 
   return (
     <div className="space-y-6">
