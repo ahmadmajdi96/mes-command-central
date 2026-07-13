@@ -142,10 +142,16 @@ function PODetail() {
       <Panel>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold">Batches ({batches.length})</h3>
-          <button onClick={() => { setEditBatch(null); setOpenBatch(true); }}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary">
-            <Plus className="h-3.5 w-3.5" /> New Batch
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setOpenBulk(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-info/40 bg-info/10 px-3 py-1.5 text-xs text-info">
+              <Layers className="h-3.5 w-3.5" /> Split into batches
+            </button>
+            <button onClick={() => { setEditBatch(null); setOpenBatch(true); }}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary">
+              <Plus className="h-3.5 w-3.5" /> New Batch
+            </button>
+          </div>
         </div>
         <DataTable<Batch>
           rows={batches}
