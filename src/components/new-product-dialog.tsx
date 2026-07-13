@@ -20,6 +20,7 @@ export type NewProductValues = {
   type: string;
   standard_cost: number;
   lead_time: number;
+  batching_limit: number;
   qc_specs: string;
   qc_category_id: string;
   send_to_qc: boolean;
