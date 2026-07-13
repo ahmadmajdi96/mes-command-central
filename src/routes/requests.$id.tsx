@@ -26,15 +26,6 @@ export const Route = createFileRoute("/requests/$id")({
   ),
 });
 
-type AuditRow = {
-  id: string;
-  at: string;
-  action: string;
-  entity: string;
-  detail: string | null;
-  user_id: string | null;
-};
-
 function useRequest(id: string) {
   return useQuery({
     queryKey: ["product_request", id],
@@ -51,20 +42,6 @@ function useRequest(id: string) {
   });
 }
 
-function useRequestEvents(id: string) {
-  return useQuery({
-    queryKey: ["product_request_events", id],
-    queryFn: async (): Promise<AuditRow[]> => {
-      const { data, error } = await supabase
-        .from("audit_log")
-        .select("id,at,action,entity,detail,user_id")
-        .eq("entity", id)
-        .order("at", { ascending: true });
-      if (error) throw error;
-      return (data ?? []) as unknown as AuditRow[];
-    },
-  });
-}
 
 function RequestDetailPage() {
   const { id } = Route.useParams();
