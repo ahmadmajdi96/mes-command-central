@@ -39,6 +39,7 @@ function PODetail() {
   const [openBatch, setOpenBatch] = useState(false);
   const [editBatch, setEditBatch] = useState<Batch | null>(null);
   const [confirmDel, setConfirmDel] = useState(false);
+  const [openBulk, setOpenBulk] = useState(false);
 
   useEffect(() => {
     const ch = supabase
