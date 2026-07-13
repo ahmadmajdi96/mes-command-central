@@ -212,15 +212,19 @@ function RequestDetailPage() {
               <li key={e.id} className="relative">
                 <span className="absolute -left-[21px] top-1.5 h-2 w-2 rounded-full bg-primary" />
                 <div className="flex flex-wrap items-baseline gap-2">
-                  <span className="font-mono text-[11px] text-primary">{e.action}</span>
+                  <span className="font-mono text-[11px] text-primary">{e.event_type}</span>
+                  {e.from_status && e.to_status && (
+                    <span className="text-[10px] text-muted-foreground">{e.from_status} → {e.to_status}</span>
+                  )}
                   <span className="text-[11px] text-muted-foreground">
-                    {new Date(e.at).toLocaleString()}
+                    {new Date(e.created_at).toLocaleString()}
                   </span>
                 </div>
-                {e.detail && <div className="text-xs text-muted-foreground">{e.detail}</div>}
-                {e.user_id && <div className="font-mono text-[10px] text-muted-foreground/70">by {e.user_id.slice(0, 8)}…</div>}
+                {e.notes && <div className="text-xs text-muted-foreground">{e.notes}</div>}
+                {e.actor_id && <div className="font-mono text-[10px] text-muted-foreground/70">by {e.actor_id.slice(0, 8)}…</div>}
               </li>
             ))}
+
           </ol>
         )}
       </section>
