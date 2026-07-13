@@ -221,97 +221,28 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="glass-panel rounded-2xl p-5 lg:col-span-2">
-          <div className="mb-3 flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-semibold">Running Work Orders</h3>
-              <p className="text-xs text-muted-foreground">{runningWO.length} on the floor · {wsActive} workstations active</p>
-            </div>
-            <Link to="/work-orders" className="text-xs text-primary hover:underline">All work orders →</Link>
-          </div>
-          <div className="space-y-2">
-            {runningWO.map((w) => {
-              const po = productionOrders.find(p => p.id === w.productionOrderId);
-              const product = po && findProduct(po.productId);
-              return (
-                <Link to="/work-orders/$woId" params={{ woId: w.id }} key={w.id}
-                  className="block rounded-xl border border-border/60 bg-card/40 p-3 hover:border-primary/40">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs text-primary">{w.number}</span>
-                        <span className="text-sm font-medium truncate">{w.operation}</span>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground truncate">
-                        {product?.name} · {w.workstationId}
-                      </p>
-                    </div>
-                    <StatusPill status={w.status} />
-                  </div>
-                  <div className="mt-2 flex items-center gap-3">
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full rounded-full bg-gradient-to-r from-primary to-info" style={{ width: `${w.progress}%` }} />
-                    </div>
-                    <span className="font-mono text-[11px] text-muted-foreground w-24 text-right">{w.qtyProduced}/{w.qtyTarget} · {w.progress}%</span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="glass-panel rounded-2xl p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Activity Feed</h3>
-            <Link to="/audit" className="text-xs text-primary hover:underline">Audit →</Link>
-          </div>
-          <div className="space-y-2">
-            {auditLog.slice(0, 6).map((a) => (
-              <div key={a.id} className="rounded-lg border border-border/60 bg-card/40 p-2.5">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="text-xs font-medium truncate">{a.action}</span>
-                  <span className="font-mono text-[10px] text-muted-foreground shrink-0">{a.at.slice(-5)}</span>
-                </div>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">{a.detail}</p>
-                <p className="mt-1 flex items-center justify-between text-[10px] text-muted-foreground">
-                  <span>{a.user}</span>
-                  <span className="font-mono">{a.entity}</span>
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
       <div className="glass-panel rounded-2xl p-5">
         <div className="mb-3 flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-semibold">Workstation Load</h3>
-            <p className="text-xs text-muted-foreground">Active work orders per station</p>
-          </div>
-          <Link to="/workstations" className="text-xs text-primary hover:underline">Workstations →</Link>
+          <h3 className="text-sm font-semibold">Activity Feed</h3>
+          <Link to="/audit" className="text-xs text-primary hover:underline">Audit →</Link>
         </div>
-        <div className="h-56">
-          <ResponsiveContainer>
-            <BarChart data={workstations.map(w => ({
-              name: w.name,
-              load: workOrders.filter(wo => wo.workstationId === w.id && wo.status !== "completed").length,
-              status: w.status,
-            }))}>
-              <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.3 0.02 245 / 0.4)" />
-              <XAxis dataKey="name" stroke="oklch(0.68 0.02 245)" fontSize={10} interval={0} angle={-15} textAnchor="end" height={60} />
-              <YAxis stroke="oklch(0.68 0.02 245)" fontSize={11} />
-              <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="load" radius={[6, 6, 0, 0]}>
-                {workstations.map((w, i) => (
-                  <Cell key={i} fill={w.status === "active" ? "oklch(0.78 0.16 195)" : w.status === "maintenance" ? "oklch(0.82 0.17 80)" : "oklch(0.65 0.24 22)"} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="grid gap-2 md:grid-cols-2">
+          {auditLog.slice(0, 6).map((a) => (
+            <div key={a.id} className="rounded-lg border border-border/60 bg-card/40 p-2.5">
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-xs font-medium truncate">{a.action}</span>
+                <span className="font-mono text-[10px] text-muted-foreground shrink-0">{a.at.slice(-5)}</span>
+              </div>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">{a.detail}</p>
+              <p className="mt-1 flex items-center justify-between text-[10px] text-muted-foreground">
+                <span>{a.user}</span>
+                <span className="font-mono">{a.entity}</span>
+              </p>
+            </div>
+          ))}
         </div>
       </div>
+
     </div>
   );
 }
