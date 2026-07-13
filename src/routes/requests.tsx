@@ -8,12 +8,14 @@ import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { toast } from "sonner";
 import {
   useProductRequests,
-  useUpdateProductRequest,
+  useApproveRequest,
+  useRejectRequest,
   deliverRequestToQc,
   type ProductRequest,
   type RequestDirection,
   type RequestStatus,
 } from "@/lib/product-requests-db";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
