@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Edit, Trash2, XCircle, Truck } from "lucide-react";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, Panel, Field } from "@/components/page-shell";
-import { useOrder, useUpdateOrder, useDeleteOrder, useShipments, useRealtimeInvalidate, ordersKey, orderKey } from "@/lib/oms-db";
+import { useOrder, useUpdateOrder, useDeleteOrder, useShipments, useRealtimeInvalidate, useUpdateOrderLine, ordersKey, orderKey } from "@/lib/oms-db";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "@tanstack/react-router";
@@ -30,10 +30,12 @@ function OrderDetail() {
   const { data: so, isLoading } = useOrder(orderId);
   const { data: shipments = [] } = useShipments();
   const update = useUpdateOrder();
+  const updateLine = useUpdateOrderLine();
   const del = useDeleteOrder();
 
   const [openEdit, setOpenEdit] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [editingQty, setEditingQty] = useState<Record<string, number>>({});
 
   if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (!so) return <p className="text-sm text-muted-foreground">Not found</p>;
@@ -41,6 +43,35 @@ function OrderDetail() {
   const lines = (so.lines as any[]) ?? [];
   const customer = (so as any).customer;
   const relatedShipments = shipments.filter((s) => s.order_id === so.id);
+  const currency = so.currency ?? "USD";
+
+  // Auto-recalc: revenue, cost, margin per line + totals
+  const computed = lines.map((line: any) => {
+    const qty = editingQty[line.id] ?? Number(line.qty);
+    const unit = Number(line.unit_price) || 0;
+    const cost = Number(line.product?.standard_cost ?? 0);
+    const revenue = qty * unit;
+    const costTotal = qty * cost;
+    return { line, qty, unit, cost, revenue, costTotal, margin: revenue - costTotal };
+  });
+  const totals = computed.reduce(
+    (a, r) => ({ revenue: a.revenue + r.revenue, cost: a.cost + r.costTotal, margin: a.margin + r.margin }),
+    { revenue: 0, cost: 0, margin: 0 },
+  );
+
+  const saveQty = async (lineId: string, orderId: string) => {
+    const q = editingQty[lineId];
+    if (q === undefined || !(q > 0)) return;
+    await updateLine.mutateAsync({ id: lineId, patch: { qty: q }, orderId });
+    // recompute order total with new qty applied
+    const newTotal = lines.reduce((s: number, ln: any) => {
+      const qty = ln.id === lineId ? q : (editingQty[ln.id] ?? Number(ln.qty));
+      return s + qty * (Number(ln.unit_price) || 0);
+    }, 0);
+    await update.mutateAsync({ id: orderId, patch: { total: newTotal }, note: "Recalculated total from qty edit" });
+    setEditingQty((s) => { const n = { ...s }; delete n[lineId]; return n; });
+    toast.success("Line quantity updated");
+  };
 
   return (
     <div className="space-y-5">
@@ -82,36 +113,69 @@ function OrderDetail() {
                     <th className="pb-2 font-medium">Due</th>
                     <th className="pb-2 font-medium">Qty</th>
                     <th className="pb-2 font-medium text-right">Unit</th>
-                    <th className="pb-2 font-medium text-right">Subtotal</th>
+                    <th className="pb-2 font-medium text-right">Cost/u</th>
+                    <th className="pb-2 font-medium text-right">Revenue</th>
+                    <th className="pb-2 font-medium text-right">Cost</th>
+                    <th className="pb-2 font-medium text-right">Margin</th>
                     <th className="pb-2 font-medium">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {lines.map((line: any) => (
-                    <tr key={line.id} className="border-b border-border/30">
-                      <td className="py-3">
-                        <div className="flex items-center gap-2 text-sm">
-                          {line.product?.name ?? "—"}
-                          {line.batch_of && (
-                            <span className="rounded-full border border-info/40 bg-info/10 px-2 py-0.5 font-mono text-[10px] text-info">
-                              batch {line.batch_index}/{line.batch_of}
-                            </span>
-                          )}
-                        </div>
-                        <div className="font-mono text-[11px] text-muted-foreground">{line.product?.sku}</div>
-                      </td>
-                      <td className="py-3 font-mono text-xs">{line.due_date ?? "—"}</td>
-                      <td className="py-3 font-mono text-sm">{line.qty}</td>
-                      <td className="py-3 text-right font-mono text-sm">${Number(line.unit_price).toLocaleString()}</td>
-                      <td className="py-3 text-right font-mono text-sm">${(Number(line.qty) * Number(line.unit_price)).toLocaleString()}</td>
-                      <td className="py-3"><StatusPill status={line.status} /></td>
-                    </tr>
-                  ))}
+                  {computed.map(({ line, qty, unit, cost, revenue, costTotal, margin }) => {
+                    const dirty = editingQty[line.id] !== undefined && editingQty[line.id] !== Number(line.qty);
+                    return (
+                      <tr key={line.id} className="border-b border-border/30">
+                        <td className="py-3">
+                          <div className="flex items-center gap-2 text-sm">
+                            {line.product?.name ?? "—"}
+                            {line.batch_of && (
+                              <span className="rounded-full border border-info/40 bg-info/10 px-2 py-0.5 font-mono text-[10px] text-info">
+                                batch {line.batch_index}/{line.batch_of}
+                              </span>
+                            )}
+                          </div>
+                          <div className="font-mono text-[11px] text-muted-foreground">{line.product?.sku}</div>
+                        </td>
+                        <td className="py-3 font-mono text-xs">{line.due_date ?? "—"}</td>
+                        <td className="py-3">
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="number"
+                              min={1}
+                              step={1}
+                              value={editingQty[line.id] ?? qty}
+                              onChange={(e) => {
+                                const v = Math.max(0, Math.floor(Number(e.target.value) || 0));
+                                setEditingQty((s) => ({ ...s, [line.id]: v }));
+                              }}
+                              className="h-8 w-20 rounded-md border border-border/60 bg-card/60 px-2 font-mono text-sm"
+                            />
+                            {dirty && (
+                              <button
+                                onClick={() => saveQty(line.id, so.id)}
+                                className="rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-[10px] text-primary"
+                              >
+                                Save
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 text-right font-mono text-sm">{currency} {unit.toLocaleString()}</td>
+                        <td className="py-3 text-right font-mono text-xs text-muted-foreground">{currency} {cost.toLocaleString()}</td>
+                        <td className="py-3 text-right font-mono text-sm">{currency} {revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td className="py-3 text-right font-mono text-xs text-muted-foreground">{currency} {costTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td className={`py-3 text-right font-mono text-sm ${margin >= 0 ? "text-success" : "text-destructive"}`}>{currency} {margin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td className="py-3"><StatusPill status={line.status} /></td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
                 <tfoot>
-                  <tr>
-                    <td colSpan={4} className="pt-3 text-right text-xs text-muted-foreground">Order total</td>
-                    <td className="pt-3 text-right font-mono text-lg font-semibold text-primary">${Number(so.total).toLocaleString()}</td>
+                  <tr className="border-t border-border/60">
+                    <td colSpan={5} className="pt-3 text-right text-xs text-muted-foreground">Totals</td>
+                    <td className="pt-3 text-right font-mono text-sm font-semibold text-primary">{currency} {totals.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td className="pt-3 text-right font-mono text-sm text-muted-foreground">{currency} {totals.cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td className={`pt-3 text-right font-mono text-sm font-semibold ${totals.margin >= 0 ? "text-success" : "text-destructive"}`}>{currency} {totals.margin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     <td></td>
                   </tr>
                 </tfoot>
