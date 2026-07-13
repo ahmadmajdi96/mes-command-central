@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, GripVertical } from "lucide-react";
 import { toast } from "sonner";
-import { useStations } from "@/lib/product-routings-db";
 import { productTypeOptions } from "@/lib/oms-db";
 
 export type NewProductStep = {
