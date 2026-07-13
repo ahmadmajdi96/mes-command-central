@@ -4,6 +4,10 @@ import type { Database } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import { pushToSister } from "./integrations-client";
 import { logAudit } from "./oms-db";
+import { addRequestEvent } from "./request-events-db";
+import { createRoutingsFromSteps } from "./product-routings-db";
+
+
 
 type T = Database["public"]["Tables"];
 export type ProductRequest = T["product_requests"]["Row"];
