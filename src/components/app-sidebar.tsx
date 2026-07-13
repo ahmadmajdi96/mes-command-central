@@ -3,22 +3,16 @@ import {
   LayoutDashboard,
   ShoppingCart,
   Factory,
-  ClipboardList,
-  Boxes,
   Package,
   Users,
   Truck,
-  Cpu,
   UserCircle,
   Settings,
   History,
-  Wrench,
-  Activity,
-  ShieldCheck,
   Gauge,
   Send,
-
 } from "lucide-react";
+
 import {
   Sidebar,
   SidebarContent,
@@ -45,22 +39,17 @@ const orders = [
 
 const production = [
   { title: "Production Orders", url: "/production-orders", icon: Factory },
-  { title: "Work Orders", url: "/work-orders", icon: ClipboardList },
-  { title: "Operator Console", url: "/execution", icon: Wrench },
-  { title: "Workstations", url: "/workstations", icon: Cpu },
 ];
 
 const integrations = [
-  { title: "MES Hub", url: "/mes", icon: Activity },
-  { title: "Quality Hub", url: "/qc", icon: ShieldCheck },
   { title: "Requests", url: "/requests", icon: Send },
 ];
 
 
 const materials = [
-  { title: "Inventory", url: "/inventory", icon: Boxes },
   { title: "Products", url: "/products", icon: Package },
 ];
+
 
 const platform = [
   { title: "Users & Roles", url: "/users", icon: Users },

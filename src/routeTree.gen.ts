@@ -9,25 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WorkstationsRouteImport } from './routes/workstations'
 import { Route as UsersRouteImport } from './routes/users'
 import { Route as ShipmentsRouteImport } from './routes/shipments'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RequestsRouteImport } from './routes/requests'
-import { Route as QcRouteImport } from './routes/qc'
-import { Route as MesRouteImport } from './routes/mes'
-import { Route as InventoryRouteImport } from './routes/inventory'
-import { Route as ExecutionRouteImport } from './routes/execution'
 import { Route as CommandCenterRouteImport } from './routes/command-center'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as WorkOrdersIndexRouteImport } from './routes/work-orders.index'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductionOrdersIndexRouteImport } from './routes/production-orders.index'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as CustomersIndexRouteImport } from './routes/customers.index'
-import { Route as WorkOrdersWoIdRouteImport } from './routes/work-orders.$woId'
 import { Route as RequestsIdRouteImport } from './routes/requests.$id'
 import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
 import { Route as ProductionOrdersPoIdRouteImport } from './routes/production-orders.$poId'
@@ -39,11 +32,6 @@ import { Route as ApiPublicWebhooksCommandCenterRouteImport } from './routes/api
 import { Route as ApiPublicOmsWorkOrdersRouteImport } from './routes/api/public/oms.work-orders'
 import { Route as ApiPublicOmsOrdersRouteImport } from './routes/api/public/oms.orders'
 
-const WorkstationsRoute = WorkstationsRouteImport.update({
-  id: '/workstations',
-  path: '/workstations',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const UsersRoute = UsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -62,26 +50,6 @@ const SettingsRoute = SettingsRouteImport.update({
 const RequestsRoute = RequestsRouteImport.update({
   id: '/requests',
   path: '/requests',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const QcRoute = QcRouteImport.update({
-  id: '/qc',
-  path: '/qc',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MesRoute = MesRouteImport.update({
-  id: '/mes',
-  path: '/mes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InventoryRoute = InventoryRouteImport.update({
-  id: '/inventory',
-  path: '/inventory',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExecutionRoute = ExecutionRouteImport.update({
-  id: '/execution',
-  path: '/execution',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommandCenterRoute = CommandCenterRouteImport.update({
@@ -104,11 +72,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkOrdersIndexRoute = WorkOrdersIndexRouteImport.update({
-  id: '/work-orders/',
-  path: '/work-orders/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ProductsIndexRoute = ProductsIndexRouteImport.update({
   id: '/products/',
   path: '/products/',
@@ -127,11 +90,6 @@ const OrdersIndexRoute = OrdersIndexRouteImport.update({
 const CustomersIndexRoute = CustomersIndexRouteImport.update({
   id: '/customers/',
   path: '/customers/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const WorkOrdersWoIdRoute = WorkOrdersWoIdRouteImport.update({
-  id: '/work-orders/$woId',
-  path: '/work-orders/$woId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RequestsIdRoute = RequestsIdRouteImport.update({
@@ -191,26 +149,19 @@ export interface FileRoutesByFullPath {
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
   '/command-center': typeof CommandCenterRoute
-  '/execution': typeof ExecutionRoute
-  '/inventory': typeof InventoryRoute
-  '/mes': typeof MesRoute
-  '/qc': typeof QcRoute
   '/requests': typeof RequestsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
-  '/workstations': typeof WorkstationsRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/requests/$id': typeof RequestsIdRoute
-  '/work-orders/$woId': typeof WorkOrdersWoIdRoute
   '/customers/': typeof CustomersIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/production-orders/': typeof ProductionOrdersIndexRoute
   '/products/': typeof ProductsIndexRoute
-  '/work-orders/': typeof WorkOrdersIndexRoute
   '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
   '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
   '/api/public/webhooks/command-center': typeof ApiPublicWebhooksCommandCenterRoute
@@ -222,26 +173,19 @@ export interface FileRoutesByTo {
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
   '/command-center': typeof CommandCenterRoute
-  '/execution': typeof ExecutionRoute
-  '/inventory': typeof InventoryRoute
-  '/mes': typeof MesRoute
-  '/qc': typeof QcRoute
   '/requests': typeof RequestsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
-  '/workstations': typeof WorkstationsRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/requests/$id': typeof RequestsIdRoute
-  '/work-orders/$woId': typeof WorkOrdersWoIdRoute
   '/customers': typeof CustomersIndexRoute
   '/orders': typeof OrdersIndexRoute
   '/production-orders': typeof ProductionOrdersIndexRoute
   '/products': typeof ProductsIndexRoute
-  '/work-orders': typeof WorkOrdersIndexRoute
   '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
   '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
   '/api/public/webhooks/command-center': typeof ApiPublicWebhooksCommandCenterRoute
@@ -254,26 +198,19 @@ export interface FileRoutesById {
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
   '/command-center': typeof CommandCenterRoute
-  '/execution': typeof ExecutionRoute
-  '/inventory': typeof InventoryRoute
-  '/mes': typeof MesRoute
-  '/qc': typeof QcRoute
   '/requests': typeof RequestsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/users': typeof UsersRoute
-  '/workstations': typeof WorkstationsRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/requests/$id': typeof RequestsIdRoute
-  '/work-orders/$woId': typeof WorkOrdersWoIdRoute
   '/customers/': typeof CustomersIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/production-orders/': typeof ProductionOrdersIndexRoute
   '/products/': typeof ProductsIndexRoute
-  '/work-orders/': typeof WorkOrdersIndexRoute
   '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
   '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
   '/api/public/webhooks/command-center': typeof ApiPublicWebhooksCommandCenterRoute
@@ -287,26 +224,19 @@ export interface FileRouteTypes {
     | '/audit'
     | '/auth'
     | '/command-center'
-    | '/execution'
-    | '/inventory'
-    | '/mes'
-    | '/qc'
     | '/requests'
     | '/settings'
     | '/shipments'
     | '/users'
-    | '/workstations'
     | '/customers/$customerId'
     | '/orders/$orderId'
     | '/production-orders/$poId'
     | '/products/$productId'
     | '/requests/$id'
-    | '/work-orders/$woId'
     | '/customers/'
     | '/orders/'
     | '/production-orders/'
     | '/products/'
-    | '/work-orders/'
     | '/api/public/oms/orders'
     | '/api/public/oms/work-orders'
     | '/api/public/webhooks/command-center'
@@ -318,26 +248,19 @@ export interface FileRouteTypes {
     | '/audit'
     | '/auth'
     | '/command-center'
-    | '/execution'
-    | '/inventory'
-    | '/mes'
-    | '/qc'
     | '/requests'
     | '/settings'
     | '/shipments'
     | '/users'
-    | '/workstations'
     | '/customers/$customerId'
     | '/orders/$orderId'
     | '/production-orders/$poId'
     | '/products/$productId'
     | '/requests/$id'
-    | '/work-orders/$woId'
     | '/customers'
     | '/orders'
     | '/production-orders'
     | '/products'
-    | '/work-orders'
     | '/api/public/oms/orders'
     | '/api/public/oms/work-orders'
     | '/api/public/webhooks/command-center'
@@ -349,26 +272,19 @@ export interface FileRouteTypes {
     | '/audit'
     | '/auth'
     | '/command-center'
-    | '/execution'
-    | '/inventory'
-    | '/mes'
-    | '/qc'
     | '/requests'
     | '/settings'
     | '/shipments'
     | '/users'
-    | '/workstations'
     | '/customers/$customerId'
     | '/orders/$orderId'
     | '/production-orders/$poId'
     | '/products/$productId'
     | '/requests/$id'
-    | '/work-orders/$woId'
     | '/customers/'
     | '/orders/'
     | '/production-orders/'
     | '/products/'
-    | '/work-orders/'
     | '/api/public/oms/orders'
     | '/api/public/oms/work-orders'
     | '/api/public/webhooks/command-center'
@@ -381,25 +297,18 @@ export interface RootRouteChildren {
   AuditRoute: typeof AuditRoute
   AuthRoute: typeof AuthRoute
   CommandCenterRoute: typeof CommandCenterRoute
-  ExecutionRoute: typeof ExecutionRoute
-  InventoryRoute: typeof InventoryRoute
-  MesRoute: typeof MesRoute
-  QcRoute: typeof QcRoute
   RequestsRoute: typeof RequestsRouteWithChildren
   SettingsRoute: typeof SettingsRoute
   ShipmentsRoute: typeof ShipmentsRoute
   UsersRoute: typeof UsersRoute
-  WorkstationsRoute: typeof WorkstationsRoute
   CustomersCustomerIdRoute: typeof CustomersCustomerIdRoute
   OrdersOrderIdRoute: typeof OrdersOrderIdRoute
   ProductionOrdersPoIdRoute: typeof ProductionOrdersPoIdRoute
   ProductsProductIdRoute: typeof ProductsProductIdRoute
-  WorkOrdersWoIdRoute: typeof WorkOrdersWoIdRoute
   CustomersIndexRoute: typeof CustomersIndexRoute
   OrdersIndexRoute: typeof OrdersIndexRoute
   ProductionOrdersIndexRoute: typeof ProductionOrdersIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
-  WorkOrdersIndexRoute: typeof WorkOrdersIndexRoute
   ApiPublicOmsOrdersRoute: typeof ApiPublicOmsOrdersRoute
   ApiPublicOmsWorkOrdersRoute: typeof ApiPublicOmsWorkOrdersRoute
   ApiPublicWebhooksCommandCenterRoute: typeof ApiPublicWebhooksCommandCenterRoute
@@ -409,13 +318,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/workstations': {
-      id: '/workstations'
-      path: '/workstations'
-      fullPath: '/workstations'
-      preLoaderRoute: typeof WorkstationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/users': {
       id: '/users'
       path: '/users'
@@ -442,34 +344,6 @@ declare module '@tanstack/react-router' {
       path: '/requests'
       fullPath: '/requests'
       preLoaderRoute: typeof RequestsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/qc': {
-      id: '/qc'
-      path: '/qc'
-      fullPath: '/qc'
-      preLoaderRoute: typeof QcRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mes': {
-      id: '/mes'
-      path: '/mes'
-      fullPath: '/mes'
-      preLoaderRoute: typeof MesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inventory': {
-      id: '/inventory'
-      path: '/inventory'
-      fullPath: '/inventory'
-      preLoaderRoute: typeof InventoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/execution': {
-      id: '/execution'
-      path: '/execution'
-      fullPath: '/execution'
-      preLoaderRoute: typeof ExecutionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/command-center': {
@@ -500,13 +374,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/work-orders/': {
-      id: '/work-orders/'
-      path: '/work-orders'
-      fullPath: '/work-orders/'
-      preLoaderRoute: typeof WorkOrdersIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/products/': {
       id: '/products/'
       path: '/products'
@@ -533,13 +400,6 @@ declare module '@tanstack/react-router' {
       path: '/customers'
       fullPath: '/customers/'
       preLoaderRoute: typeof CustomersIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/work-orders/$woId': {
-      id: '/work-orders/$woId'
-      path: '/work-orders/$woId'
-      fullPath: '/work-orders/$woId'
-      preLoaderRoute: typeof WorkOrdersWoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/requests/$id': {
@@ -632,25 +492,18 @@ const rootRouteChildren: RootRouteChildren = {
   AuditRoute: AuditRoute,
   AuthRoute: AuthRoute,
   CommandCenterRoute: CommandCenterRoute,
-  ExecutionRoute: ExecutionRoute,
-  InventoryRoute: InventoryRoute,
-  MesRoute: MesRoute,
-  QcRoute: QcRoute,
   RequestsRoute: RequestsRouteWithChildren,
   SettingsRoute: SettingsRoute,
   ShipmentsRoute: ShipmentsRoute,
   UsersRoute: UsersRoute,
-  WorkstationsRoute: WorkstationsRoute,
   CustomersCustomerIdRoute: CustomersCustomerIdRoute,
   OrdersOrderIdRoute: OrdersOrderIdRoute,
   ProductionOrdersPoIdRoute: ProductionOrdersPoIdRoute,
   ProductsProductIdRoute: ProductsProductIdRoute,
-  WorkOrdersWoIdRoute: WorkOrdersWoIdRoute,
   CustomersIndexRoute: CustomersIndexRoute,
   OrdersIndexRoute: OrdersIndexRoute,
   ProductionOrdersIndexRoute: ProductionOrdersIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
-  WorkOrdersIndexRoute: WorkOrdersIndexRoute,
   ApiPublicOmsOrdersRoute: ApiPublicOmsOrdersRoute,
   ApiPublicOmsWorkOrdersRoute: ApiPublicOmsWorkOrdersRoute,
   ApiPublicWebhooksCommandCenterRoute: ApiPublicWebhooksCommandCenterRoute,

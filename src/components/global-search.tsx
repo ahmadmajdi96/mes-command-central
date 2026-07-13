@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Search, ShoppingCart, UserCircle, Package, ClipboardList, Factory, Truck } from "lucide-react";
+import { Search, ShoppingCart, UserCircle, Package, Factory, Truck } from "lucide-react";
 import {
   CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem,
 } from "@/components/ui/command";
 import { salesOrders, customers, products, productionOrders, shipments, findCustomer, findProduct } from "@/lib/oms-data";
-import { useStore } from "@/lib/store";
 
 export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const workOrders = useStore((s) => s.workOrders);
+
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -85,17 +84,8 @@ export function GlobalSearch() {
             ))}
           </CommandGroup>
 
-          <CommandGroup heading="Work Orders">
-            {workOrders.map((w) => (
-              <CommandItem key={w.id} value={`${w.number} ${w.operation}`}
-                onSelect={() => go(`/work-orders/${w.id}`)}>
-                <ClipboardList className="h-3.5 w-3.5 text-primary" />
-                <span className="font-mono text-xs">{w.number}</span>
-                <span className="text-xs">· {w.operation}</span>
-                <span className="ml-auto text-[10px] text-muted-foreground capitalize">{w.status.replace("_"," ")}</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
+
+
 
           <CommandGroup heading="Production Orders">
             {productionOrders.map((p) => (
