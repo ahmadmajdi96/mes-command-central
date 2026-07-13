@@ -265,6 +265,85 @@ function PODetail() {
   );
 }
 
+function BatchingSummary({
+  totalQty, limit, uom, existingBatchQty, status,
+}: {
+  totalQty: number;
+  limit: number;
+  uom: string;
+  existingBatchQty: number;
+  status: string;
+}) {
+  const plannedCount = limit > 0 && totalQty > 0 ? Math.ceil(totalQty / limit) : (totalQty > 0 ? 1 : 0);
+  const size = limit > 0 ? limit : totalQty;
+  const remainder = limit > 0 ? (totalQty % limit) : 0;
+  const rows = Array.from({ length: plannedCount }, (_, i) => {
+    const isLast = i === plannedCount - 1;
+    const q = isLast && remainder > 0 ? remainder : size;
+    return { seq: i + 1, qty: q };
+  });
+  const sent = existingBatchQty > 0;
+  const preSend = status === "planned" || status === "released";
+
+  return (
+    <Panel>
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-sm font-semibold inline-flex items-center gap-2">
+          <Layers className="h-3.5 w-3.5 text-info" /> Batching Summary
+        </h3>
+        <span className="text-[11px] text-muted-foreground">
+          {limit > 0 ? <>Product limit: <span className="font-mono">{limit}</span> {uom}/batch</> : "No batching limit set"}
+        </span>
+      </div>
+      {totalQty <= 0 ? (
+        <p className="text-xs text-muted-foreground">Nothing to batch — PO quantity is 0.</p>
+      ) : (
+        <>
+          <div className="mb-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+            <Field label="Total qty" value={<span className="font-mono">{totalQty} {uom}</span>} />
+            <Field label="Planned batches" value={<span className="font-mono">{plannedCount}</span>} />
+            <Field label="Size / batch" value={<span className="font-mono">{size} {uom}</span>} />
+            <Field label="Last batch" value={<span className="font-mono">{remainder > 0 ? `${remainder} ${uom}` : `${size} ${uom}`}</span>} />
+          </div>
+          <div className="overflow-x-auto rounded-lg border border-border/60">
+            <table className="w-full text-xs">
+              <thead className="bg-card/40">
+                <tr className="text-left text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <th className="px-3 py-2 font-medium">#</th>
+                  <th className="px-3 py-2 font-medium">Planned qty</th>
+                  <th className="px-3 py-2 font-medium">Cumulative</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, i) => {
+                  const cum = rows.slice(0, i + 1).reduce((s, r) => s + r.qty, 0);
+                  return (
+                    <tr key={row.seq} className="border-t border-border/40">
+                      <td className="px-3 py-1.5 font-mono">{row.seq}</td>
+                      <td className="px-3 py-1.5 font-mono">{row.qty} {uom}</td>
+                      <td className="px-3 py-1.5 font-mono text-muted-foreground">{cum} {uom}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-3 rounded-lg border border-info/30 bg-info/5 p-2 text-[11px] text-info">
+            {sent ? (
+              <>Batches already created (<span className="font-mono">{existingBatchQty}</span> {uom} allocated). This preview reflects the product's current batching limit.</>
+            ) : preSend ? (
+              <>Preview only — sending to production will create <span className="font-mono">{plannedCount}</span> batch(es) using this split.</>
+            ) : (
+              <>Status is <span className="font-mono">{status}</span>. Batch preview is informational only.</>
+            )}
+          </div>
+        </>
+      )}
+    </Panel>
+  );
+}
+
+
 function BulkBatchesDialog({
   open, onOpenChange, defaultQty, productUom, onSubmit,
 }: {
