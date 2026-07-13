@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as UsersRouteImport } from './routes/users'
 import { Route as ShipmentsRouteImport } from './routes/shipments'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RequestsRouteImport } from './routes/requests'
@@ -34,11 +33,6 @@ import { Route as ApiPublicWebhooksCommandCenterRouteImport } from './routes/api
 import { Route as ApiPublicOmsWorkOrdersRouteImport } from './routes/api/public/oms.work-orders'
 import { Route as ApiPublicOmsOrdersRouteImport } from './routes/api/public/oms.orders'
 
-const UsersRoute = UsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ShipmentsRoute = ShipmentsRouteImport.update({
   id: '/shipments',
   path: '/shipments',
@@ -164,7 +158,6 @@ export interface FileRoutesByFullPath {
   '/requests': typeof RequestsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
-  '/users': typeof UsersRoute
   '/batches/$batchId': typeof BatchesBatchIdRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
@@ -190,7 +183,6 @@ export interface FileRoutesByTo {
   '/requests': typeof RequestsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
-  '/users': typeof UsersRoute
   '/batches/$batchId': typeof BatchesBatchIdRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
@@ -217,7 +209,6 @@ export interface FileRoutesById {
   '/requests': typeof RequestsRouteWithChildren
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
-  '/users': typeof UsersRoute
   '/batches/$batchId': typeof BatchesBatchIdRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
@@ -245,7 +236,6 @@ export interface FileRouteTypes {
     | '/requests'
     | '/settings'
     | '/shipments'
-    | '/users'
     | '/batches/$batchId'
     | '/customers/$customerId'
     | '/orders/$orderId'
@@ -271,7 +261,6 @@ export interface FileRouteTypes {
     | '/requests'
     | '/settings'
     | '/shipments'
-    | '/users'
     | '/batches/$batchId'
     | '/customers/$customerId'
     | '/orders/$orderId'
@@ -297,7 +286,6 @@ export interface FileRouteTypes {
     | '/requests'
     | '/settings'
     | '/shipments'
-    | '/users'
     | '/batches/$batchId'
     | '/customers/$customerId'
     | '/orders/$orderId'
@@ -324,7 +312,6 @@ export interface RootRouteChildren {
   RequestsRoute: typeof RequestsRouteWithChildren
   SettingsRoute: typeof SettingsRoute
   ShipmentsRoute: typeof ShipmentsRoute
-  UsersRoute: typeof UsersRoute
   BatchesBatchIdRoute: typeof BatchesBatchIdRoute
   CustomersCustomerIdRoute: typeof CustomersCustomerIdRoute
   OrdersOrderIdRoute: typeof OrdersOrderIdRoute
@@ -344,13 +331,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/users': {
-      id: '/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof UsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/shipments': {
       id: '/shipments'
       path: '/shipments'
@@ -535,7 +515,6 @@ const rootRouteChildren: RootRouteChildren = {
   RequestsRoute: RequestsRouteWithChildren,
   SettingsRoute: SettingsRoute,
   ShipmentsRoute: ShipmentsRoute,
-  UsersRoute: UsersRoute,
   BatchesBatchIdRoute: BatchesBatchIdRoute,
   CustomersCustomerIdRoute: CustomersCustomerIdRoute,
   OrdersOrderIdRoute: OrdersOrderIdRoute,
