@@ -331,6 +331,21 @@ export function useCreateOrderLine() {
   });
 }
 
+export function useUpdateOrderLine() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, patch, orderId }: { id: string; patch: Partial<SalesOrderLine>; orderId: string }) => {
+      const { data, error } = await supabase.from("sales_order_lines").update(patch).eq("id", id).select().single();
+      if (error) throw error;
+      return { data, orderId };
+    },
+    onSuccess: ({ orderId }) => {
+      qc.invalidateQueries({ queryKey: ordersKey });
+      qc.invalidateQueries({ queryKey: orderKey(orderId) });
+    },
+  });
+}
+
 export function useDeleteOrderLine() {
   const qc = useQueryClient();
   return useMutation({
