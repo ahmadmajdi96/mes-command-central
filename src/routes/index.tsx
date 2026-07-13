@@ -8,11 +8,12 @@ import {
   ArrowUpRight, CheckCircle2, ClipboardList, Factory, Package, ShoppingCart, Timer, TrendingUp, AlertTriangle,
 } from "lucide-react";
 import {
-  dashboardKpis, orderTrend, productionMix, salesOrders, productionOrders,
-  findCustomer, findProduct, workstations,
+  dashboardKpis, orderTrend, productionMix, salesOrders,
+  findCustomer,
 } from "@/lib/oms-data";
 import { useStore } from "@/lib/store";
 import { StatusPill } from "@/components/status-pill";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
