@@ -49,8 +49,9 @@ function OrdersList() {
   const runBulk = async () => {
     if (!confirm) return;
     try {
-      await bulkUpdate.mutateAsync({ ids: confirm.ids, status: confirm.targetStatus, label: confirm.label });
-      toast.success(`${confirm.label}: ${confirm.ids.length} order(s)`);
+      const res = await bulkUpdate.mutateAsync({ ids: confirm.ids, status: confirm.targetStatus, label: confirm.label });
+      const extra = res && res.pos ? ` · ${res.pos} PO / ${res.batches} batch(es) created` : "";
+      toast.success(`${confirm.label}: ${confirm.ids.length} order(s)${extra}`);
       confirm.clear();
       setConfirm(null);
     } catch (e: any) { toast.error(e.message ?? "Bulk update failed"); }
