@@ -9,7 +9,6 @@ import {
   UserCircle,
   Settings,
   History,
-  Gauge,
   Send,
   Boxes,
 } from "lucide-react";
