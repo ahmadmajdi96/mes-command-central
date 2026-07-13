@@ -205,7 +205,7 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
                   const limit = Number(prod?.batching_limit ?? 0);
                   return (
                     <div key={i} className="rounded-lg border border-border/60 bg-card/40 p-2">
-                      <div className="grid gap-2 md:grid-cols-[2fr_1fr_1fr_1fr_auto]">
+                      <div className="grid gap-2 md:grid-cols-[2fr_1fr_1fr_auto]">
                         <select value={l.product_id} onChange={(e) => patchLine(i, { product_id: e.target.value })}
                           className="h-9 rounded-md border border-border/60 bg-card/60 px-2 text-xs">
                           <option value="">— product —</option>
@@ -214,9 +214,6 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
                         <input type="number" min={0} value={l.qty}
                           onChange={(e) => patchLine(i, { qty: Number(e.target.value) || 0 })}
                           placeholder="Qty" className="h-9 rounded-md border border-border/60 bg-card/60 px-2 text-xs" />
-                        <input type="number" min={0} step={0.01} value={l.unit_price}
-                          onChange={(e) => patchLine(i, { unit_price: Number(e.target.value) || 0 })}
-                          placeholder="Unit price" className="h-9 rounded-md border border-border/60 bg-card/60 px-2 text-xs" />
                         <input type="date" value={l.due_date}
                           onChange={(e) => patchLine(i, { due_date: e.target.value })}
                           className="h-9 rounded-md border border-border/60 bg-card/60 px-2 text-xs" />
@@ -226,6 +223,9 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
                         </button>
                       </div>
                       <div className="mt-1.5 flex flex-wrap items-center gap-3 pl-1 text-[11px] text-muted-foreground">
+                        <span className="inline-flex items-center gap-1">
+                          Unit price: <span className="font-mono text-foreground/80">{currency} {Number(l.unit_price).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        </span>
                         <span className="inline-flex items-center gap-1"><Info className="h-3 w-3" />
                           Batching limit: <span className="font-mono">{limit > 0 ? limit : "—"}</span>
                         </span>
@@ -244,6 +244,7 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
                         </span>
                       </div>
                     </div>
+
                   );
                 })}
               </div>
