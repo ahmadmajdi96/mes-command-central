@@ -68,8 +68,8 @@ function ProductDetail() {
             <tbody>
               {inv.map((t) => (
                 <tr key={t.id} className="border-b border-border/30">
-                  <td className="py-2 font-mono text-xs">{t.created_at?.slice(0, 10)}</td>
-                  <td className="py-2 text-xs">{t.txn_type}</td>
+                  <td className="py-2 font-mono text-xs">{t.at?.slice(0, 10)}</td>
+                  <td className="py-2 text-xs">{t.type}</td>
                   <td className="py-2 text-right font-mono text-sm">{Number(t.qty).toLocaleString()}</td>
                 </tr>
               ))}
