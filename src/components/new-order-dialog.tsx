@@ -39,11 +39,27 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
 
   const productMap = useMemo(() => Object.fromEntries(products.map((p) => [p.id, p])), [products]);
 
-  const addLine = () =>
-    setLines((l) => [...l, { product_id: products[0]?.id ?? "", qty: 1, unit_price: 0, due_date: dueDate }]);
+  const addLine = () => {
+    const p = products[0];
+    setLines((l) => [...l, {
+      product_id: p?.id ?? "",
+      qty: 1,
+      unit_price: Number((p as any)?.sale_price ?? 0),
+      due_date: dueDate,
+    }]);
+  };
   const removeLine = (i: number) => setLines((l) => l.filter((_, idx) => idx !== i));
   const patchLine = (i: number, patch: Partial<OrderLineInput>) =>
-    setLines((l) => l.map((row, idx) => (idx === i ? { ...row, ...patch } : row)));
+    setLines((l) => l.map((row, idx) => {
+      if (idx !== i) return row;
+      const next = { ...row, ...patch };
+      // When product changes, auto-fill unit_price from product.sale_price
+      if (patch.product_id && patch.product_id !== row.product_id) {
+        const prod = productMap[patch.product_id];
+        next.unit_price = Number((prod as any)?.sale_price ?? 0);
+      }
+      return next;
+    }));
 
   const previews = useMemo(() =>
     lines.map((l) => {
@@ -57,6 +73,13 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
   const total = useMemo(
     () => lines.reduce((s, l) => s + (Number(l.qty) || 0) * (Number(l.unit_price) || 0), 0),
     [lines],
+  );
+  const costTotal = useMemo(
+    () => lines.reduce((s, l) => {
+      const c = Number((productMap[l.product_id] as any)?.standard_cost ?? 0);
+      return s + (Number(l.qty) || 0) * c;
+    }, 0),
+    [lines, productMap],
   );
 
   const submit = async () => {
