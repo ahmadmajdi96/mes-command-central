@@ -1,15 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, Pencil, Trash2 } from "lucide-react";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { FormDialog } from "@/components/form-dialog";
 import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { NewOrderDialog } from "@/components/new-order-dialog";
 import { toast } from "sonner";
 import {
-  useOrders, useBulkUpdateOrderStatus, useRealtimeInvalidate,
+  useOrders, useBulkUpdateOrderStatus, useUpdateOrder, useDeleteOrder,
+  useCustomers, useRealtimeInvalidate,
   ordersKey, orderStatusOptions, type OrderWithCustomer,
 } from "@/lib/oms-db";
 
