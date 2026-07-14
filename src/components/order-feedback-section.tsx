@@ -154,9 +154,10 @@ export function OrderFeedbackSection({ orderId }: { orderId: string }) {
 
       <ConfirmDialog
         open={!!confirmDel}
+        onOpenChange={(v) => !v && setConfirmDel(null)}
         title="Delete feedback?"
         description="This cannot be undone."
-        onCancel={() => setConfirmDel(null)}
+        variant="destructive"
         onConfirm={async () => { if (confirmDel) await del.mutateAsync(confirmDel); setConfirmDel(null); }}
       />
     </Panel>
