@@ -226,6 +226,8 @@ function OrderDetail() {
         )}
       </Panel>
 
+      <OrderFeedbackSection orderId={so.id} />
+
       <ConfirmDialog
         open={confirmDelete}
         onOpenChange={setConfirmDelete}
