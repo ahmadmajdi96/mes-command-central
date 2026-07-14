@@ -56,6 +56,7 @@ const materials = [
 
 
 const platform = [
+  { title: "Notifications", url: "/notifications", icon: Bell },
   { title: "Audit Log", url: "/audit", icon: History },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
