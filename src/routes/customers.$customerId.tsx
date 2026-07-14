@@ -1,20 +1,29 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { PageHeader, Panel, Field } from "@/components/page-shell";
 import { StatusPill } from "@/components/status-pill";
-import { useCustomers, useOrders, useRealtimeInvalidate, customersKey, ordersKey } from "@/lib/oms-db";
+import { FormDialog } from "@/components/form-dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { useCustomers, useOrders, useUpdateCustomer, useDeleteCustomer, useRealtimeInvalidate, customersKey } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/customers/$customerId")({
-  head: ({ params }) => ({ meta: [{ title: `Customer · CORTA OMS` }] }),
+  head: () => ({ meta: [{ title: `Customer · OMS` }] }),
   component: CustomerDetail,
   notFoundComponent: () => <p className="text-sm text-muted-foreground">Customer not found.</p>,
 });
 
 function CustomerDetail() {
   const { customerId } = Route.useParams();
+  const navigate = useNavigate();
   useRealtimeInvalidate("customers", [customersKey]);
   const { data: customers = [], isLoading } = useCustomers();
   const { data: orders = [] } = useOrders();
+  const updateCustomer = useUpdateCustomer();
+  const deleteCustomer = useDeleteCustomer();
+  const [editing, setEditing] = useState(false);
+  const [confirmDel, setConfirmDel] = useState(false);
 
   const c = customers.find((x) => x.id === customerId || x.code === customerId);
   if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
