@@ -143,38 +143,41 @@ function ProductsList() {
             }
           }
 
-          const req = await createRequest.mutateAsync({
-            kind: "new_product",
-            direction: "outbound",
-            target_system: "EMS",
-            source_system: "CORTA OMS",
-            title: `New product: ${product.name} (${product.sku})`,
-            description: v.description || null,
-            product_id: product.id,
-            payload: {
-              product: {
-                sku: product.sku,
-                name: product.name,
-                description: product.description,
-              },
-              specifications: v.specifications,
-              acceptance_criteria: v.acceptance_criteria,
-              attachments,
-              meta: {
-                uom: product.uom,
-                type: product.type,
-                standard_cost: product.standard_cost,
-                sale_price: v.sale_price,
-                lead_time: product.lead_time,
-              },
-            } as never,
-          });
+          const payload = {
+            product: {
+              sku: product.sku,
+              name: product.name,
+              description: product.description,
+            },
+            specifications: v.specifications,
+            acceptance_criteria: v.acceptance_criteria,
+            attachments,
+            meta: {
+              uom: product.uom,
+              type: product.type,
+              standard_cost: product.standard_cost,
+              sale_price: v.sale_price,
+              lead_time: product.lead_time,
+            },
+          };
 
-          toast.success(`Request ${req.number} created — delivering to EMS…`);
-          deliverRequestToQc(req.id, req.payload).then((res) => {
-            if (res.ok) toast.success(`Delivered ${req.number} to EMS`);
-            else toast.warning(`Request ${req.number} saved — delivery pending (${"error" in res ? res.error : "unknown"})`);
-          });
+          for (const target of ["EMS", "RMS"] as const) {
+            const req = await createRequest.mutateAsync({
+              kind: "new_product",
+              direction: "outbound",
+              target_system: target,
+              source_system: "CORTA OMS",
+              title: `New product: ${product.name} (${product.sku})`,
+              description: v.description || null,
+              product_id: product.id,
+              payload: payload as never,
+            });
+            toast.success(`Request ${req.number} created — delivering to ${target}…`);
+            deliverRequestToQc(req.id, req.payload).then((res) => {
+              if (res.ok) toast.success(`Delivered ${req.number} to ${target}`);
+              else toast.warning(`Request ${req.number} saved — delivery pending (${"error" in res ? res.error : "unknown"})`);
+            });
+          }
         }}
       />
     </div>

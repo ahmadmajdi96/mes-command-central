@@ -1,0 +1,18 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: corta-oms
+    restart: unless-stopped
+    ports:
+      - "8119:8119"
+    env_file:
+      - .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: "8119"
+    volumes:
+      # Mount source for hot reload; keep node_modules inside the container
+      - .:/app
+      - /app/node_modules
