@@ -30,7 +30,7 @@ export function EventFeed() {
         className="relative flex h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-3 text-xs hover:bg-card"
         aria-label="Event feed"
       >
-        <Bell className="h-3.5 w-3.5" />
+        <Activity className="h-3.5 w-3.5" />
         <span className="hidden sm:inline">Activity</span>
         {unread > 0 && (
           <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 font-mono text-[10px] font-medium text-primary-foreground">
