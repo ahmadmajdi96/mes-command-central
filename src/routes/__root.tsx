@@ -22,7 +22,9 @@ import { GlobalSearch } from "@/components/global-search";
 import { LiveIndicator } from "@/components/live-indicator";
 import { EventFeed } from "@/components/event-feed";
 import { UserMenu } from "@/components/user-menu";
+import { NotificationBell } from "@/components/notification-bell";
 import { useSession } from "@/hooks/use-session";
+import { useNotificationsRealtime } from "@/lib/notifications-db";
 
 
 function NotFoundComponent() {
