@@ -37,6 +37,23 @@ function ProductsList() {
     return true;
   }), [q, type, products]);
 
+  const analytics = useMemo(() => {
+    const finished = products.filter((p) => p.type === "finished").length;
+    const semi = products.filter((p) => p.type === "semi").length;
+    const raw = products.filter((p) => p.type === "raw").length;
+    const stock = products.reduce((s, p) => s + onHandOf(p.id), 0);
+    const invValue = products.reduce((s, p) => s + onHandOf(p.id) * Number(p.standard_cost ?? 0), 0);
+    const avgLead = products.length ? Math.round(products.reduce((s, p) => s + Number(p.lead_time ?? 0), 0) / products.length) : 0;
+    return [
+      { label: "Total products", value: products.length, accent: "primary" as const },
+      { label: "Finished", value: finished, accent: "success" as const },
+      { label: "Semi", value: semi, accent: "info" as const },
+      { label: "Raw", value: raw, accent: "warning" as const },
+      { label: "On hand", value: stock.toLocaleString(), accent: "accent" as const },
+      { label: "Inventory value", value: `$${(invValue / 1000).toFixed(1)}k`, hint: `Avg lead ${avgLead}d`, accent: "accent" as const },
+    ];
+  }, [products, txns]);
+
   const canManage = true;
 
   return (
@@ -68,8 +85,8 @@ function ProductsList() {
         }
       />
 
-      <SavedPresetsBar<Preset> pageKey="products" current={{ q, type }}
-        onApply={(p) => { setQ(p.q ?? ""); setType(p.type ?? "all"); }} />
+      <AnalyticsCards cards={analytics} />
+
 
       <div className="glass-panel flex flex-wrap items-center gap-3 rounded-2xl p-3">
         <div className="relative flex-1 min-w-[240px]">
