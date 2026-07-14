@@ -5,6 +5,7 @@ import { PageHeader, DataTable } from "@/components/page-shell";
 import { StatusPill } from "@/components/status-pill";
 import { FormDialog } from "@/components/form-dialog";
 import { CSVExportButton } from "@/components/csv-export-button";
+import { AnalyticsCards } from "@/components/analytics-cards";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";

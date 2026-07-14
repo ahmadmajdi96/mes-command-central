@@ -5,6 +5,7 @@ import { PageHeader, DataTable } from "@/components/page-shell";
 import { StatusPill } from "@/components/status-pill";
 import { FormDialog } from "@/components/form-dialog";
 import { CSVExportButton } from "@/components/csv-export-button";
+import { AnalyticsCards } from "@/components/analytics-cards";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -50,6 +51,23 @@ function BatchList() {
     }
     return true;
   }), [rows, q, status, products]);
+
+  const analytics = useMemo(() => {
+    const planned = rows.filter((r) => r.status === "planned").length;
+    const inProg = rows.filter((r) => r.status === "in_progress").length;
+    const completed = rows.filter((r) => r.status === "completed").length;
+    const rejected = rows.filter((r) => r.status === "rejected").length;
+    const totalQty = rows.reduce((s, r) => s + Number(r.qty ?? 0), 0);
+    const totalScrap = rows.reduce((s, r) => s + Number(r.qty_scrap ?? 0), 0);
+    return [
+      { label: "Total batches", value: rows.length, accent: "primary" as const },
+      { label: "Planned", value: planned, accent: "info" as const },
+      { label: "In progress", value: inProg, accent: "warning" as const },
+      { label: "Completed", value: completed, accent: "success" as const },
+      { label: "Rejected", value: rejected, accent: "destructive" as const },
+      { label: "Qty / Scrap", value: totalQty.toLocaleString(), hint: `${totalScrap.toLocaleString()} scrap`, accent: "accent" as const },
+    ];
+  }, [rows]);
 
   return (
     <div className="space-y-5">
