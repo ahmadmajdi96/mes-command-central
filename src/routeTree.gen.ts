@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShipmentsRouteImport } from './routes/shipments'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SetPasswordRouteImport } from './routes/set-password'
 import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuditRouteImport } from './routes/audit'
@@ -39,6 +40,11 @@ const ShipmentsRoute = ShipmentsRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SetPasswordRoute = SetPasswordRouteImport.update({
+  id: '/set-password',
+  path: '/set-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RequestsRoute = RequestsRouteImport.update({
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/set-password': typeof SetPasswordRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/batches/$batchId': typeof BatchesBatchIdRoute
@@ -165,6 +172,7 @@ export interface FileRoutesByTo {
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/set-password': typeof SetPasswordRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/batches/$batchId': typeof BatchesBatchIdRoute
@@ -189,6 +197,7 @@ export interface FileRoutesById {
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/set-password': typeof SetPasswordRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
   '/batches/$batchId': typeof BatchesBatchIdRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/audit'
     | '/auth'
     | '/requests'
+    | '/set-password'
     | '/settings'
     | '/shipments'
     | '/batches/$batchId'
@@ -237,6 +247,7 @@ export interface FileRouteTypes {
     | '/audit'
     | '/auth'
     | '/requests'
+    | '/set-password'
     | '/settings'
     | '/shipments'
     | '/batches/$batchId'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/audit'
     | '/auth'
     | '/requests'
+    | '/set-password'
     | '/settings'
     | '/shipments'
     | '/batches/$batchId'
@@ -284,6 +296,7 @@ export interface RootRouteChildren {
   AuditRoute: typeof AuditRoute
   AuthRoute: typeof AuthRoute
   RequestsRoute: typeof RequestsRouteWithChildren
+  SetPasswordRoute: typeof SetPasswordRoute
   SettingsRoute: typeof SettingsRoute
   ShipmentsRoute: typeof ShipmentsRoute
   BatchesBatchIdRoute: typeof BatchesBatchIdRoute
@@ -316,6 +329,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/set-password': {
+      id: '/set-password'
+      path: '/set-password'
+      fullPath: '/set-password'
+      preLoaderRoute: typeof SetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/requests': {
@@ -471,6 +491,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuditRoute: AuditRoute,
   AuthRoute: AuthRoute,
   RequestsRoute: RequestsRouteWithChildren,
+  SetPasswordRoute: SetPasswordRoute,
   SettingsRoute: SettingsRoute,
   ShipmentsRoute: ShipmentsRoute,
   BatchesBatchIdRoute: BatchesBatchIdRoute,
