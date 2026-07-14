@@ -154,12 +154,20 @@ function ShipmentsPage() {
           { name: "shipped_at", label: "Shipped date", type: "date" },
         ]}
         onSubmit={async (v: any) => {
-          const created = await createShipment.mutateAsync({
-            order_id: v.order_id || null, carrier: v.carrier || null,
-            tracking: v.tracking || null, status: v.status || "draft",
-            shipped_at: v.shipped_at ? new Date(v.shipped_at).toISOString() : null,
-          });
-          toast.success(`Shipment ${created.number} created`);
+          try {
+            const created = await createShipment.mutateAsync({
+              order_id: v.order_id || null, carrier: v.carrier || null,
+              tracking: v.tracking || null, status: v.status || "draft",
+              shipped_at: v.shipped_at ? new Date(v.shipped_at).toISOString() : null,
+            });
+            if (!created?.number) {
+              toast.error("Shipment saved but auto-number failed — refresh to verify");
+            } else {
+              toast.success(`Shipment ${created.number} created`);
+            }
+          } catch (e: any) {
+            toast.error(e?.message ?? "Failed to create shipment");
+          }
         }}
       />
 
