@@ -1,15 +1,23 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Search, ShoppingCart, UserCircle, Package, Factory, Truck } from "lucide-react";
+import { Search, ShoppingCart, UserCircle, Package, Factory, Truck, Boxes } from "lucide-react";
 import {
   CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem,
 } from "@/components/ui/command";
-import { salesOrders, customers, products, productionOrders, shipments, findCustomer, findProduct } from "@/lib/oms-data";
+import { useOrders, useCustomers, useProducts, useShipments } from "@/lib/oms-db";
+import { useProductionOrders } from "@/lib/production-orders-db";
+import { useBatches } from "@/lib/batches-db";
 
 export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
+  const { data: orders = [] } = useOrders();
+  const { data: customers = [] } = useCustomers();
+  const { data: products = [] } = useProducts();
+  const { data: shipments = [] } = useShipments();
+  const { data: pos = [] } = useProductionOrders();
+  const { data: batches = [] } = useBatches();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -26,6 +34,9 @@ export function GlobalSearch() {
     setOpen(false);
     navigate({ to });
   };
+
+  const findCustomer = (id: string | null) => customers.find((c) => c.id === id);
+  const findProduct = (id: string | null) => products.find((p) => p.id === id);
 
   return (
     <>
@@ -46,29 +57,29 @@ export function GlobalSearch() {
       </button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Search orders, customers, products, work orders…" />
+        <CommandInput placeholder="Search orders, customers, products, batches…" />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
 
           <CommandGroup heading="Sales Orders">
-            {salesOrders.map((o) => (
-              <CommandItem key={o.id} value={`${o.number} ${findCustomer(o.customerId)?.name}`}
+            {orders.slice(0, 30).map((o) => (
+              <CommandItem key={o.id} value={`${o.number} ${findCustomer(o.customer_id)?.name ?? ""}`}
                 onSelect={() => go(`/orders/${o.id}`)}>
                 <ShoppingCart className="h-3.5 w-3.5 text-primary" />
                 <span className="font-mono text-xs">{o.number}</span>
-                <span className="text-xs text-muted-foreground">· {findCustomer(o.customerId)?.name}</span>
-                <span className="ml-auto font-mono text-[10px] text-muted-foreground">${o.total.toLocaleString()}</span>
+                <span className="text-xs text-muted-foreground">· {findCustomer(o.customer_id)?.name ?? "—"}</span>
+                <span className="ml-auto font-mono text-[10px] text-muted-foreground">${Number(o.total ?? 0).toLocaleString()}</span>
               </CommandItem>
             ))}
           </CommandGroup>
 
           <CommandGroup heading="Customers">
             {customers.map((c) => (
-              <CommandItem key={c.id} value={`${c.id} ${c.name} ${c.contact}`}
+              <CommandItem key={c.id} value={`${c.code ?? ""} ${c.name} ${c.contact ?? ""}`}
                 onSelect={() => go(`/customers/${c.id}`)}>
                 <UserCircle className="h-3.5 w-3.5 text-info" />
                 <span>{c.name}</span>
-                <span className="text-xs text-muted-foreground">· {c.contact}</span>
+                <span className="text-xs text-muted-foreground">· {c.contact ?? ""}</span>
               </CommandItem>
             ))}
           </CommandGroup>
@@ -84,27 +95,35 @@ export function GlobalSearch() {
             ))}
           </CommandGroup>
 
-
-
-
           <CommandGroup heading="Production Orders">
-            {productionOrders.map((p) => (
-              <CommandItem key={p.id} value={`${p.number} ${findProduct(p.productId)?.name}`}
+            {pos.slice(0, 30).map((p) => (
+              <CommandItem key={p.id} value={`${p.number ?? ""} ${findProduct(p.product_id)?.name ?? ""}`}
                 onSelect={() => go(`/production-orders/${p.id}`)}>
                 <Factory className="h-3.5 w-3.5 text-info" />
                 <span className="font-mono text-xs">{p.number}</span>
-                <span className="text-xs">· {findProduct(p.productId)?.name}</span>
+                <span className="text-xs">· {findProduct(p.product_id)?.name ?? "—"}</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+
+          <CommandGroup heading="Batches">
+            {batches.slice(0, 30).map((b) => (
+              <CommandItem key={b.id} value={`${b.number ?? ""} ${b.lot_code ?? ""}`}
+                onSelect={() => go(`/batches/${b.id}`)}>
+                <Boxes className="h-3.5 w-3.5 text-accent" />
+                <span className="font-mono text-xs">{b.number}</span>
+                <span className="text-xs text-muted-foreground">· {b.lot_code ?? "—"}</span>
               </CommandItem>
             ))}
           </CommandGroup>
 
           <CommandGroup heading="Shipments">
-            {shipments.map((s) => (
-              <CommandItem key={s.id} value={`${s.number} ${s.carrier}`}
+            {shipments.slice(0, 30).map((s) => (
+              <CommandItem key={s.id} value={`${s.number} ${s.carrier ?? ""}`}
                 onSelect={() => go("/shipments")}>
                 <Truck className="h-3.5 w-3.5 text-success" />
                 <span className="font-mono text-xs">{s.number}</span>
-                <span className="text-xs text-muted-foreground">· {s.carrier}</span>
+                <span className="text-xs text-muted-foreground">· {s.carrier ?? ""}</span>
               </CommandItem>
             ))}
           </CommandGroup>
