@@ -1,15 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, Pencil, Trash2 } from "lucide-react";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { FormDialog } from "@/components/form-dialog";
 import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { NewOrderDialog } from "@/components/new-order-dialog";
 import { toast } from "sonner";
 import {
-  useOrders, useBulkUpdateOrderStatus, useRealtimeInvalidate,
+  useOrders, useBulkUpdateOrderStatus, useUpdateOrder, useDeleteOrder,
+  useCustomers, useRealtimeInvalidate,
   ordersKey, orderStatusOptions, type OrderWithCustomer,
 } from "@/lib/oms-db";
 
@@ -25,10 +27,15 @@ function OrdersList() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [openNew, setOpenNew] = useState(false);
+  const [editing, setEditing] = useState<OrderWithCustomer | null>(null);
+  const [deleting, setDeleting] = useState<OrderWithCustomer | null>(null);
   useRealtimeInvalidate("sales_orders", [ordersKey]);
 
   const { data: orders = [], isLoading } = useOrders();
+  const { data: customers = [] } = useCustomers();
   const bulkUpdate = useBulkUpdateOrderStatus();
+  const updateOrder = useUpdateOrder();
+  const deleteOrder = useDeleteOrder();
 
   const [confirm, setConfirm] = useState<
     | null
@@ -149,6 +156,20 @@ function OrdersList() {
           { key: "lines", label: "Lines", sortAccessor: (o) => o.lines_count ?? 0, render: (o) => <span className="font-mono text-xs">{o.lines_count ?? 0}</span> },
           { key: "status", label: "Status", sortAccessor: (o) => o.status, render: (o) => <StatusPill status={o.status} /> },
           { key: "total", label: "Total", align: "right", sortAccessor: (o) => Number(o.total), render: (o) => <span className="font-mono text-sm">${Number(o.total).toLocaleString()}</span> },
+          { key: "actions", label: "", render: (o: OrderWithCustomer) => (
+            <div className="flex items-center justify-end gap-1">
+              <button onClick={() => setEditing(o)}
+                className="rounded-md border border-border/60 bg-card/60 p-1.5 text-muted-foreground hover:text-foreground"
+                aria-label="Edit order">
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+              <button onClick={() => setDeleting(o)}
+                className="rounded-md border border-destructive/40 bg-destructive/10 p-1.5 text-destructive hover:bg-destructive/20"
+                aria-label="Delete order">
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )},
         ]}
         empty={isLoading ? "Loading…" : "No orders match your filters"}
       />
@@ -169,6 +190,69 @@ function OrdersList() {
 
       <NewOrderDialog open={openNew} onOpenChange={setOpenNew} />
 
+      <FormDialog
+        open={!!editing}
+        onOpenChange={(v) => !v && setEditing(null)}
+        title={editing ? `Edit ${editing.number}` : "Edit order"}
+        submitLabel="Save changes"
+        initial={editing ? {
+          customer_id: editing.customer_id ?? "",
+          status: editing.status,
+          order_date: editing.order_date ?? "",
+          due_date: editing.due_date ?? "",
+          currency: editing.currency ?? "USD",
+          notes: (editing as any).notes ?? "",
+        } as any : undefined}
+        fields={[
+          { name: "customer_id", label: "Customer", type: "select", required: true,
+            options: customers.map((c) => ({ value: c.id, label: c.name })) },
+          { name: "status", label: "Status", type: "select",
+            options: orderStatusOptions.map((s) => ({ value: s, label: s.replace("_", " ") })) },
+          { name: "order_date", label: "Order date", type: "date" },
+          { name: "due_date", label: "Due date", type: "date" },
+          { name: "currency", label: "Currency" },
+          { name: "notes", label: "Notes", type: "textarea" },
+        ]}
+        onSubmit={async (v: any) => {
+          if (!editing) return;
+          try {
+            await updateOrder.mutateAsync({
+              id: editing.id,
+              patch: {
+                customer_id: v.customer_id || null,
+                status: v.status || editing.status,
+                order_date: v.order_date || null,
+                due_date: v.due_date || null,
+                currency: v.currency || "USD",
+                notes: v.notes || null,
+              },
+            });
+            toast.success(`Order ${editing.number} updated`);
+            setEditing(null);
+          } catch (e: any) {
+            toast.error(e?.message ?? "Failed to update order");
+          }
+        }}
+      />
+
+      <ConfirmDialog
+        open={!!deleting}
+        onOpenChange={(v) => !v && setDeleting(null)}
+        title={deleting ? `Delete ${deleting.number}?` : "Delete order?"}
+        description="This permanently removes the sales order and its lines."
+        confirmLabel="Delete order"
+        variant="destructive"
+        onConfirm={async () => {
+          if (!deleting) return;
+          try {
+            await deleteOrder.mutateAsync(deleting.id);
+            toast.success(`Order ${deleting.number} deleted`);
+            setDeleting(null);
+          } catch (e: any) {
+            toast.error(e?.message ?? "Failed to delete order");
+          }
+        }}
+      />
     </div>
   );
 }
