@@ -1,20 +1,29 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { PageHeader, Panel, Field } from "@/components/page-shell";
 import { StatusPill } from "@/components/status-pill";
-import { useCustomers, useOrders, useRealtimeInvalidate, customersKey, ordersKey } from "@/lib/oms-db";
+import { FormDialog } from "@/components/form-dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { useCustomers, useOrders, useUpdateCustomer, useDeleteCustomer, useRealtimeInvalidate, customersKey } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/customers/$customerId")({
-  head: ({ params }) => ({ meta: [{ title: `Customer · CORTA OMS` }] }),
+  head: () => ({ meta: [{ title: `Customer · OMS` }] }),
   component: CustomerDetail,
   notFoundComponent: () => <p className="text-sm text-muted-foreground">Customer not found.</p>,
 });
 
 function CustomerDetail() {
   const { customerId } = Route.useParams();
+  const navigate = useNavigate();
   useRealtimeInvalidate("customers", [customersKey]);
   const { data: customers = [], isLoading } = useCustomers();
   const { data: orders = [] } = useOrders();
+  const updateCustomer = useUpdateCustomer();
+  const deleteCustomer = useDeleteCustomer();
+  const [editing, setEditing] = useState(false);
+  const [confirmDel, setConfirmDel] = useState(false);
 
   const c = customers.find((x) => x.id === customerId || x.code === customerId);
   if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
@@ -34,6 +43,16 @@ function CustomerDetail() {
         breadcrumb={<Link to="/customers" className="hover:text-foreground"><span className="inline-flex items-center gap-1"><ArrowLeft className="h-3 w-3" /> Customers</span></Link>}
         title={c.name}
         subtitle={`${c.contact ?? "—"} · ${c.code ?? ""}`}
+        actions={
+          <div className="flex items-center gap-2">
+            <button onClick={() => setEditing(true)} className="flex items-center gap-1 rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs hover:bg-card">
+              <Pencil className="h-3 w-3" /> Edit
+            </button>
+            <button onClick={() => setConfirmDel(true)} className="flex items-center gap-1 rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-1.5 text-xs text-destructive hover:bg-destructive/10">
+              <Trash2 className="h-3 w-3" /> Delete
+            </button>
+          </div>
+        }
       />
       <div className="grid gap-4 lg:grid-cols-3">
         <Panel>
@@ -84,6 +103,45 @@ function CustomerDetail() {
           </div>
         )}
       </Panel>
+
+      <FormDialog
+        open={editing}
+        onOpenChange={setEditing}
+        title="Edit customer"
+        submitLabel="Save"
+        initial={{ name: c.name, contact: c.contact ?? "", email: c.email ?? "", phone: c.phone ?? "", address: c.address ?? "" }}
+        fields={[
+          { name: "name", label: "Name", required: true },
+          { name: "contact", label: "Contact" },
+          { name: "email", label: "Email", type: "email" },
+          { name: "phone", label: "Phone" },
+          { name: "address", label: "Address", type: "textarea" },
+        ]}
+        onSubmit={async (v: { name: string; contact?: string; email?: string; phone?: string; address?: string }) => {
+          await updateCustomer.mutateAsync({ id: c.id, patch: {
+            name: v.name,
+            contact: v.contact || null,
+            email: v.email || null,
+            phone: v.phone || null,
+            address: v.address || null,
+          }});
+          toast.success("Customer updated");
+        }}
+      />
+
+      <ConfirmDialog
+        open={confirmDel}
+        onOpenChange={setConfirmDel}
+        title="Delete customer"
+        description={`Delete ${c.name}? This cannot be undone.`}
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={async () => {
+          await deleteCustomer.mutateAsync(c.id);
+          toast.success("Customer deleted");
+          navigate({ to: "/customers" });
+        }}
+      />
     </div>
   );
 }

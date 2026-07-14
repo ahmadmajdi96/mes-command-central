@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { CheckCircle2, Factory, Package, ShoppingCart, TrendingUp, AlertTriangle, UserCircle, Boxes } from "lucide-react";
 import { StatusPill } from "@/components/status-pill";
+import { DashboardCharts } from "@/components/dashboard-charts";
 import { useOrders, useCustomers, useProducts, useShipments } from "@/lib/oms-db";
 import { useProductionOrders } from "@/lib/production-orders-db";
 import { useBatches } from "@/lib/batches-db";
@@ -103,6 +104,8 @@ function Dashboard() {
         <Kpi label="Production Orders" value={pos.length} icon={Factory} accent="info" href="/production-orders" />
         <Kpi label="Batches" value={batches.length} icon={Boxes} accent="accent" href="/batches" />
       </div>
+      <DashboardCharts />
+
 
       <div className="glass-panel rounded-2xl p-5">
         <div className="mb-3 flex items-center justify-between">

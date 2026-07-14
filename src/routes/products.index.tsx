@@ -7,7 +7,7 @@ import { AnalyticsCards } from "@/components/analytics-cards";
 import { NewProductDialog } from "@/components/new-product-dialog";
 import { toast } from "sonner";
 import { useProducts, useCreateProduct, useInventoryTxns, useRealtimeInvalidate, productsKey, productTypeOptions, type Product } from "@/lib/oms-db";
-import { useCreateProductRequest, deliverRequestToQc } from "@/lib/product-requests-db";
+import { useCreateProductRequest } from "@/lib/product-requests-db";
 import { uploadProductFiles } from "@/lib/product-attachments";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -172,11 +172,7 @@ function ProductsList() {
               product_id: product.id,
               payload: payload as never,
             });
-            toast.success(`Request ${req.number} created — delivering to ${target}…`);
-            deliverRequestToQc(req.id, req.payload).then((res) => {
-              if (res.ok) toast.success(`Delivered ${req.number} to ${target}`);
-              else toast.warning(`Request ${req.number} saved — delivery pending (${"error" in res ? res.error : "unknown"})`);
-            });
+            toast.success(`Request ${req.number} registered for ${target}`);
           }
         }}
       />

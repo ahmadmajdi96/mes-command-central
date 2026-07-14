@@ -16,11 +16,13 @@ import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ReturnsIndexRouteImport } from './routes/returns.index'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductionOrdersIndexRouteImport } from './routes/production-orders.index'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as CustomersIndexRouteImport } from './routes/customers.index'
 import { Route as BatchesIndexRouteImport } from './routes/batches.index'
+import { Route as ReturnsReturnIdRouteImport } from './routes/returns.$returnId'
 import { Route as RequestsIdRouteImport } from './routes/requests.$id'
 import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
 import { Route as ProductionOrdersPoIdRouteImport } from './routes/production-orders.$poId'
@@ -67,6 +69,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReturnsIndexRoute = ReturnsIndexRouteImport.update({
+  id: '/returns/',
+  path: '/returns/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsIndexRoute = ProductsIndexRouteImport.update({
   id: '/products/',
   path: '/products/',
@@ -90,6 +97,11 @@ const CustomersIndexRoute = CustomersIndexRouteImport.update({
 const BatchesIndexRoute = BatchesIndexRouteImport.update({
   id: '/batches/',
   path: '/batches/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReturnsReturnIdRoute = ReturnsReturnIdRouteImport.update({
+  id: '/returns/$returnId',
+  path: '/returns/$returnId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RequestsIdRoute = RequestsIdRouteImport.update({
@@ -157,11 +169,13 @@ export interface FileRoutesByFullPath {
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/requests/$id': typeof RequestsIdRoute
+  '/returns/$returnId': typeof ReturnsReturnIdRoute
   '/batches/': typeof BatchesIndexRoute
   '/customers/': typeof CustomersIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/production-orders/': typeof ProductionOrdersIndexRoute
   '/products/': typeof ProductsIndexRoute
+  '/returns/': typeof ReturnsIndexRoute
   '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
   '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
   '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
@@ -181,11 +195,13 @@ export interface FileRoutesByTo {
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/requests/$id': typeof RequestsIdRoute
+  '/returns/$returnId': typeof ReturnsReturnIdRoute
   '/batches': typeof BatchesIndexRoute
   '/customers': typeof CustomersIndexRoute
   '/orders': typeof OrdersIndexRoute
   '/production-orders': typeof ProductionOrdersIndexRoute
   '/products': typeof ProductsIndexRoute
+  '/returns': typeof ReturnsIndexRoute
   '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
   '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
   '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
@@ -206,11 +222,13 @@ export interface FileRoutesById {
   '/production-orders/$poId': typeof ProductionOrdersPoIdRoute
   '/products/$productId': typeof ProductsProductIdRoute
   '/requests/$id': typeof RequestsIdRoute
+  '/returns/$returnId': typeof ReturnsReturnIdRoute
   '/batches/': typeof BatchesIndexRoute
   '/customers/': typeof CustomersIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/production-orders/': typeof ProductionOrdersIndexRoute
   '/products/': typeof ProductsIndexRoute
+  '/returns/': typeof ReturnsIndexRoute
   '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
   '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
   '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
@@ -232,11 +250,13 @@ export interface FileRouteTypes {
     | '/production-orders/$poId'
     | '/products/$productId'
     | '/requests/$id'
+    | '/returns/$returnId'
     | '/batches/'
     | '/customers/'
     | '/orders/'
     | '/production-orders/'
     | '/products/'
+    | '/returns/'
     | '/api/public/oms/orders'
     | '/api/public/oms/work-orders'
     | '/api/public/webhooks/mes'
@@ -256,11 +276,13 @@ export interface FileRouteTypes {
     | '/production-orders/$poId'
     | '/products/$productId'
     | '/requests/$id'
+    | '/returns/$returnId'
     | '/batches'
     | '/customers'
     | '/orders'
     | '/production-orders'
     | '/products'
+    | '/returns'
     | '/api/public/oms/orders'
     | '/api/public/oms/work-orders'
     | '/api/public/webhooks/mes'
@@ -280,11 +302,13 @@ export interface FileRouteTypes {
     | '/production-orders/$poId'
     | '/products/$productId'
     | '/requests/$id'
+    | '/returns/$returnId'
     | '/batches/'
     | '/customers/'
     | '/orders/'
     | '/production-orders/'
     | '/products/'
+    | '/returns/'
     | '/api/public/oms/orders'
     | '/api/public/oms/work-orders'
     | '/api/public/webhooks/mes'
@@ -304,11 +328,13 @@ export interface RootRouteChildren {
   OrdersOrderIdRoute: typeof OrdersOrderIdRoute
   ProductionOrdersPoIdRoute: typeof ProductionOrdersPoIdRoute
   ProductsProductIdRoute: typeof ProductsProductIdRoute
+  ReturnsReturnIdRoute: typeof ReturnsReturnIdRoute
   BatchesIndexRoute: typeof BatchesIndexRoute
   CustomersIndexRoute: typeof CustomersIndexRoute
   OrdersIndexRoute: typeof OrdersIndexRoute
   ProductionOrdersIndexRoute: typeof ProductionOrdersIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
+  ReturnsIndexRoute: typeof ReturnsIndexRoute
   ApiPublicOmsOrdersRoute: typeof ApiPublicOmsOrdersRoute
   ApiPublicOmsWorkOrdersRoute: typeof ApiPublicOmsWorkOrdersRoute
   ApiPublicWebhooksMesRoute: typeof ApiPublicWebhooksMesRoute
@@ -366,6 +392,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/returns/': {
+      id: '/returns/'
+      path: '/returns'
+      fullPath: '/returns/'
+      preLoaderRoute: typeof ReturnsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products/': {
       id: '/products/'
       path: '/products'
@@ -399,6 +432,13 @@ declare module '@tanstack/react-router' {
       path: '/batches'
       fullPath: '/batches/'
       preLoaderRoute: typeof BatchesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/returns/$returnId': {
+      id: '/returns/$returnId'
+      path: '/returns/$returnId'
+      fullPath: '/returns/$returnId'
+      preLoaderRoute: typeof ReturnsReturnIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/requests/$id': {
@@ -499,11 +539,13 @@ const rootRouteChildren: RootRouteChildren = {
   OrdersOrderIdRoute: OrdersOrderIdRoute,
   ProductionOrdersPoIdRoute: ProductionOrdersPoIdRoute,
   ProductsProductIdRoute: ProductsProductIdRoute,
+  ReturnsReturnIdRoute: ReturnsReturnIdRoute,
   BatchesIndexRoute: BatchesIndexRoute,
   CustomersIndexRoute: CustomersIndexRoute,
   OrdersIndexRoute: OrdersIndexRoute,
   ProductionOrdersIndexRoute: ProductionOrdersIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
+  ReturnsIndexRoute: ReturnsIndexRoute,
   ApiPublicOmsOrdersRoute: ApiPublicOmsOrdersRoute,
   ApiPublicOmsWorkOrdersRoute: ApiPublicOmsWorkOrdersRoute,
   ApiPublicWebhooksMesRoute: ApiPublicWebhooksMesRoute,

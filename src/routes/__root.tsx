@@ -22,7 +22,9 @@ import { GlobalSearch } from "@/components/global-search";
 import { LiveIndicator } from "@/components/live-indicator";
 import { EventFeed } from "@/components/event-feed";
 import { UserMenu } from "@/components/user-menu";
+import { NotificationBell } from "@/components/notification-bell";
 import { useSession } from "@/hooks/use-session";
+import { useNotificationsRealtime } from "@/lib/notifications-db";
 
 
 function NotFoundComponent() {
@@ -107,6 +109,8 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function TopBar() {
+  const { user } = useSession();
+  useNotificationsRealtime(user?.id);
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/60 bg-background/70 px-4 backdrop-blur-xl">
       <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
@@ -118,8 +122,8 @@ function TopBar() {
       <div className="ml-auto flex items-center gap-2">
         <LiveIndicator />
         <GlobalSearch />
+        <NotificationBell />
         <EventFeed />
-        
         <UserMenu />
       </div>
     </header>
