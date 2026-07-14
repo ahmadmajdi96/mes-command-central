@@ -27,10 +27,15 @@ function OrdersList() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [openNew, setOpenNew] = useState(false);
+  const [editing, setEditing] = useState<OrderWithCustomer | null>(null);
+  const [deleting, setDeleting] = useState<OrderWithCustomer | null>(null);
   useRealtimeInvalidate("sales_orders", [ordersKey]);
 
   const { data: orders = [], isLoading } = useOrders();
+  const { data: customers = [] } = useCustomers();
   const bulkUpdate = useBulkUpdateOrderStatus();
+  const updateOrder = useUpdateOrder();
+  const deleteOrder = useDeleteOrder();
 
   const [confirm, setConfirm] = useState<
     | null
