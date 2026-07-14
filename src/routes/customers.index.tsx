@@ -3,8 +3,8 @@ import { useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
+import { AnalyticsCards } from "@/components/analytics-cards";
 import { FormDialog } from "@/components/form-dialog";
-import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { toast } from "sonner";
 import { useCustomers, useCreateCustomer, useOrders, useRealtimeInvalidate, customersKey, type Customer } from "@/lib/oms-db";
 
@@ -12,8 +12,6 @@ export const Route = createFileRoute("/customers/")({
   head: () => ({ meta: [{ title: "Customers · CORTA OMS" }] }),
   component: CustomersList,
 });
-
-type Preset = { q: string; region: string };
 
 function CustomersList() {
   const [q, setQ] = useState("");
