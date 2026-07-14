@@ -94,6 +94,8 @@ function BatchList() {
         }
       />
 
+      <AnalyticsCards cards={analytics} />
+
       <div className="glass-panel flex flex-wrap items-center gap-3 rounded-2xl p-3">
         <div className="relative flex-1 min-w-[240px]">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
