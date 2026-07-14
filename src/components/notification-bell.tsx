@@ -69,6 +69,12 @@ export function NotificationBell() {
             );
           })}
         </div>
+        <Link
+          to="/notifications"
+          className="block border-t border-border/60 px-3 py-2 text-center text-[11px] text-primary hover:bg-card/60"
+        >
+          View all notifications
+        </Link>
       </PopoverContent>
     </Popover>
   );
