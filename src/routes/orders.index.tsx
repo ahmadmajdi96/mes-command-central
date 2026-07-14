@@ -52,6 +52,23 @@ function OrdersList() {
     });
   }, [q, status, orders]);
 
+  const analytics = useMemo(() => {
+    const total = orders.length;
+    const draft = orders.filter((o) => o.status === "draft").length;
+    const inProd = orders.filter((o) => o.status === "in_production").length;
+    const shipped = orders.filter((o) => o.status === "shipped").length;
+    const cancelled = orders.filter((o) => o.status === "cancelled").length;
+    const revenue = orders.reduce((s, o) => s + Number(o.total ?? 0), 0);
+    return [
+      { label: "Total orders", value: total, accent: "primary" as const },
+      { label: "Draft", value: draft, accent: "info" as const },
+      { label: "In production", value: inProd, accent: "warning" as const },
+      { label: "Shipped", value: shipped, accent: "success" as const },
+      { label: "Cancelled", value: cancelled, accent: "destructive" as const },
+      { label: "Revenue", value: `$${(revenue / 1000).toFixed(1)}k`, accent: "accent" as const },
+    ];
+  }, [orders]);
+
   const runBulk = async () => {
     if (!confirm) return;
     try {
