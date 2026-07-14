@@ -57,6 +57,23 @@ function POList() {
     return true;
   }), [rows, q, status, products]);
 
+  const analytics = useMemo(() => {
+    const planned = rows.filter((r) => r.status === "planned").length;
+    const released = rows.filter((r) => r.status === "released").length;
+    const inProg = rows.filter((r) => r.status === "in_progress").length;
+    const completed = rows.filter((r) => r.status === "completed").length;
+    const totalQty = rows.reduce((s, r) => s + Number(r.qty ?? 0), 0);
+    const produced = rows.reduce((s, r) => s + Number(r.qty_produced ?? 0), 0);
+    return [
+      { label: "Total POs", value: rows.length, accent: "primary" as const },
+      { label: "Planned", value: planned, accent: "info" as const },
+      { label: "Released", value: released, accent: "accent" as const },
+      { label: "In progress", value: inProg, accent: "warning" as const },
+      { label: "Completed", value: completed, accent: "success" as const },
+      { label: "Produced / Target", value: `${produced.toLocaleString()}/${totalQty.toLocaleString()}`, accent: "accent" as const },
+    ];
+  }, [rows]);
+
   return (
     <div className="space-y-5">
       <PageHeader
