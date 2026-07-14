@@ -104,6 +104,8 @@ function Dashboard() {
         <Kpi label="Production Orders" value={pos.length} icon={Factory} accent="info" href="/production-orders" />
         <Kpi label="Batches" value={batches.length} icon={Boxes} accent="accent" href="/batches" />
       </div>
+      <DashboardCharts />
+
 
       <div className="glass-panel rounded-2xl p-5">
         <div className="mb-3 flex items-center justify-between">
