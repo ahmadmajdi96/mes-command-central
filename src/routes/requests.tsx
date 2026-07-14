@@ -165,16 +165,6 @@ function RequestsPage() {
             </div>
           )},
           { key: "status", label: "Status", sortAccessor: (r) => r.status, render: (r) => <StatusPill status={r.status} /> },
-          { key: "delivery", label: "Delivery", render: (r) => (
-            <span className={`text-[11px] ${
-              r.delivery_status === "delivered" ? "text-success" :
-              r.delivery_status === "failed" ? "text-destructive" :
-              "text-muted-foreground"
-            }`}>
-              {r.delivery_status ?? "—"}
-              {r.delivery_error && <span className="block text-[10px] opacity-70">{r.delivery_error}</span>}
-            </span>
-          )},
           { key: "created", label: "Created", align: "right", sortAccessor: (r) => r.created_at, render: (r) => (
             <span className="font-mono text-[11px] text-muted-foreground">{new Date(r.created_at).toLocaleString()}</span>
           )},

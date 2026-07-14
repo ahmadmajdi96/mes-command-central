@@ -234,11 +234,13 @@ export async function explodeOrderToProduction(orderId: string) {
     : { data: [] as { id: string; batching_limit: number }[] };
   const limitByProduct = new Map((products ?? []).map((p) => [p.id, Number(p.batching_limit) || 0]));
 
+  // Load order + customer snapshot for MES payload
+  const { data: order } = await supabase.from("sales_orders").select("*, customer:customers(*)").eq("id", orderId).maybeSingle();
+
   let poCount = 0;
   let batchCount = 0;
   for (const line of lines) {
     if (!line.product_id) continue;
-    // Skip if a PO for this order/product already exists
     const { data: existing } = await supabase
       .from("production_orders")
       .select("id")
@@ -258,7 +260,30 @@ export async function explodeOrderToProduction(orderId: string) {
     poCount++;
     await logAudit("production_order.create", po.id, `Auto-created ${po.number} from sales order`);
 
-    const limit = limitByProduct.get(line.product_id) || 0;
+    const { data: product } = await supabase.from("products").select("*").eq("id", line.product_id).maybeSingle();
+
+    // MES outbound request for the production order (full snapshot)
+    const { data: userRes } = await supabase.auth.getUser();
+    await supabase.from("product_requests").insert({
+      direction: "outbound",
+      kind: "other",
+      target_system: "mes",
+      source_system: "oms",
+      title: `Production order ${po.number}`,
+      description: `Sales order ${order?.number ?? orderId} → produce ${qty} of ${product?.name ?? line.product_id}`,
+      status: "pending",
+      product_id: line.product_id,
+      requester_id: userRes?.user?.id ?? null,
+      payload: {
+        type: "production_order.created",
+        production_order: po,
+        sales_order: order,
+        product,
+        line,
+      } as never,
+    } as never);
+
+    const limit = Number(product?.batching_limit) || 0;
     const perBatch = limit > 0 ? limit : qty;
     if (perBatch <= 0) continue;
     const count = Math.max(1, Math.ceil(qty / perBatch));
@@ -277,9 +302,31 @@ export async function explodeOrderToProduction(orderId: string) {
       });
     }
     if (rows.length) {
-      const { error: bErr } = await supabase.from("batches").insert(rows);
+      const { data: insertedBatches, error: bErr } = await supabase.from("batches").insert(rows).select();
       if (bErr) throw bErr;
       batchCount += rows.length;
+
+      // MES outbound request per batch
+      for (const b of insertedBatches ?? []) {
+        await supabase.from("product_requests").insert({
+          direction: "outbound",
+          kind: "other",
+          target_system: "mes",
+          source_system: "oms",
+          title: `Batch ${b.number}`,
+          description: `Batch of ${b.qty} for PO ${po.number}`,
+          status: "pending",
+          product_id: line.product_id,
+          requester_id: userRes?.user?.id ?? null,
+          payload: {
+            type: "batch.created",
+            batch: b,
+            production_order: po,
+            sales_order: order,
+            product,
+          } as never,
+        } as never);
+      }
     }
   }
   return { pos: poCount, batches: batchCount };
