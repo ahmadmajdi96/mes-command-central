@@ -500,10 +500,12 @@ export type Database = {
         Row: {
           category: string
           comment: string | null
+          comments: Json
           created_at: string
           created_by: string | null
           id: string
           order_id: string
+          product_ratings: Json
           rating: number
           status: string
           updated_at: string
@@ -511,10 +513,12 @@ export type Database = {
         Insert: {
           category?: string
           comment?: string | null
+          comments?: Json
           created_at?: string
           created_by?: string | null
           id?: string
           order_id: string
+          product_ratings?: Json
           rating: number
           status?: string
           updated_at?: string
@@ -522,10 +526,12 @@ export type Database = {
         Update: {
           category?: string
           comment?: string | null
+          comments?: Json
           created_at?: string
           created_by?: string | null
           id?: string
           order_id?: string
+          product_ratings?: Json
           rating?: number
           status?: string
           updated_at?: string
