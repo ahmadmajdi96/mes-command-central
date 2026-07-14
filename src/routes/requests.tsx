@@ -3,8 +3,8 @@ import { useMemo, useState } from "react";
 import { Search, Send, Inbox, RefreshCw, ArrowUpRight } from "lucide-react";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
+import { AnalyticsCards } from "@/components/analytics-cards";
 import { StatusPill } from "@/components/status-pill";
-import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { toast } from "sonner";
 import {
   useProductRequests,
@@ -24,8 +24,6 @@ export const Route = createFileRoute("/requests")({
   head: () => ({ meta: [{ title: "Requests · CORTA OMS" }] }),
   component: RequestsPage,
 });
-
-type Preset = { q: string; dir: RequestDirection | "all"; status: RequestStatus | "all" };
 
 const STATUSES: (RequestStatus | "all")[] = ["all", "pending", "in_review", "approved", "rejected", "completed", "cancelled", "failed"];
 
@@ -68,6 +66,15 @@ function RequestsPage() {
     outbound: rows.filter((r) => r.direction === "outbound").length,
     inbound: rows.filter((r) => r.direction === "inbound").length,
   }), [rows]);
+
+  const analytics = useMemo(() => [
+    { label: "Total requests", value: rows.length, accent: "primary" as const },
+    { label: "Outbound", value: counts.outbound, accent: "info" as const },
+    { label: "Inbound", value: counts.inbound, accent: "accent" as const },
+    { label: "Pending", value: rows.filter((r) => r.status === "pending").length, accent: "warning" as const },
+    { label: "Delivered", value: rows.filter((r) => r.delivery_status === "delivered").length, accent: "success" as const },
+    { label: "Failed", value: rows.filter((r) => r.delivery_status === "failed" || r.status === "failed").length, accent: "destructive" as const },
+  ], [rows, counts]);
 
   const retry = async (r: ProductRequest) => {
     toast.info(`Retrying delivery of ${r.number}…`);
@@ -112,8 +119,8 @@ function RequestsPage() {
         ))}
       </div>
 
-      <SavedPresetsBar<Preset> pageKey="requests" current={{ q, dir, status }}
-        onApply={(p) => { setQ(p.q ?? ""); setDir(p.dir ?? "all"); setStatus(p.status ?? "all"); }} />
+      <AnalyticsCards cards={analytics} />
+
 
       <div className="glass-panel flex flex-wrap items-center gap-3 rounded-2xl p-3">
         <div className="relative flex-1 min-w-[240px]">
