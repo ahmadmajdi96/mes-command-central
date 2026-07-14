@@ -156,6 +156,20 @@ function OrdersList() {
           { key: "lines", label: "Lines", sortAccessor: (o) => o.lines_count ?? 0, render: (o) => <span className="font-mono text-xs">{o.lines_count ?? 0}</span> },
           { key: "status", label: "Status", sortAccessor: (o) => o.status, render: (o) => <StatusPill status={o.status} /> },
           { key: "total", label: "Total", align: "right", sortAccessor: (o) => Number(o.total), render: (o) => <span className="font-mono text-sm">${Number(o.total).toLocaleString()}</span> },
+          { key: "actions", label: "", render: (o: OrderWithCustomer) => (
+            <div className="flex items-center justify-end gap-1">
+              <button onClick={() => setEditing(o)}
+                className="rounded-md border border-border/60 bg-card/60 p-1.5 text-muted-foreground hover:text-foreground"
+                aria-label="Edit order">
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+              <button onClick={() => setDeleting(o)}
+                className="rounded-md border border-destructive/40 bg-destructive/10 p-1.5 text-destructive hover:bg-destructive/20"
+                aria-label="Delete order">
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )},
         ]}
         empty={isLoading ? "Loading…" : "No orders match your filters"}
       />
