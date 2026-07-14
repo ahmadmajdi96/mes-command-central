@@ -182,28 +182,36 @@ export function DataTable<T>({
             </tbody>
           </table>
         </div>
-        {sorted.length > pageSize && (
-          <div className="flex items-center justify-between border-t border-border/60 bg-card/40 px-4 py-2 text-[11px] text-muted-foreground">
-            <div>
-              Showing <span className="font-mono">{currentPage * pageSize + 1}</span>–
-              <span className="font-mono">{Math.min(sorted.length, (currentPage + 1) * pageSize)}</span>{" "}
-              of <span className="font-mono">{sorted.length}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <button onClick={() => setPage(Math.max(0, currentPage - 1))} disabled={currentPage === 0}
-                className="rounded-md border border-border/60 bg-card/60 p-1 disabled:opacity-40 hover:bg-card">
-                <ChevronLeft className="h-3.5 w-3.5" />
-              </button>
-              <span className="font-mono">
-                {currentPage + 1} / {totalPages}
-              </span>
-              <button onClick={() => setPage(Math.min(totalPages - 1, currentPage + 1))} disabled={currentPage >= totalPages - 1}
-                className="rounded-md border border-border/60 bg-card/60 p-1 disabled:opacity-40 hover:bg-card">
-                <ChevronRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 bg-card/40 px-4 py-2 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <span>Rows per page</span>
+            <select
+              value={pageSize}
+              onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }}
+              className="h-7 rounded-md border border-border/60 bg-card/60 px-1.5 text-[11px] focus:border-primary/50 focus:outline-none"
+            >
+              {PAGE_SIZE_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
           </div>
-        )}
+          <div>
+            Showing <span className="font-mono">{sorted.length === 0 ? 0 : currentPage * pageSize + 1}</span>–
+            <span className="font-mono">{Math.min(sorted.length, (currentPage + 1) * pageSize)}</span>{" "}
+            of <span className="font-mono">{sorted.length}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setPage(Math.max(0, currentPage - 1))} disabled={currentPage === 0}
+              className="rounded-md border border-border/60 bg-card/60 p-1 disabled:opacity-40 hover:bg-card">
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </button>
+            <span className="font-mono">
+              {currentPage + 1} / {totalPages}
+            </span>
+            <button onClick={() => setPage(Math.min(totalPages - 1, currentPage + 1))} disabled={currentPage >= totalPages - 1}
+              className="rounded-md border border-border/60 bg-card/60 p-1 disabled:opacity-40 hover:bg-card">
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
