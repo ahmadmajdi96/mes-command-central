@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Bell } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNotifications, useMarkAllRead, useMarkNotificationRead } from "@/lib/notifications-db";
 import { useSession } from "@/hooks/use-session";
