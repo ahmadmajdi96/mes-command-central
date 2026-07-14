@@ -103,6 +103,45 @@ function CustomerDetail() {
           </div>
         )}
       </Panel>
+
+      <FormDialog
+        open={editing}
+        onOpenChange={setEditing}
+        title="Edit customer"
+        submitLabel="Save"
+        initial={{ name: c.name, contact: c.contact ?? "", email: c.email ?? "", phone: c.phone ?? "", address: c.address ?? "" }}
+        fields={[
+          { name: "name", label: "Name", required: true },
+          { name: "contact", label: "Contact" },
+          { name: "email", label: "Email", type: "email" },
+          { name: "phone", label: "Phone" },
+          { name: "address", label: "Address", type: "textarea" },
+        ]}
+        onSubmit={async (v: { name: string; contact?: string; email?: string; phone?: string; address?: string }) => {
+          await updateCustomer.mutateAsync({ id: c.id, patch: {
+            name: v.name,
+            contact: v.contact || null,
+            email: v.email || null,
+            phone: v.phone || null,
+            address: v.address || null,
+          }});
+          toast.success("Customer updated");
+        }}
+      />
+
+      <ConfirmDialog
+        open={confirmDel}
+        onOpenChange={setConfirmDel}
+        title="Delete customer"
+        description={`Delete ${c.name}? This cannot be undone.`}
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={async () => {
+          await deleteCustomer.mutateAsync(c.id);
+          toast.success("Customer deleted");
+          navigate({ to: "/customers" });
+        }}
+      />
     </div>
   );
 }
