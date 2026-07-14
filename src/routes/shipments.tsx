@@ -194,18 +194,22 @@ function ShipmentsPage() {
         ]}
         onSubmit={async (v: any) => {
           if (!editing) return;
-          await updateShipment.mutateAsync({
-            id: editing.id,
-            patch: {
-              order_id: v.order_id || null,
-              carrier: v.carrier || null,
-              tracking: v.tracking || null,
-              status: v.status || editing.status,
-              shipped_at: v.shipped_at ? new Date(v.shipped_at).toISOString() : null,
-            },
-          });
-          toast.success("Shipment updated");
-          setEditing(null);
+          try {
+            await updateShipment.mutateAsync({
+              id: editing.id,
+              patch: {
+                order_id: v.order_id || null,
+                carrier: v.carrier || null,
+                tracking: v.tracking || null,
+                status: v.status || editing.status,
+                shipped_at: v.shipped_at ? new Date(v.shipped_at).toISOString() : null,
+              },
+            });
+            toast.success(`Shipment ${editing.number} updated`);
+            setEditing(null);
+          } catch (e: any) {
+            toast.error(e?.message ?? "Failed to update shipment");
+          }
         }}
       />
 
@@ -218,9 +222,13 @@ function ShipmentsPage() {
         variant="destructive"
         onConfirm={async () => {
           if (!deleting) return;
-          await deleteShipment.mutateAsync(deleting.id);
-          toast.success("Shipment deleted");
-          setDeleting(null);
+          try {
+            await deleteShipment.mutateAsync(deleting.id);
+            toast.success(`Shipment ${deleting.number} deleted`);
+            setDeleting(null);
+          } catch (e: any) {
+            toast.error(e?.message ?? "Failed to delete shipment");
+          }
         }}
       />
     </div>
