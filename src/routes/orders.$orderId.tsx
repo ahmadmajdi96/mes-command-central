@@ -227,7 +227,7 @@ function OrderDetail() {
         )}
       </Panel>
 
-      <OrderFeedbackSection orderId={so.id} />
+      <OrderFeedbackSection orderId={so.id} orderLines={lines} />
 
       <ConfirmDialog
         open={confirmDelete}

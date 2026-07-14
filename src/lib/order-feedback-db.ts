@@ -2,12 +2,20 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+export interface ProductRating {
+  product_id: string;
+  rating: number;
+  note?: string;
+}
+
 export interface OrderFeedback {
   id: string;
   order_id: string;
   rating: number;
   category: string;
   comment: string | null;
+  comments: string[];
+  product_ratings: ProductRating[];
   status: "open" | "resolved";
   created_by: string | null;
   created_at: string;
@@ -26,21 +34,36 @@ export function useOrderFeedback(orderId: string) {
         .eq("order_id", orderId)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as OrderFeedback[];
+      return ((data ?? []) as unknown as Array<Omit<OrderFeedback, "comments" | "product_ratings"> & { comments: unknown; product_ratings: unknown }>).map((r) => ({
+        ...r,
+        comments: Array.isArray(r.comments) ? (r.comments as string[]) : [],
+        product_ratings: Array.isArray(r.product_ratings) ? (r.product_ratings as ProductRating[]) : [],
+      }));
     },
   });
+}
+
+export interface FeedbackInput {
+  rating: number;
+  category: string;
+  comment?: string | null;
+  comments?: string[];
+  product_ratings?: ProductRating[];
+  status?: string;
 }
 
 export function useCreateFeedback(orderId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { rating: number; category: string; comment?: string; status?: string }) => {
+    mutationFn: async (input: FeedbackInput) => {
       const { data: userRes } = await supabase.auth.getUser();
       const { data, error } = await supabase.from("order_feedback" as never).insert({
         order_id: orderId,
         rating: input.rating,
         category: input.category,
         comment: input.comment ?? null,
+        comments: input.comments ?? [],
+        product_ratings: input.product_ratings ?? [],
         status: input.status ?? "open",
         created_by: userRes?.user?.id ?? null,
       } as never).select().single();

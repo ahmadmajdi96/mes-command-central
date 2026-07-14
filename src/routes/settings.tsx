@@ -1,10 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHeader, Panel, Field } from "@/components/page-shell";
-import { Server, Database, Shield, Cpu, Cable, Save, Copy, Check, Users, KeyRound, Plus, Trash2, RotateCcw, ClipboardCopy } from "lucide-react";
-import { useIntegrationSettings, useUpsertIntegrationSetting, type SisterSystem } from "@/lib/integrations-db";
-import { sisterLabel } from "@/lib/integrations-client";
-import { useSession } from "@/hooks/use-session";
+import { PageHeader, Panel } from "@/components/page-shell";
+import { Users, KeyRound, Plus, Trash2, RotateCcw, ClipboardCopy } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -18,27 +15,25 @@ export const Route = createFileRoute("/settings")({
   component: SettingsPage,
 });
 
-type Tab = "integrations" | "users" | "roles";
+type Tab = "users" | "roles";
 
 function SettingsPage() {
-  const [tab, setTab] = useState<Tab>("integrations");
+  const [tab, setTab] = useState<Tab>("users");
   return (
     <div className="space-y-5">
-      <PageHeader title="System Settings" subtitle="Global configuration, users, and roles" />
+      <PageHeader title="System Settings" subtitle="Users and roles" />
       <div className="flex items-center gap-1 border-b border-border/60">
-        {(["integrations", "users", "roles"] as Tab[]).map((t) => (
+        {(["users", "roles"] as Tab[]).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium capitalize border-b-2 -mb-px ${
               tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
             }`}>
             {t === "users" && <Users className="h-3.5 w-3.5" />}
             {t === "roles" && <KeyRound className="h-3.5 w-3.5" />}
-            {t === "integrations" && <Cable className="h-3.5 w-3.5" />}
             {t}
           </button>
         ))}
       </div>
-      {tab === "integrations" && <IntegrationsTab />}
       {tab === "users" && <UsersTab />}
       {tab === "roles" && <RolesTab />}
     </div>
@@ -316,13 +311,43 @@ function PermissionsMatrix({ roleId }: { roleId: string }) {
     for (const p of perms) m.set(p.resource, { read: p.can_read, create: p.can_create, update: p.can_update, delete: p.can_delete });
     return m;
   }, [perms]);
+
+  // Column-level "select all": true iff every resource has this action enabled
+  const colAll = useMemo(() => {
+    const out: Record<Action, boolean> = { read: true, create: true, update: true, delete: true };
+    for (const a of ACTIONS) {
+      out[a] = RESOURCES.every((res) => map.get(res)?.[a] ?? false);
+    }
+    return out;
+  }, [map]);
+
+  const toggleColumn = (action: Action, value: boolean) => {
+    for (const res of RESOURCES) {
+      const current = map.get(res)?.[action] ?? false;
+      if (current !== value) {
+        upsert.mutate({ role_id: roleId, resource: res as Resource, action, value });
+      }
+    }
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border/60 text-left text-[11px] uppercase tracking-wider text-muted-foreground">
             <th className="pb-2 font-medium">Resource</th>
-            {ACTIONS.map((a) => <th key={a} className="pb-2 text-center font-medium">{a}</th>)}
+            {ACTIONS.map((a) => (
+              <th key={a} className="pb-2 text-center font-medium">
+                <div className="flex flex-col items-center gap-1">
+                  <span>{a}</span>
+                  <label className="flex items-center gap-1 text-[9px] normal-case tracking-normal text-muted-foreground/80">
+                    <input type="checkbox" checked={colAll[a]}
+                      onChange={(e) => toggleColumn(a, e.target.checked)} />
+                    all
+                  </label>
+                </div>
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -342,127 +367,6 @@ function PermissionsMatrix({ roleId }: { roleId: string }) {
           })}
         </tbody>
       </table>
-    </div>
-  );
-}
-
-/* -------------- INTEGRATIONS TAB (existing content) -------------- */
-const SYSTEMS: SisterSystem[] = ["mes", "qc"];
-function IntegrationsTab() {
-  const { user } = useSession();
-  const { data: settings = [] } = useIntegrationSettings();
-  const upsert = useUpsertIntegrationSetting();
-  const [form, setForm] = useState<Record<SisterSystem, { base_url: string; enabled: boolean }>>({
-    mes: { base_url: "", enabled: false },
-    qc: { base_url: "", enabled: false },
-    command_center: { base_url: "", enabled: false },
-  });
-  const [copied, setCopied] = useState<string | null>(null);
-
-  useEffect(() => {
-    const next = { ...form };
-    for (const s of SYSTEMS) {
-      const row = settings.find((r) => r.system === s);
-      if (row) next[s] = { base_url: row.base_url ?? "", enabled: row.enabled };
-    }
-    setForm(next);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings]);
-
-  const webhookBase = typeof window !== "undefined" ? window.location.origin : "";
-  const copy = (val: string, key: string) => { navigator.clipboard.writeText(val).then(() => { setCopied(key); setTimeout(() => setCopied(null), 1500); }); };
-
-  return (
-    <div className="space-y-4">
-      <Panel>
-        <div className="mb-3 flex items-center gap-2">
-          <Cable className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold">Sister-system integrations</h3>
-        </div>
-        {!user && <p className="mb-3 rounded-lg border border-warning/40 bg-warning/10 p-2 text-xs text-warning">Sign in to configure integrations.</p>}
-        <div className="grid gap-3 lg:grid-cols-3">
-          {SYSTEMS.map((sys) => (
-            <div key={sys} className="rounded-xl border border-border/60 bg-card/40 p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <div className="text-sm font-semibold">{sisterLabel(sys)}</div>
-                <label className="relative inline-flex cursor-pointer items-center">
-                  <input type="checkbox" className="peer sr-only" disabled={!user}
-                    checked={form[sys].enabled}
-                    onChange={(e) => setForm((f) => ({ ...f, [sys]: { ...f[sys], enabled: e.target.checked } }))} />
-                  <div className="peer h-5 w-9 rounded-full bg-muted peer-checked:bg-primary transition-colors">
-                    <div className="h-5 w-5 rounded-full bg-background border border-border shadow-sm transition-transform peer-checked:translate-x-4" />
-                  </div>
-                </label>
-              </div>
-              <label className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Base URL</label>
-              <input disabled={!user} placeholder="https://your-mes.lovable.app"
-                value={form[sys].base_url}
-                onChange={(e) => setForm((f) => ({ ...f, [sys]: { ...f[sys], base_url: e.target.value } }))}
-                className="mt-1 h-9 w-full rounded-lg border border-border/60 bg-card/60 px-2 text-xs font-mono" />
-              <button disabled={!user || upsert.isPending}
-                onClick={() => upsert.mutate({ system: sys, base_url: form[sys].base_url || null, enabled: form[sys].enabled })}
-                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary hover:bg-primary/20 disabled:opacity-50">
-                <Save className="h-3 w-3" /> Save
-              </button>
-            </div>
-          ))}
-        </div>
-      </Panel>
-
-      <Panel>
-        <h3 className="mb-3 text-sm font-semibold">Webhook endpoints</h3>
-        <div className="space-y-2">
-          {[
-            { label: "MES → OMS", path: "/api/public/webhooks/mes" },
-            { label: "QC → OMS", path: "/api/public/webhooks/qc" },
-          ].map((w) => {
-            const full = `${webhookBase}${w.path}`;
-            return (
-              <div key={w.path} className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/40 p-3">
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs font-semibold">{w.label}</div>
-                  <div className="truncate font-mono text-[11px] text-muted-foreground">{full}</div>
-                </div>
-                <button onClick={() => copy(full, w.path)}
-                  className="flex items-center gap-1 rounded-md border border-border/60 bg-card/60 px-2 py-1 text-[11px] hover:bg-card">
-                  {copied === w.path ? <><Check className="h-3 w-3 text-success" /> Copied</> : <><Copy className="h-3 w-3" /> Copy</>}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </Panel>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Panel>
-          <div className="mb-3 flex items-center gap-2"><Server className="h-4 w-4 text-primary" /><h3 className="text-sm font-semibold">Deployment</h3></div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Environment" value="production" mono />
-            <Field label="Runtime" value="Lovable Cloud" />
-          </div>
-        </Panel>
-        <Panel>
-          <div className="mb-3 flex items-center gap-2"><Database className="h-4 w-4 text-primary" /><h3 className="text-sm font-semibold">Database</h3></div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="RLS" value="Enabled" />
-            <Field label="Realtime" value="Enabled" />
-          </div>
-        </Panel>
-        <Panel>
-          <div className="mb-3 flex items-center gap-2"><Shield className="h-4 w-4 text-primary" /><h3 className="text-sm font-semibold">Authentication</h3></div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Session" value="JWT · autorefresh" mono />
-            <Field label="Roles" value="Dynamic (see Roles tab)" />
-          </div>
-        </Panel>
-        <Panel>
-          <div className="mb-3 flex items-center gap-2"><Cpu className="h-4 w-4 text-primary" /><h3 className="text-sm font-semibold">Observability</h3></div>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Audit log" value="Enabled" />
-            <Field label="Integration feed" value="Enabled" />
-          </div>
-        </Panel>
-      </div>
     </div>
   );
 }
