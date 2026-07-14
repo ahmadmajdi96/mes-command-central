@@ -131,13 +131,26 @@ function RootComponent() {
   const { session, loading } = useSession();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
-  const isAuthRoute = pathname === "/auth";
+  const isAuthRoute = pathname === "/auth" || pathname === "/set-password";
 
   useEffect(() => {
     if (!loading && !session && !isAuthRoute) {
       navigate({ to: "/auth", replace: true });
     }
   }, [loading, session, isAuthRoute, navigate]);
+
+  useEffect(() => {
+    if (!session?.user) return;
+    let cancelled = false;
+    import("@/integrations/supabase/client").then(({ supabase }) =>
+      supabase.from("profiles").select("must_reset_password").eq("id", session.user.id).maybeSingle().then(({ data }) => {
+        if (!cancelled && data?.must_reset_password && pathname !== "/set-password") {
+          navigate({ to: "/set-password", replace: true });
+        }
+      })
+    );
+    return () => { cancelled = true; };
+  }, [session?.user, pathname, navigate]);
 
   return (
     <QueryClientProvider client={queryClient}>
