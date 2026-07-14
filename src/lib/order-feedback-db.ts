@@ -46,7 +46,7 @@ export function useOrderFeedback(orderId: string) {
 export interface FeedbackInput {
   rating: number;
   category: string;
-  comment?: string;
+  comment?: string | null;
   comments?: string[];
   product_ratings?: ProductRating[];
   status?: string;
