@@ -100,9 +100,9 @@ export function AppSidebar() {
             <Factory className="h-5 w-5" />
           </div>
           <div className="flex min-w-0 flex-col leading-tight group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-semibold tracking-tight">CORTA OMS</span>
+            <span className="text-sm font-semibold tracking-tight">OMS</span>
             <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              FACTORY FLOOR · V1.0
+              MANUQUBE · V1.0
             </span>
           </div>
         </Link>
