@@ -94,11 +94,8 @@ function OrdersList() {
         }
       />
 
-      <SavedPresetsBar<OrdersPreset>
-        pageKey="orders"
-        current={{ q, status }}
-        onApply={(p) => { setQ(p.q ?? ""); setStatus(p.status ?? "all"); }}
-      />
+      <AnalyticsCards cards={analytics} />
+
 
       <div className="glass-panel flex flex-wrap items-center gap-3 rounded-2xl p-3">
         <div className="relative flex-1 min-w-[240px]">
