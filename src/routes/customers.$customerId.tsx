@@ -43,6 +43,16 @@ function CustomerDetail() {
         breadcrumb={<Link to="/customers" className="hover:text-foreground"><span className="inline-flex items-center gap-1"><ArrowLeft className="h-3 w-3" /> Customers</span></Link>}
         title={c.name}
         subtitle={`${c.contact ?? "—"} · ${c.code ?? ""}`}
+        actions={
+          <div className="flex items-center gap-2">
+            <button onClick={() => setEditing(true)} className="flex items-center gap-1 rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs hover:bg-card">
+              <Pencil className="h-3 w-3" /> Edit
+            </button>
+            <button onClick={() => setConfirmDel(true)} className="flex items-center gap-1 rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-1.5 text-xs text-destructive hover:bg-destructive/10">
+              <Trash2 className="h-3 w-3" /> Delete
+            </button>
+          </div>
+        }
       />
       <div className="grid gap-4 lg:grid-cols-3">
         <Panel>
