@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Bell } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNotifications, useMarkAllRead, useMarkNotificationRead } from "@/lib/notifications-db";
 import { useSession } from "@/hooks/use-session";
@@ -68,6 +69,12 @@ export function NotificationBell() {
             );
           })}
         </div>
+        <Link
+          to="/notifications"
+          className="block border-t border-border/60 px-3 py-2 text-center text-[11px] text-primary hover:bg-card/60"
+        >
+          View all notifications
+        </Link>
       </PopoverContent>
     </Popover>
   );
