@@ -190,6 +190,69 @@ function OrdersList() {
 
       <NewOrderDialog open={openNew} onOpenChange={setOpenNew} />
 
+      <FormDialog
+        open={!!editing}
+        onOpenChange={(v) => !v && setEditing(null)}
+        title={editing ? `Edit ${editing.number}` : "Edit order"}
+        submitLabel="Save changes"
+        initial={editing ? {
+          customer_id: editing.customer_id ?? "",
+          status: editing.status,
+          order_date: editing.order_date ?? "",
+          due_date: editing.due_date ?? "",
+          currency: editing.currency ?? "USD",
+          notes: (editing as any).notes ?? "",
+        } as any : undefined}
+        fields={[
+          { name: "customer_id", label: "Customer", type: "select", required: true,
+            options: customers.map((c) => ({ value: c.id, label: c.name })) },
+          { name: "status", label: "Status", type: "select",
+            options: orderStatusOptions.map((s) => ({ value: s, label: s.replace("_", " ") })) },
+          { name: "order_date", label: "Order date", type: "date" },
+          { name: "due_date", label: "Due date", type: "date" },
+          { name: "currency", label: "Currency" },
+          { name: "notes", label: "Notes", type: "textarea" },
+        ]}
+        onSubmit={async (v: any) => {
+          if (!editing) return;
+          try {
+            await updateOrder.mutateAsync({
+              id: editing.id,
+              patch: {
+                customer_id: v.customer_id || null,
+                status: v.status || editing.status,
+                order_date: v.order_date || null,
+                due_date: v.due_date || null,
+                currency: v.currency || "USD",
+                notes: v.notes || null,
+              },
+            });
+            toast.success(`Order ${editing.number} updated`);
+            setEditing(null);
+          } catch (e: any) {
+            toast.error(e?.message ?? "Failed to update order");
+          }
+        }}
+      />
+
+      <ConfirmDialog
+        open={!!deleting}
+        onOpenChange={(v) => !v && setDeleting(null)}
+        title={deleting ? `Delete ${deleting.number}?` : "Delete order?"}
+        description="This permanently removes the sales order and its lines."
+        confirmLabel="Delete order"
+        variant="destructive"
+        onConfirm={async () => {
+          if (!deleting) return;
+          try {
+            await deleteOrder.mutateAsync(deleting.id);
+            toast.success(`Order ${deleting.number} deleted`);
+            setDeleting(null);
+          } catch (e: any) {
+            toast.error(e?.message ?? "Failed to delete order");
+          }
+        }}
+      />
     </div>
   );
 }
