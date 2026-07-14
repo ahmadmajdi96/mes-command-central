@@ -40,8 +40,11 @@ export interface Column<T> {
   sortAccessor?: (row: T) => string | number;
 }
 
+export const DEFAULT_PAGE_SIZE = 50;
+export const PAGE_SIZE_OPTIONS = [50, 100, 200, 300];
+
 export function DataTable<T>({
-  columns, rows, empty = "No records", pageSize = 25, defaultSort,
+  columns, rows, empty = "No records", pageSize: initialPageSize = DEFAULT_PAGE_SIZE, defaultSort,
   getRowId, bulkActions,
 }: {
   columns: Column<T>[];
@@ -54,6 +57,7 @@ export function DataTable<T>({
 }) {
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(defaultSort ?? null);
   const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(initialPageSize);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const sorted = useMemo(() => {
