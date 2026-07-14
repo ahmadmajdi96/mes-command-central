@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { CheckCircle2, Factory, Package, ShoppingCart, TrendingUp, AlertTriangle, UserCircle, Boxes } from "lucide-react";
 import { StatusPill } from "@/components/status-pill";
+import { DashboardCharts } from "@/components/dashboard-charts";
 import { useOrders, useCustomers, useProducts, useShipments } from "@/lib/oms-db";
 import { useProductionOrders } from "@/lib/production-orders-db";
 import { useBatches } from "@/lib/batches-db";
