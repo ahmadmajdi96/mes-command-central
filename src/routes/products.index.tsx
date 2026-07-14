@@ -7,7 +7,7 @@ import { AnalyticsCards } from "@/components/analytics-cards";
 import { NewProductDialog } from "@/components/new-product-dialog";
 import { toast } from "sonner";
 import { useProducts, useCreateProduct, useInventoryTxns, useRealtimeInvalidate, productsKey, productTypeOptions, type Product } from "@/lib/oms-db";
-import { useCreateProductRequest, deliverRequestToQc } from "@/lib/product-requests-db";
+import { useCreateProductRequest } from "@/lib/product-requests-db";
 import { uploadProductFiles } from "@/lib/product-attachments";
 import { supabase } from "@/integrations/supabase/client";
 
