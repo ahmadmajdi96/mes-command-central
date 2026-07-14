@@ -13,6 +13,7 @@ import { Route as ShipmentsRouteImport } from './routes/shipments'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SetPasswordRouteImport } from './routes/set-password'
 import { Route as RequestsRouteImport } from './routes/requests'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as IndexRouteImport } from './routes/index'
@@ -52,6 +53,11 @@ const SetPasswordRoute = SetPasswordRouteImport.update({
 const RequestsRoute = RequestsRouteImport.update({
   id: '/requests',
   path: '/requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/notifications': typeof NotificationsRoute
   '/requests': typeof RequestsRouteWithChildren
   '/set-password': typeof SetPasswordRoute
   '/settings': typeof SettingsRoute
@@ -185,6 +192,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/notifications': typeof NotificationsRoute
   '/requests': typeof RequestsRouteWithChildren
   '/set-password': typeof SetPasswordRoute
   '/settings': typeof SettingsRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/notifications': typeof NotificationsRoute
   '/requests': typeof RequestsRouteWithChildren
   '/set-password': typeof SetPasswordRoute
   '/settings': typeof SettingsRoute
@@ -240,6 +249,7 @@ export interface FileRouteTypes {
     | '/'
     | '/audit'
     | '/auth'
+    | '/notifications'
     | '/requests'
     | '/set-password'
     | '/settings'
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/'
     | '/audit'
     | '/auth'
+    | '/notifications'
     | '/requests'
     | '/set-password'
     | '/settings'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/'
     | '/audit'
     | '/auth'
+    | '/notifications'
     | '/requests'
     | '/set-password'
     | '/settings'
@@ -319,6 +331,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuditRoute: typeof AuditRoute
   AuthRoute: typeof AuthRoute
+  NotificationsRoute: typeof NotificationsRoute
   RequestsRoute: typeof RequestsRouteWithChildren
   SetPasswordRoute: typeof SetPasswordRoute
   SettingsRoute: typeof SettingsRoute
@@ -369,6 +382,13 @@ declare module '@tanstack/react-router' {
       path: '/requests'
       fullPath: '/requests'
       preLoaderRoute: typeof RequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -530,6 +550,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuditRoute: AuditRoute,
   AuthRoute: AuthRoute,
+  NotificationsRoute: NotificationsRoute,
   RequestsRoute: RequestsRouteWithChildren,
   SetPasswordRoute: SetPasswordRoute,
   SettingsRoute: SettingsRoute,
@@ -554,13 +575,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
