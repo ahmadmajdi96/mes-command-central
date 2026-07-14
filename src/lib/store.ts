@@ -1,6 +1,13 @@
 import { useSyncExternalStore } from "react";
 import { toast } from "sonner";
-import { workOrders as seedWO, auditLog as seedAudit, type WorkOrder, type AuditLog } from "./oms-data";
+
+export type WorkOrder = {
+  id: string; number: string; productionOrderId: string; seq: number; operation: string;
+  workstationId: string; status: "pending" | "in_progress" | "paused" | "completed" | "cancelled";
+  operatorId?: string; qtyTarget: number; qtyProduced: number; qtyScrap: number;
+  startedAt?: string; completedAt?: string; laborMin: number; progress: number;
+};
+export type AuditLog = { id: string; at: string; user: string; action: string; entity: string; detail: string };
 
 export type FeedEventKind = "wo_start" | "wo_pause" | "wo_resume" | "wo_complete" | "wo_update" | "sop_check" | "sop_uncheck" | "sop_note" | "order_bulk";
 export interface FeedEvent { id: string; at: string; kind: FeedEventKind; message: string; entity?: string; entityKind?: "wo" | "order"; href?: string; user: string; read: boolean; }
@@ -14,8 +21,8 @@ const emit = () => listeners.forEach((l) => l());
 
 const now = () => new Date().toISOString().slice(0, 19).replace("T", " ");
 
-const initialAudit: AuditLog[] = seedAudit.map((a) => ({ ...a }));
-const initialWO: WorkOrder[] = seedWO.map((w) => ({ ...w }));
+const initialAudit: AuditLog[] = [];
+const initialWO: WorkOrder[] = [];
 
 interface State {
   role: Role;
