@@ -35,6 +35,7 @@ const orders = [
   { title: "Sales Orders", url: "/orders", icon: ShoppingCart },
   { title: "Customers", url: "/customers", icon: UserCircle },
   { title: "Shipments", url: "/shipments", icon: Truck },
+  { title: "Returns", url: "/returns", icon: Undo2 },
 ];
 
 const production = [
