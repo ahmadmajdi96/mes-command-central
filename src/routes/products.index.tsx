@@ -172,11 +172,7 @@ function ProductsList() {
               product_id: product.id,
               payload: payload as never,
             });
-            toast.success(`Request ${req.number} created — delivering to ${target}…`);
-            deliverRequestToQc(req.id, req.payload).then((res) => {
-              if (res.ok) toast.success(`Delivered ${req.number} to ${target}`);
-              else toast.warning(`Request ${req.number} saved — delivery pending (${"error" in res ? res.error : "unknown"})`);
-            });
+            toast.success(`Request ${req.number} registered for ${target}`);
           }
         }}
       />
