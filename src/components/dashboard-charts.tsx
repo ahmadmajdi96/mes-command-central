@@ -75,37 +75,38 @@ export function DashboardCharts() {
     [topProducts, products],
   );
 
-  const axis = { stroke: "hsl(var(--muted-foreground))", fontSize: 11 };
+  const axis = { stroke: "var(--muted-foreground)", fontSize: 11 };
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Panel title="Orders over time" subtitle="Last 30 days">
         <LineChart data={line} margin={{ left: -10, right: 8, top: 8, bottom: 0 }}>
-          <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" opacity={0.4} />
+          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" opacity={0.4} />
           <XAxis dataKey="date" {...axis} />
           <YAxis allowDecimals={false} {...axis} />
-          <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }} />
-          <Line type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+          <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", color: "var(--card-foreground)", fontSize: 12 }} />
+          <Line type="monotone" dataKey="count" stroke="var(--primary)" strokeWidth={2} dot={false} />
         </LineChart>
       </Panel>
       <Panel title="Revenue by status" subtitle="All orders">
         <BarChart data={bar} margin={{ left: -10, right: 8, top: 8, bottom: 0 }}>
-          <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" opacity={0.4} />
+          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" opacity={0.4} />
           <XAxis dataKey="status" {...axis} />
           <YAxis {...axis} />
-          <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }} />
-          <Bar dataKey="revenue" fill="hsl(var(--info))" radius={[4, 4, 0, 0]} />
+          <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", color: "var(--card-foreground)", fontSize: 12 }} />
+          <Bar dataKey="revenue" fill="var(--info)" radius={[4, 4, 0, 0]} />
         </BarChart>
       </Panel>
       <Panel title="Top products" subtitle="By quantity ordered">
         <BarChart data={topBar} margin={{ left: -10, right: 8, top: 8, bottom: 0 }}>
-          <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" opacity={0.4} />
+          <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" opacity={0.4} />
           <XAxis dataKey="name" {...axis} />
           <YAxis {...axis} />
-          <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }} />
-          <Bar dataKey="qty" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+          <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", color: "var(--card-foreground)", fontSize: 12 }} />
+          <Bar dataKey="qty" fill="var(--accent)" radius={[4, 4, 0, 0]} />
         </BarChart>
       </Panel>
+
     </div>
   );
 }
