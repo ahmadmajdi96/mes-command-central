@@ -2,9 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
+import { AnalyticsCards } from "@/components/analytics-cards";
 import { FormDialog } from "@/components/form-dialog";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { Plus, Truck, Search, Pencil, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -19,7 +19,6 @@ export const Route = createFileRoute("/shipments")({
   component: ShipmentsPage,
 });
 
-type Preset = { q: string; status: string };
 const filters = ["all", ...shipmentStatusOptions];
 
 function ShipmentsPage() {
@@ -54,6 +53,23 @@ function ShipmentsPage() {
     return true;
   }), [q, status, shipments]);
 
+  const analytics = useMemo(() => {
+    const draft = shipments.filter((s) => s.status === "draft").length;
+    const packed = shipments.filter((s) => s.status === "packed").length;
+    const shipped = shipments.filter((s) => s.status === "shipped").length;
+    const delivered = shipments.filter((s) => s.status === "delivered").length;
+    const today = new Date().toISOString().slice(0, 10);
+    const todayShipped = shipments.filter((s) => (s.shipped_at ?? "").slice(0, 10) === today).length;
+    return [
+      { label: "Total shipments", value: shipments.length, accent: "primary" as const },
+      { label: "Draft", value: draft, accent: "info" as const },
+      { label: "Packed", value: packed, accent: "warning" as const },
+      { label: "Shipped", value: shipped, accent: "accent" as const },
+      { label: "Delivered", value: delivered, accent: "success" as const },
+      { label: "Shipped today", value: todayShipped, accent: "info" as const },
+    ];
+  }, [shipments]);
+
   return (
     <div className="space-y-5">
       <PageHeader
@@ -83,8 +99,8 @@ function ShipmentsPage() {
         }
       />
 
-      <SavedPresetsBar<Preset> pageKey="shipments" current={{ q, status }}
-        onApply={(p) => { setQ(p.q ?? ""); setStatus(p.status ?? "all"); }} />
+      <AnalyticsCards cards={analytics} />
+
 
       <div className="glass-panel flex flex-wrap items-center gap-3 rounded-2xl p-3">
         <div className="relative flex-1 min-w-[240px]">

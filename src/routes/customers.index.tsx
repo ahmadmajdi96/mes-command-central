@@ -37,6 +37,22 @@ function CustomersList() {
     return true;
   }), [q, region, customers]);
 
+  const analytics = useMemo(() => {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+    const newThisMonth = customers.filter((c) => (c.created_at ?? "").slice(0, 10) >= monthStart).length;
+    const withOrders = new Set(orders.map((o) => o.customer_id).filter(Boolean)).size;
+    const revenue = orders.reduce((s, o) => s + Number(o.total ?? 0), 0);
+    return [
+      { label: "Total customers", value: customers.length, accent: "primary" as const },
+      { label: "New this month", value: newThisMonth, accent: "success" as const },
+      { label: "With orders", value: withOrders, accent: "info" as const },
+      { label: "Regions", value: new Set(customers.map((c) => c.address?.split(",").pop()?.trim() ?? "—")).size, accent: "accent" as const },
+      { label: "Total orders", value: orders.length, accent: "info" as const },
+      { label: "Revenue", value: `$${(revenue / 1000).toFixed(1)}k`, accent: "accent" as const },
+    ];
+  }, [customers, orders]);
+
   return (
     <div className="space-y-5">
       <PageHeader
@@ -67,8 +83,8 @@ function CustomersList() {
         }
       />
 
-      <SavedPresetsBar<Preset> pageKey="customers" current={{ q, region }}
-        onApply={(p) => { setQ(p.q ?? ""); setRegion(p.region ?? "all"); }} />
+      <AnalyticsCards cards={analytics} />
+
 
       <div className="glass-panel flex flex-wrap items-center gap-3 rounded-2xl p-3">
         <div className="relative flex-1 min-w-[240px]">

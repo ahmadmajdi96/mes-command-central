@@ -3,9 +3,8 @@ import { useMemo, useState } from "react";
 import { Search, Plus, Package } from "lucide-react";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
-import { FormDialog } from "@/components/form-dialog";
+import { AnalyticsCards } from "@/components/analytics-cards";
 import { NewProductDialog } from "@/components/new-product-dialog";
-import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { toast } from "sonner";
 import { useProducts, useCreateProduct, useInventoryTxns, useRealtimeInvalidate, productsKey, productTypeOptions, type Product } from "@/lib/oms-db";
 import { useCreateProductRequest, deliverRequestToQc } from "@/lib/product-requests-db";
@@ -15,8 +14,6 @@ export const Route = createFileRoute("/products/")({
   head: () => ({ meta: [{ title: "Products · CORTA OMS" }] }),
   component: ProductsList,
 });
-
-type Preset = { q: string; type: string };
 
 function ProductsList() {
   const [q, setQ] = useState("");
