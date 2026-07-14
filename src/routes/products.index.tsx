@@ -8,7 +8,8 @@ import { NewProductDialog } from "@/components/new-product-dialog";
 import { toast } from "sonner";
 import { useProducts, useCreateProduct, useInventoryTxns, useRealtimeInvalidate, productsKey, productTypeOptions, type Product } from "@/lib/oms-db";
 import { useCreateProductRequest, deliverRequestToQc } from "@/lib/product-requests-db";
-
+import { uploadProductFiles } from "@/lib/product-attachments";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/products/")({
   head: () => ({ meta: [{ title: "Products · CORTA OMS" }] }),
@@ -54,8 +55,6 @@ function ProductsList() {
     ];
   }, [products, txns]);
 
-  const canManage = true;
-
   return (
     <div className="space-y-5">
       <PageHeader
@@ -72,21 +71,17 @@ function ProductsList() {
                 { key: "uom", label: "UOM" },
                 { key: "standard_cost", label: "Std Cost" },
                 { key: "lead_time", label: "Lead Time" },
-                { key: "onHand", label: "On Hand", get: (p) => onHandOf(p.id) },
               ]}
             />
-            {canManage && (
-              <button onClick={() => setOpenNew(true)}
-                className="flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
-                <Plus className="h-3.5 w-3.5" /> New Product
-              </button>
-            )}
+            <button onClick={() => setOpenNew(true)}
+              className="flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
+              <Plus className="h-3.5 w-3.5" /> New Product
+            </button>
           </div>
         }
       />
 
       <AnalyticsCards cards={analytics} />
-
 
       <div className="glass-panel flex flex-wrap items-center gap-3 rounded-2xl p-3">
         <div className="relative flex-1 min-w-[240px]">
@@ -119,9 +114,6 @@ function ProductsList() {
           { key: "type", label: "Type", sortAccessor: (p) => p.type, render: (p) => <span className="rounded-full border border-border/60 bg-card/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">{p.type}</span> },
           { key: "uom", label: "UOM", render: (p) => <span className="font-mono text-xs">{p.uom}</span> },
           { key: "cost", label: "Std Cost", align: "right", sortAccessor: (p) => Number(p.standard_cost), render: (p) => <span className="font-mono text-sm">${Number(p.standard_cost).toLocaleString()}</span> },
-          { key: "onHand", label: "On Hand", align: "right", sortAccessor: (p) => onHandOf(p.id), render: (p) => (
-            <span className="font-mono text-sm">{onHandOf(p.id).toLocaleString()}</span>
-          )},
         ]}
       />
 
@@ -135,53 +127,56 @@ function ProductsList() {
             standard_cost: v.standard_cost || 0, lead_time: v.lead_time || 0,
             batching_limit: v.batching_limit || 0,
             sale_price: v.sale_price || 0,
+            specifications: v.specifications,
+            acceptance_criteria: v.acceptance_criteria,
           } as never);
           toast.success("Product created");
 
-          if (v.send_to_qc) {
-            const steps = v.steps.map((s) => ({
-              sequence: s.sequence,
-              station_id: s.station_id || null,
-              operation: s.operation || null,
-              notes: s.notes || null,
-            }));
-
-            const req = await createRequest.mutateAsync({
-              kind: "new_product",
-              direction: "outbound",
-              target_system: "CORTA QC System",
-              source_system: "CORTA OMS",
-              title: `New product: ${product.name} (${product.sku})`,
-              description: v.qc_specs || v.description || null,
-              product_id: product.id,
-              payload: {
-                product: {
-                  sku: product.sku,
-                  name: product.name,
-                  description: product.description,
-                  category_id: v.qc_category_id || null,
-                },
-                steps,
-                meta: {
-                  uom: product.uom,
-                  type: product.type,
-                  standard_cost: product.standard_cost,
-                  lead_time: product.lead_time,
-                  qc_specs: v.qc_specs || null,
-                },
-              } as never,
-            });
-
-            toast.success(`Request ${req.number} created — delivering to QC…`);
-            deliverRequestToQc(req.id, req.payload).then((res) => {
-              if (res.ok) toast.success(`Delivered ${req.number} to QC`);
-              else toast.warning(`Request ${req.number} saved — delivery pending (${"error" in res ? res.error : "unknown"})`);
-            });
+          let attachments: Array<{ path: string; name: string; size: number; type: string; uploaded_at: string }> = [];
+          if (v.files.length > 0) {
+            try {
+              attachments = await uploadProductFiles(product.id, v.files);
+              await supabase.from("products").update({ attachments } as never).eq("id", product.id);
+              toast.success(`${attachments.length} file(s) uploaded`);
+            } catch (e) {
+              toast.error(e instanceof Error ? `Upload failed: ${e.message}` : "Upload failed");
+            }
           }
+
+          const req = await createRequest.mutateAsync({
+            kind: "new_product",
+            direction: "outbound",
+            target_system: "EMS",
+            source_system: "CORTA OMS",
+            title: `New product: ${product.name} (${product.sku})`,
+            description: v.description || null,
+            product_id: product.id,
+            payload: {
+              product: {
+                sku: product.sku,
+                name: product.name,
+                description: product.description,
+              },
+              specifications: v.specifications,
+              acceptance_criteria: v.acceptance_criteria,
+              attachments,
+              meta: {
+                uom: product.uom,
+                type: product.type,
+                standard_cost: product.standard_cost,
+                sale_price: v.sale_price,
+                lead_time: product.lead_time,
+              },
+            } as never,
+          });
+
+          toast.success(`Request ${req.number} created — delivering to EMS…`);
+          deliverRequestToQc(req.id, req.payload).then((res) => {
+            if (res.ok) toast.success(`Delivered ${req.number} to EMS`);
+            else toast.warning(`Request ${req.number} saved — delivery pending (${"error" in res ? res.error : "unknown"})`);
+          });
         }}
       />
-
     </div>
   );
 }
-

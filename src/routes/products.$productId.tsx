@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, Plus, FileText, Upload, X, Download } from "lucide-react";
 import { PageHeader, Panel, Field } from "@/components/page-shell";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { toast } from "sonner";
-import { useProducts, useInventoryTxns, useRealtimeInvalidate, useUpdateProduct, useDeleteProduct, productsKey, productTypeOptions, type Product } from "@/lib/oms-db";
+import { useProducts, useRealtimeInvalidate, useUpdateProduct, useDeleteProduct, productsKey, productTypeOptions, type Product } from "@/lib/oms-db";
+import { uploadProductFiles, deleteProductFile, signedUrlFor, type ProductAttachment } from "@/lib/product-attachments";
 
 export const Route = createFileRoute("/products/$productId")({
   head: () => ({ meta: [{ title: `Product · CORTA OMS` }] }),
@@ -18,12 +19,14 @@ function ProductDetail() {
   const router = useRouter();
   useRealtimeInvalidate("products", [productsKey]);
   const { data: products = [], isLoading } = useProducts();
-  const { data: txns = [] } = useInventoryTxns();
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
 
   const [editOpen, setEditOpen] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
+  const [specDraft, setSpecDraft] = useState("");
+  const [critDraft, setCritDraft] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const p = products.find((x) => x.id === productId || x.sku === productId);
 
@@ -35,8 +38,78 @@ function ProductDetail() {
     </div>
   );
 
-  const inv = txns.filter((t) => t.product_id === p.id);
-  const onHand = inv.reduce((s, t) => s + Number(t.qty), 0);
+  const anyP = p as Product & {
+    specifications?: string[];
+    acceptance_criteria?: string[];
+    attachments?: ProductAttachment[];
+    description?: string | null;
+  };
+  const specs: string[] = Array.isArray(anyP.specifications) ? anyP.specifications : [];
+  const crits: string[] = Array.isArray(anyP.acceptance_criteria) ? anyP.acceptance_criteria : [];
+  const files: ProductAttachment[] = Array.isArray(anyP.attachments) ? anyP.attachments : [];
+
+  const saveList = async (patch: Partial<Product>) => {
+    await updateProduct.mutateAsync({ id: p.id, patch });
+  };
+
+  const addSpec = async () => {
+    const t = specDraft.trim(); if (!t) return;
+    await saveList({ specifications: [...specs, t] } as never);
+    setSpecDraft("");
+    toast.success("Specification added");
+  };
+  const rmSpec = async (i: number) => {
+    await saveList({ specifications: specs.filter((_, idx) => idx !== i) } as never);
+    toast.success("Specification removed");
+  };
+  const editSpec = async (i: number, value: string) => {
+    await saveList({ specifications: specs.map((s, idx) => idx === i ? value : s) } as never);
+  };
+
+  const addCrit = async () => {
+    const t = critDraft.trim(); if (!t) return;
+    await saveList({ acceptance_criteria: [...crits, t] } as never);
+    setCritDraft("");
+    toast.success("Criterion added");
+  };
+  const rmCrit = async (i: number) => {
+    await saveList({ acceptance_criteria: crits.filter((_, idx) => idx !== i) } as never);
+    toast.success("Criterion removed");
+  };
+  const editCrit = async (i: number, value: string) => {
+    await saveList({ acceptance_criteria: crits.map((s, idx) => idx === i ? value : s) } as never);
+  };
+
+  const onUpload = async (list: File[]) => {
+    if (!list.length) return;
+    try {
+      setUploading(true);
+      const added = await uploadProductFiles(p.id, list);
+      await saveList({ attachments: [...files, ...added] } as never);
+      toast.success(`${added.length} file(s) uploaded`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+  const rmFile = async (path: string) => {
+    try {
+      await deleteProductFile(path);
+      await saveList({ attachments: files.filter((f) => f.path !== path) } as never);
+      toast.success("File removed");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Delete failed");
+    }
+  };
+  const openFile = async (path: string) => {
+    try {
+      const url = await signedUrlFor(path);
+      window.open(url, "_blank");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not open file");
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -61,10 +134,10 @@ function ProductDetail() {
       <div className="grid gap-4 lg:grid-cols-3">
         <Panel className="lg:col-span-2">
           <h3 className="mb-3 text-sm font-semibold">Description</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">{(p as any).description ?? "—"}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{anyP.description ?? "—"}</p>
         </Panel>
         <Panel>
-          <h3 className="mb-3 text-sm font-semibold">Specs</h3>
+          <h3 className="mb-3 text-sm font-semibold">Details</h3>
           <div className="space-y-3">
             <Field label="SKU" value={p.sku} mono />
             <Field label="Type" value={p.type} />
@@ -72,32 +145,60 @@ function ProductDetail() {
             <Field label="Standard Cost" value={`$${(p as any).standard_cost ?? 0}`} mono />
             <Field label="Sale Price" value={`$${(p as any).sale_price ?? 0}`} mono />
             <Field label="Batching Limit" value={(p as any).batching_limit ?? "—"} mono />
-            <Field label="On Hand" value={onHand.toLocaleString()} mono />
           </div>
         </Panel>
       </div>
 
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Panel>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-sm font-semibold">Specifications</h3>
+            <span className="text-[11px] text-muted-foreground">{specs.length}</span>
+          </div>
+          <ListCrud items={specs} draft={specDraft} setDraft={setSpecDraft} onAdd={addSpec} onRemove={rmSpec} onEdit={editSpec}
+            placeholder="e.g. Body material: cast steel A216 WCB" />
+        </Panel>
+        <Panel>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-sm font-semibold">Acceptance Criteria</h3>
+            <span className="text-[11px] text-muted-foreground">{crits.length}</span>
+          </div>
+          <ListCrud items={crits} draft={critDraft} setDraft={setCritDraft} onAdd={addCrit} onRemove={rmCrit} onEdit={editCrit}
+            placeholder="e.g. Hydrostatic test at 1.5× design pressure" />
+        </Panel>
+      </div>
+
       <Panel>
-        <h3 className="mb-3 text-sm font-semibold">Inventory Transactions</h3>
-        {inv.length === 0 ? <p className="text-xs text-muted-foreground">No transactions.</p> : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border/60 text-left text-[11px] uppercase tracking-wider text-muted-foreground">
-                <th className="pb-2 font-medium">Date</th>
-                <th className="pb-2 font-medium">Type</th>
-                <th className="pb-2 font-medium text-right">Qty</th>
-              </tr>
-            </thead>
-            <tbody>
-              {inv.map((t) => (
-                <tr key={t.id} className="border-b border-border/30">
-                  <td className="py-2 font-mono text-xs">{t.at?.slice(0, 10)}</td>
-                  <td className="py-2 text-xs">{t.type}</td>
-                  <td className="py-2 text-right font-mono text-sm">{Number(t.qty).toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold">Attachments</h3>
+          <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary">
+            <Upload className="h-3.5 w-3.5" /> {uploading ? "Uploading…" : "Upload files"}
+            <input type="file" multiple className="hidden" disabled={uploading}
+              onChange={(e) => {
+                const list = e.target.files ? Array.from(e.target.files) : [];
+                onUpload(list);
+                e.currentTarget.value = "";
+              }} />
+          </label>
+        </div>
+        {files.length === 0 ? (
+          <p className="text-xs text-muted-foreground">No attachments.</p>
+        ) : (
+          <ul className="space-y-1.5">
+            {files.map((f) => (
+              <li key={f.path} className="flex items-center justify-between gap-3 rounded-lg border border-border/40 bg-card/40 px-2.5 py-1.5 text-sm">
+                <span className="flex min-w-0 items-center gap-2">
+                  <FileText className="h-3.5 w-3.5 shrink-0 text-primary" />
+                  <span className="truncate">{f.name}</span>
+                  <span className="shrink-0 text-[11px] text-muted-foreground">({Math.round(f.size / 1024)} KB)</span>
+                </span>
+                <div className="flex shrink-0 items-center gap-2">
+                  <button onClick={() => openFile(f.path)} className="text-muted-foreground hover:text-primary"><Download className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => rmFile(f.path)} className="text-muted-foreground hover:text-destructive"><X className="h-3.5 w-3.5" /></button>
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </Panel>
 
@@ -124,6 +225,59 @@ function ProductDetail() {
           router.navigate({ to: "/products" });
         }}
       />
+    </div>
+  );
+}
+
+function ListCrud({
+  items, draft, setDraft, onAdd, onRemove, onEdit, placeholder,
+}: {
+  items: string[];
+  draft: string;
+  setDraft: (v: string) => void;
+  onAdd: () => void | Promise<void>;
+  onRemove: (i: number) => void | Promise<void>;
+  onEdit: (i: number, v: string) => void | Promise<void>;
+  placeholder?: string;
+}) {
+  const [editing, setEditing] = useState<number | null>(null);
+  const [buf, setBuf] = useState("");
+  return (
+    <div>
+      <div className="flex gap-2">
+        <input value={draft} onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onAdd(); } }}
+          placeholder={placeholder}
+          className="h-9 flex-1 rounded-lg border border-border/60 bg-card/60 px-2 text-sm focus:border-primary/50 focus:outline-none" />
+        <button onClick={() => onAdd()}
+          className="flex items-center gap-1 rounded-lg border border-primary/40 bg-primary/10 px-2.5 py-1 text-xs text-primary">
+          <Plus className="h-3.5 w-3.5" /> Add
+        </button>
+      </div>
+      {items.length === 0 ? (
+        <p className="mt-3 text-xs text-muted-foreground">Nothing added yet.</p>
+      ) : (
+        <ul className="mt-2 space-y-1">
+          {items.map((it, i) => (
+            <li key={i} className="flex items-start justify-between gap-2 rounded-lg border border-border/40 bg-card/40 px-2 py-1.5 text-sm">
+              {editing === i ? (
+                <>
+                  <input value={buf} onChange={(e) => setBuf(e.target.value)}
+                    className="h-8 flex-1 rounded-lg border border-border/60 bg-card/60 px-2 text-sm" autoFocus />
+                  <button onClick={async () => { await onEdit(i, buf); setEditing(null); }} className="text-xs text-primary">Save</button>
+                  <button onClick={() => setEditing(null)} className="text-xs text-muted-foreground">Cancel</button>
+                </>
+              ) : (
+                <>
+                  <span className="flex-1">{it}</span>
+                  <button onClick={() => { setEditing(i); setBuf(it); }} className="text-muted-foreground hover:text-primary"><Pencil className="h-3.5 w-3.5" /></button>
+                  <button onClick={() => onRemove(i)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

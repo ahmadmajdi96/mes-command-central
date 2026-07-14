@@ -746,6 +746,8 @@ export type Database = {
       }
       products: {
         Row: {
+          acceptance_criteria: Json
+          attachments: Json
           batching_limit: number
           created_at: string
           description: string | null
@@ -754,12 +756,15 @@ export type Database = {
           name: string
           sale_price: number
           sku: string
+          specifications: Json
           standard_cost: number
           type: string
           uom: string
           updated_at: string
         }
         Insert: {
+          acceptance_criteria?: Json
+          attachments?: Json
           batching_limit?: number
           created_at?: string
           description?: string | null
@@ -768,12 +773,15 @@ export type Database = {
           name: string
           sale_price?: number
           sku: string
+          specifications?: Json
           standard_cost?: number
           type?: string
           uom?: string
           updated_at?: string
         }
         Update: {
+          acceptance_criteria?: Json
+          attachments?: Json
           batching_limit?: number
           created_at?: string
           description?: string | null
@@ -782,6 +790,7 @@ export type Database = {
           name?: string
           sale_price?: number
           sku?: string
+          specifications?: Json
           standard_cost?: number
           type?: string
           uom?: string
