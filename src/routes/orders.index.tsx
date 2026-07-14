@@ -4,9 +4,9 @@ import { Plus, Search, Filter, Pencil, Trash2 } from "lucide-react";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
+import { AnalyticsCards } from "@/components/analytics-cards";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { FormDialog } from "@/components/form-dialog";
-import { SavedPresetsBar } from "@/components/saved-presets-bar";
 import { NewOrderDialog } from "@/components/new-order-dialog";
 import { toast } from "sonner";
 import {
@@ -21,7 +21,6 @@ export const Route = createFileRoute("/orders/")({
 });
 
 const statusFilters = ["all", ...orderStatusOptions];
-type OrdersPreset = { q: string; status: string };
 
 function OrdersList() {
   const [q, setQ] = useState("");
