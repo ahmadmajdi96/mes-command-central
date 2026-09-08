@@ -13,8 +13,8 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    server: { allowedHosts: ["oms.cortanexai.com", ".cortanexai.com"] },
-    preview: { allowedHosts: ["oms.cortanexai.com", ".cortanexai.com"] },
+    server: { allowedHosts: ["oms.cortanexai.com", ".cortanexai.com", "oms.manuqube.com", ".manuqube.com"] },
+    preview: { allowedHosts: ["oms.cortanexai.com", ".cortanexai.com", "oms.manuqube.com", ".manuqube.com"] },
   },
 });
 
