@@ -243,6 +243,7 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
                           {currency} {((Number(l.qty) || 0) * (Number(l.unit_price) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </span>
                       </div>
+                      {l.product_id && <div className="mt-1 pl-1"><LineAvail productId={l.product_id} qty={Number(l.qty) || 0} /></div>}
                     </div>
 
                   );

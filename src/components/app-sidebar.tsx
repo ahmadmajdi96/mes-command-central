@@ -12,6 +12,8 @@ import {
   Boxes,
   Undo2,
   Bell,
+  Warehouse,
+  MapPin,
 } from "lucide-react";
 
 
@@ -52,6 +54,8 @@ const integrations = [
 
 const materials = [
   { title: "Products", url: "/products", icon: Package },
+  { title: "Inventory", url: "/inventory", icon: Warehouse },
+  { title: "Locations", url: "/locations", icon: MapPin },
 ];
 
 

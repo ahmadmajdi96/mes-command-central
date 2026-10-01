@@ -10,6 +10,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { FormDialog } from "@/components/form-dialog";
 import { orderStatusOptions } from "@/lib/oms-db";
 import { OrderFeedbackSection } from "@/components/order-feedback-section";
+import { OrderStockPanel } from "@/components/order-stock-panel";
 
 export const Route = createFileRoute("/orders/$orderId")({
   head: ({ params }) => ({ meta: [{ title: `${params.orderId} · Sales Order · CORTA OMS` }] }),
@@ -226,6 +227,8 @@ function OrderDetail() {
           </div>
         )}
       </Panel>
+
+      <OrderStockPanel orderId={so.id} lines={lines as any} />
 
       <OrderFeedbackSection orderId={so.id} orderLines={lines} />
 
