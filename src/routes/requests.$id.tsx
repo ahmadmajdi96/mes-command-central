@@ -53,7 +53,7 @@ function RequestDetailPage() {
 
   useEffect(() => {
     const ch = supabase
-      .channel(`rt-req-${id}`)
+      .channel(`rt-req-${id}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "product_requests", filter: `id=eq.${id}` }, () => {
         req.refetch();
       })

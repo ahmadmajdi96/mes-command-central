@@ -31,7 +31,7 @@ function BatchDetail() {
 
   useEffect(() => {
     const ch = supabase
-      .channel(`rt-batch-${batchId}`)
+      .channel(`rt-batch-${batchId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "batches", filter: `id=eq.${batchId}` }, () => q.refetch())
       .subscribe();
     return () => { supabase.removeChannel(ch); };

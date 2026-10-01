@@ -39,7 +39,7 @@ function RequestsPage() {
 
   useEffect(() => {
     const ch = supabase
-      .channel("rt-product_requests")
+      .channel(`rt-product_requests-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "product_requests" }, () => {
         qc.invalidateQueries({ queryKey: ["product_requests"] });
       })

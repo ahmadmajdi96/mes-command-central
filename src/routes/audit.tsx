@@ -31,7 +31,7 @@ function AuditPage() {
   });
 
   useEffect(() => {
-    const ch = supabase.channel("rt-audit_log")
+    const ch = supabase.channel(`rt-audit_log-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "audit_log" }, () => {
         qc.invalidateQueries({ queryKey: ["audit_log"] });
       }).subscribe();

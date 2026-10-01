@@ -29,7 +29,7 @@ export function useRealtimeInvalidate(table: keyof Tables, keys: QueryKey[]) {
   const qc = useQueryClient();
   useEffect(() => {
     const channel = supabase
-      .channel(`rt-${String(table)}`)
+      .channel(`rt-${String(table)}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: String(table) }, () => {
         keys.forEach((k) => qc.invalidateQueries({ queryKey: k }));
       })
@@ -637,7 +637,7 @@ export function useDeleteShipment() {
 }
 
 /* ------------------------- Seed helpers ---------------------------- */
-export const orderStatusOptions = ["draft", "confirmed", "in_production", "partially_shipped", "shipped", "cancelled"];
+export const orderStatusOptions = ["draft", "confirmed", "on_hold", "sourced", "in_production", "partially_shipped", "shipped", "delivered", "cancelled"];
 export const workOrderStatusOptions = ["pending", "in_progress", "paused", "completed", "cancelled"];
 export const shipmentStatusOptions = ["draft", "packed", "shipped", "delivered"];
 export const inventoryTypeOptions = ["receipt", "issue", "transfer", "adjust"];

@@ -9,10 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WorkflowRouteImport } from './routes/workflow'
 import { Route as ShipmentsRouteImport } from './routes/shipments'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SetPasswordRouteImport } from './routes/set-password'
+import { Route as RulesRouteImport } from './routes/rules'
 import { Route as RequestsRouteImport } from './routes/requests'
+import { Route as OrchestrationRouteImport } from './routes/orchestration'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LocationsRouteImport } from './routes/locations'
 import { Route as InventoryRouteImport } from './routes/inventory'
@@ -37,6 +40,11 @@ import { Route as ApiPublicWebhooksMesRouteImport } from './routes/api/public/we
 import { Route as ApiPublicOmsWorkOrdersRouteImport } from './routes/api/public/oms.work-orders'
 import { Route as ApiPublicOmsOrdersRouteImport } from './routes/api/public/oms.orders'
 
+const WorkflowRoute = WorkflowRouteImport.update({
+  id: '/workflow',
+  path: '/workflow',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShipmentsRoute = ShipmentsRouteImport.update({
   id: '/shipments',
   path: '/shipments',
@@ -52,9 +60,19 @@ const SetPasswordRoute = SetPasswordRouteImport.update({
   path: '/set-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RulesRoute = RulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RequestsRoute = RequestsRouteImport.update({
   id: '/requests',
   path: '/requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrchestrationRoute = OrchestrationRouteImport.update({
+  id: '/orchestration',
+  path: '/orchestration',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NotificationsRoute = NotificationsRouteImport.update({
@@ -180,10 +198,13 @@ export interface FileRoutesByFullPath {
   '/inventory': typeof InventoryRoute
   '/locations': typeof LocationsRoute
   '/notifications': typeof NotificationsRoute
+  '/orchestration': typeof OrchestrationRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/rules': typeof RulesRoute
   '/set-password': typeof SetPasswordRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
+  '/workflow': typeof WorkflowRoute
   '/batches/$batchId': typeof BatchesBatchIdRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
@@ -209,10 +230,13 @@ export interface FileRoutesByTo {
   '/inventory': typeof InventoryRoute
   '/locations': typeof LocationsRoute
   '/notifications': typeof NotificationsRoute
+  '/orchestration': typeof OrchestrationRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/rules': typeof RulesRoute
   '/set-password': typeof SetPasswordRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
+  '/workflow': typeof WorkflowRoute
   '/batches/$batchId': typeof BatchesBatchIdRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
@@ -239,10 +263,13 @@ export interface FileRoutesById {
   '/inventory': typeof InventoryRoute
   '/locations': typeof LocationsRoute
   '/notifications': typeof NotificationsRoute
+  '/orchestration': typeof OrchestrationRoute
   '/requests': typeof RequestsRouteWithChildren
+  '/rules': typeof RulesRoute
   '/set-password': typeof SetPasswordRoute
   '/settings': typeof SettingsRoute
   '/shipments': typeof ShipmentsRoute
+  '/workflow': typeof WorkflowRoute
   '/batches/$batchId': typeof BatchesBatchIdRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/orders/$orderId': typeof OrdersOrderIdRoute
@@ -270,10 +297,13 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/locations'
     | '/notifications'
+    | '/orchestration'
     | '/requests'
+    | '/rules'
     | '/set-password'
     | '/settings'
     | '/shipments'
+    | '/workflow'
     | '/batches/$batchId'
     | '/customers/$customerId'
     | '/orders/$orderId'
@@ -299,10 +329,13 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/locations'
     | '/notifications'
+    | '/orchestration'
     | '/requests'
+    | '/rules'
     | '/set-password'
     | '/settings'
     | '/shipments'
+    | '/workflow'
     | '/batches/$batchId'
     | '/customers/$customerId'
     | '/orders/$orderId'
@@ -328,10 +361,13 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/locations'
     | '/notifications'
+    | '/orchestration'
     | '/requests'
+    | '/rules'
     | '/set-password'
     | '/settings'
     | '/shipments'
+    | '/workflow'
     | '/batches/$batchId'
     | '/customers/$customerId'
     | '/orders/$orderId'
@@ -358,10 +394,13 @@ export interface RootRouteChildren {
   InventoryRoute: typeof InventoryRoute
   LocationsRoute: typeof LocationsRoute
   NotificationsRoute: typeof NotificationsRoute
+  OrchestrationRoute: typeof OrchestrationRoute
   RequestsRoute: typeof RequestsRouteWithChildren
+  RulesRoute: typeof RulesRoute
   SetPasswordRoute: typeof SetPasswordRoute
   SettingsRoute: typeof SettingsRoute
   ShipmentsRoute: typeof ShipmentsRoute
+  WorkflowRoute: typeof WorkflowRoute
   BatchesBatchIdRoute: typeof BatchesBatchIdRoute
   CustomersCustomerIdRoute: typeof CustomersCustomerIdRoute
   OrdersOrderIdRoute: typeof OrdersOrderIdRoute
@@ -382,6 +421,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/workflow': {
+      id: '/workflow'
+      path: '/workflow'
+      fullPath: '/workflow'
+      preLoaderRoute: typeof WorkflowRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shipments': {
       id: '/shipments'
       path: '/shipments'
@@ -403,11 +449,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rules': {
+      id: '/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof RulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/requests': {
       id: '/requests'
       path: '/requests'
       fullPath: '/requests'
       preLoaderRoute: typeof RequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orchestration': {
+      id: '/orchestration'
+      path: '/orchestration'
+      fullPath: '/orchestration'
+      preLoaderRoute: typeof OrchestrationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notifications': {
@@ -593,10 +653,13 @@ const rootRouteChildren: RootRouteChildren = {
   InventoryRoute: InventoryRoute,
   LocationsRoute: LocationsRoute,
   NotificationsRoute: NotificationsRoute,
+  OrchestrationRoute: OrchestrationRoute,
   RequestsRoute: RequestsRouteWithChildren,
+  RulesRoute: RulesRoute,
   SetPasswordRoute: SetPasswordRoute,
   SettingsRoute: SettingsRoute,
   ShipmentsRoute: ShipmentsRoute,
+  WorkflowRoute: WorkflowRoute,
   BatchesBatchIdRoute: BatchesBatchIdRoute,
   CustomersCustomerIdRoute: CustomersCustomerIdRoute,
   OrdersOrderIdRoute: OrdersOrderIdRoute,
