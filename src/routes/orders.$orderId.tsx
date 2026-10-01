@@ -11,6 +11,8 @@ import { FormDialog } from "@/components/form-dialog";
 import { orderStatusOptions } from "@/lib/oms-db";
 import { OrderFeedbackSection } from "@/components/order-feedback-section";
 import { OrderStockPanel } from "@/components/order-stock-panel";
+import { OrderOrchestrationPanel } from "@/components/order-orchestration-panel";
+import { useNextStatuses, CHANNELS } from "@/lib/orchestration-db";
 
 export const Route = createFileRoute("/orders/$orderId")({
   head: ({ params }) => ({ meta: [{ title: `${params.orderId} · Sales Order · CORTA OMS` }] }),
@@ -34,6 +36,7 @@ function OrderDetail() {
   const update = useUpdateOrder();
   const updateLine = useUpdateOrderLine();
   const del = useDeleteOrder();
+  const nextStatuses = useNextStatuses(so_status_placeholder);
 
   const [openEdit, setOpenEdit] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
