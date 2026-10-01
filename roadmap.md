@@ -3,4 +3,4 @@
 - [x] Phase 2 — Orchestration, rules, sourcing
 - [x] Phase 3 — Fulfillment
 - [x] Phase 4 — Exceptions, returns processing, visibility, KPIs
-- [ ] Phase 5 — Integrations (ERP/WMS/channels, message log)
+- [x] Phase 5 — Integrations (ERP/WMS/channels, message log)
