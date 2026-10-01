@@ -39,7 +39,7 @@ export const isInboundType = (t: string): t is InboundType => t in InboundSchema
 
 const fail = (m: string) => { throw new Error(m); };
 
-async function process(type: InboundType, raw: unknown): Promise<Record<string, unknown>> {
+async function processMessage(type: InboundType, raw: unknown): Promise<Record<string, unknown>> {
   const db = await admin();
   const p: any = InboundSchemas[type].parse(raw);
   const rpc = async (fn: string, args: Record<string, unknown>) => { const { error } = await db.rpc(fn, args); if (error) fail(error.message); };
@@ -112,7 +112,7 @@ export async function runInbound(id: string) {
     return { status: 422, body: { ok: false, message: id, error: `Unsupported message type ${m.message_type}`, supported: Object.keys(InboundSchemas) } };
   }
   try {
-    const result = await process(m.message_type, m.payload);
+    const result = await processMessage(m.message_type, m.payload);
     const { entity_table, entity_id, ...rest } = result as any;
     await db.from("integration_messages").update({ status: "processed", error: null, response: rest, entity_table: entity_table ?? null, entity_id: entity_id ?? null, processed_at: new Date().toISOString(), attempts: m.attempts + 1 }).eq("id", id);
     return { status: 200, body: { ok: true, message: id, result: rest } };

@@ -43,6 +43,8 @@ import { Route as ApiPublicWebhooksQcRouteImport } from './routes/api/public/web
 import { Route as ApiPublicWebhooksMesRouteImport } from './routes/api/public/webhooks.mes'
 import { Route as ApiPublicOmsWorkOrdersRouteImport } from './routes/api/public/oms.work-orders'
 import { Route as ApiPublicOmsOrdersRouteImport } from './routes/api/public/oms.orders'
+import { Route as ApiPublicIntegrationsScheduledRouteImport } from './routes/api/public/integrations.scheduled'
+import { Route as ApiPublicIntegrationsSystemRouteImport } from './routes/api/public/integrations.$system'
 
 const WorkflowRoute = WorkflowRouteImport.update({
   id: '/workflow',
@@ -214,6 +216,18 @@ const ApiPublicOmsOrdersRoute = ApiPublicOmsOrdersRouteImport.update({
   path: '/api/public/oms/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicIntegrationsScheduledRoute =
+  ApiPublicIntegrationsScheduledRouteImport.update({
+    id: '/api/public/integrations/scheduled',
+    path: '/api/public/integrations/scheduled',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicIntegrationsSystemRoute =
+  ApiPublicIntegrationsSystemRouteImport.update({
+    id: '/api/public/integrations/$system',
+    path: '/api/public/integrations/$system',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -246,6 +260,8 @@ export interface FileRoutesByFullPath {
   '/production-orders/': typeof ProductionOrdersIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/returns/': typeof ReturnsIndexRoute
+  '/api/public/integrations/$system': typeof ApiPublicIntegrationsSystemRoute
+  '/api/public/integrations/scheduled': typeof ApiPublicIntegrationsScheduledRoute
   '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
   '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
   '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
@@ -282,6 +298,8 @@ export interface FileRoutesByTo {
   '/production-orders': typeof ProductionOrdersIndexRoute
   '/products': typeof ProductsIndexRoute
   '/returns': typeof ReturnsIndexRoute
+  '/api/public/integrations/$system': typeof ApiPublicIntegrationsSystemRoute
+  '/api/public/integrations/scheduled': typeof ApiPublicIntegrationsScheduledRoute
   '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
   '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
   '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
@@ -319,6 +337,8 @@ export interface FileRoutesById {
   '/production-orders/': typeof ProductionOrdersIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/returns/': typeof ReturnsIndexRoute
+  '/api/public/integrations/$system': typeof ApiPublicIntegrationsSystemRoute
+  '/api/public/integrations/scheduled': typeof ApiPublicIntegrationsScheduledRoute
   '/api/public/oms/orders': typeof ApiPublicOmsOrdersRoute
   '/api/public/oms/work-orders': typeof ApiPublicOmsWorkOrdersRoute
   '/api/public/webhooks/mes': typeof ApiPublicWebhooksMesRoute
@@ -357,6 +377,8 @@ export interface FileRouteTypes {
     | '/production-orders/'
     | '/products/'
     | '/returns/'
+    | '/api/public/integrations/$system'
+    | '/api/public/integrations/scheduled'
     | '/api/public/oms/orders'
     | '/api/public/oms/work-orders'
     | '/api/public/webhooks/mes'
@@ -393,6 +415,8 @@ export interface FileRouteTypes {
     | '/production-orders'
     | '/products'
     | '/returns'
+    | '/api/public/integrations/$system'
+    | '/api/public/integrations/scheduled'
     | '/api/public/oms/orders'
     | '/api/public/oms/work-orders'
     | '/api/public/webhooks/mes'
@@ -429,6 +453,8 @@ export interface FileRouteTypes {
     | '/production-orders/'
     | '/products/'
     | '/returns/'
+    | '/api/public/integrations/$system'
+    | '/api/public/integrations/scheduled'
     | '/api/public/oms/orders'
     | '/api/public/oms/work-orders'
     | '/api/public/webhooks/mes'
@@ -465,6 +491,8 @@ export interface RootRouteChildren {
   ProductionOrdersIndexRoute: typeof ProductionOrdersIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
   ReturnsIndexRoute: typeof ReturnsIndexRoute
+  ApiPublicIntegrationsSystemRoute: typeof ApiPublicIntegrationsSystemRoute
+  ApiPublicIntegrationsScheduledRoute: typeof ApiPublicIntegrationsScheduledRoute
   ApiPublicOmsOrdersRoute: typeof ApiPublicOmsOrdersRoute
   ApiPublicOmsWorkOrdersRoute: typeof ApiPublicOmsWorkOrdersRoute
   ApiPublicWebhooksMesRoute: typeof ApiPublicWebhooksMesRoute
@@ -711,6 +739,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicOmsOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/integrations/scheduled': {
+      id: '/api/public/integrations/scheduled'
+      path: '/api/public/integrations/scheduled'
+      fullPath: '/api/public/integrations/scheduled'
+      preLoaderRoute: typeof ApiPublicIntegrationsScheduledRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/integrations/$system': {
+      id: '/api/public/integrations/$system'
+      path: '/api/public/integrations/$system'
+      fullPath: '/api/public/integrations/$system'
+      preLoaderRoute: typeof ApiPublicIntegrationsSystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -756,6 +798,8 @@ const rootRouteChildren: RootRouteChildren = {
   ProductionOrdersIndexRoute: ProductionOrdersIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
   ReturnsIndexRoute: ReturnsIndexRoute,
+  ApiPublicIntegrationsSystemRoute: ApiPublicIntegrationsSystemRoute,
+  ApiPublicIntegrationsScheduledRoute: ApiPublicIntegrationsScheduledRoute,
   ApiPublicOmsOrdersRoute: ApiPublicOmsOrdersRoute,
   ApiPublicOmsWorkOrdersRoute: ApiPublicOmsWorkOrdersRoute,
   ApiPublicWebhooksMesRoute: ApiPublicWebhooksMesRoute,
