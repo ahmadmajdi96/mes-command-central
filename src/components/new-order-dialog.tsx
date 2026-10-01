@@ -1,3 +1,5 @@
+import { useAvailability } from "@/lib/inventory-db";
+import { AvailabilityBadge } from "@/components/availability-badge";
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Trash2, Info } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
