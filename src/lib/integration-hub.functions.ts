@@ -24,5 +24,5 @@ export const sendTestInbound = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { receiveInbound } = await import("./integration-hub.server");
     const r = await receiveInbound(data.system, data.message_id, data.type, data.payload, true);
-    return r.body as Record<string, unknown>;
+    return JSON.parse(JSON.stringify(r.body)) as { ok: boolean; duplicate?: boolean; error?: string; message?: string };
   });

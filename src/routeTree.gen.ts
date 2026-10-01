@@ -20,6 +20,7 @@ import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LocationsRouteImport } from './routes/locations'
 import { Route as KpisRouteImport } from './routes/kpis'
 import { Route as InventoryRouteImport } from './routes/inventory'
+import { Route as IntegrationsRouteImport } from './routes/integrations'
 import { Route as FulfillmentsRouteImport } from './routes/fulfillments'
 import { Route as ExceptionsRouteImport } from './routes/exceptions'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -99,6 +100,11 @@ const KpisRoute = KpisRouteImport.update({
 const InventoryRoute = InventoryRouteImport.update({
   id: '/inventory',
   path: '/inventory',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsRoute = IntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FulfillmentsRoute = FulfillmentsRouteImport.update({
@@ -236,6 +242,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/exceptions': typeof ExceptionsRoute
   '/fulfillments': typeof FulfillmentsRoute
+  '/integrations': typeof IntegrationsRoute
   '/inventory': typeof InventoryRoute
   '/kpis': typeof KpisRoute
   '/locations': typeof LocationsRoute
@@ -274,6 +281,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/exceptions': typeof ExceptionsRoute
   '/fulfillments': typeof FulfillmentsRoute
+  '/integrations': typeof IntegrationsRoute
   '/inventory': typeof InventoryRoute
   '/kpis': typeof KpisRoute
   '/locations': typeof LocationsRoute
@@ -313,6 +321,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/exceptions': typeof ExceptionsRoute
   '/fulfillments': typeof FulfillmentsRoute
+  '/integrations': typeof IntegrationsRoute
   '/inventory': typeof InventoryRoute
   '/kpis': typeof KpisRoute
   '/locations': typeof LocationsRoute
@@ -353,6 +362,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/exceptions'
     | '/fulfillments'
+    | '/integrations'
     | '/inventory'
     | '/kpis'
     | '/locations'
@@ -391,6 +401,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/exceptions'
     | '/fulfillments'
+    | '/integrations'
     | '/inventory'
     | '/kpis'
     | '/locations'
@@ -429,6 +440,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/exceptions'
     | '/fulfillments'
+    | '/integrations'
     | '/inventory'
     | '/kpis'
     | '/locations'
@@ -468,6 +480,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ExceptionsRoute: typeof ExceptionsRoute
   FulfillmentsRoute: typeof FulfillmentsRoute
+  IntegrationsRoute: typeof IntegrationsRoute
   InventoryRoute: typeof InventoryRoute
   KpisRoute: typeof KpisRoute
   LocationsRoute: typeof LocationsRoute
@@ -576,6 +589,13 @@ declare module '@tanstack/react-router' {
       path: '/inventory'
       fullPath: '/inventory'
       preLoaderRoute: typeof InventoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations': {
+      id: '/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof IntegrationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fulfillments': {
@@ -775,6 +795,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ExceptionsRoute: ExceptionsRoute,
   FulfillmentsRoute: FulfillmentsRoute,
+  IntegrationsRoute: IntegrationsRoute,
   InventoryRoute: InventoryRoute,
   KpisRoute: KpisRoute,
   LocationsRoute: LocationsRoute,
