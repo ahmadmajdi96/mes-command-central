@@ -13,6 +13,7 @@ import { OrderFeedbackSection } from "@/components/order-feedback-section";
 import { OrderStockPanel } from "@/components/order-stock-panel";
 import { OrderOrchestrationPanel } from "@/components/order-orchestration-panel";
 import { OrderFulfillmentPanel } from "@/components/order-fulfillment-panel";
+import { OrderExceptionsPanel } from "@/components/order-exceptions-panel";
 import { useNextStatuses, CHANNELS } from "@/lib/orchestration-db";
 
 export const Route = createFileRoute("/orders/$orderId")({
@@ -236,6 +237,7 @@ function OrderDetail() {
 
       <OrderStockPanel orderId={so.id} lines={lines as any} />
       <OrderFulfillmentPanel orderId={so.id} lines={lines as any} />
+      <OrderExceptionsPanel order={so as any} />
 
       <OrderFeedbackSection orderId={so.id} orderLines={lines} />
 

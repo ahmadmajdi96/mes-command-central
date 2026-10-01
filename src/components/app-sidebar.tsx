@@ -13,6 +13,9 @@ import {
   Undo2,
   Bell,
   PackageCheck,
+  AlertTriangle,
+  BellRing,
+  Gauge,
   Warehouse,
   MapPin,
   Workflow,
@@ -48,6 +51,9 @@ const orders = [
 const orchestration = [
   { title: "Orchestration Monitor", url: "/orchestration", icon: Activity },
   { title: "Fulfillments", url: "/fulfillments", icon: PackageCheck },
+  { title: "Exceptions", url: "/exceptions", icon: AlertTriangle },
+  { title: "Alert Rules", url: "/alerts", icon: BellRing },
+  { title: "KPIs", url: "/kpis", icon: Gauge },
   { title: "Business Rules", url: "/rules", icon: Scale },
   { title: "Order Workflow", url: "/workflow", icon: Workflow },
 ];
