@@ -32,7 +32,7 @@ function BatchList() {
 
   useEffect(() => {
     const ch = supabase
-      .channel("rt-batches")
+      .channel(`rt-batches-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "batches" }, () => {
         qc.invalidateQueries({ queryKey: ["batches"] });
       })

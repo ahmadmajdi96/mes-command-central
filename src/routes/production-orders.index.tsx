@@ -36,7 +36,7 @@ function POList() {
 
   useEffect(() => {
     const ch = supabase
-      .channel("rt-production-orders")
+      .channel(`rt-production-orders-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "production_orders" }, () => {
         qc.invalidateQueries({ queryKey: ["production_orders"] });
       })

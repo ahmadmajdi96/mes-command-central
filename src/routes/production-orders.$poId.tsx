@@ -43,7 +43,7 @@ function PODetail() {
 
   useEffect(() => {
     const ch = supabase
-      .channel(`rt-po-${poId}`)
+      .channel(`rt-po-${poId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "production_orders", filter: `id=eq.${poId}` }, () => po.refetch())
       .on("postgres_changes", { event: "*", schema: "public", table: "batches", filter: `production_order_id=eq.${poId}` }, () => po.refetch())
       .subscribe();

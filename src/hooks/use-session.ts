@@ -36,11 +36,15 @@ if (typeof window !== "undefined") {
 
 export function useSession(): SessionState {
   const [, force] = useState(0);
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
+    setMounted(true);
     const l = () => force((n) => n + 1);
     listeners.add(l);
     return () => { listeners.delete(l); };
   }, []);
+  // Match the server render until hydration completes to avoid mismatches.
+  if (!mounted) return { session: null, user: null, loading: true, roles: [] };
   return state;
 }
 

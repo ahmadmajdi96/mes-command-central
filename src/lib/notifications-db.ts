@@ -68,7 +68,7 @@ export function useNotificationsRealtime(currentUserId: string | null | undefine
   const qc = useQueryClient();
   useEffect(() => {
     const channel = supabase
-      .channel("rt-notifications")
+      .channel(`rt-notifications-${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications" },

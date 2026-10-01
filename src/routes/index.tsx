@@ -80,7 +80,7 @@ function Dashboard() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight">Order Ops Dashboard</h1>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">Operations Dashboard</h1>
           <p className="text-sm text-muted-foreground">Live view of orders, production and shipments</p>
         </div>
         <div className="flex items-center gap-2">

@@ -29,7 +29,7 @@ export function useRealtimeInvalidate(table: keyof Tables, keys: QueryKey[]) {
   const qc = useQueryClient();
   useEffect(() => {
     const channel = supabase
-      .channel(`rt-${String(table)}`)
+      .channel(`rt-${String(table)}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: String(table) }, () => {
         keys.forEach((k) => qc.invalidateQueries({ queryKey: k }));
       })
