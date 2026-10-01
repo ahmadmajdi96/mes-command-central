@@ -726,6 +726,39 @@ export type Database = {
           },
         ]
       }
+      integration_endpoints: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          events: string[]
+          id: string
+          name: string
+          system: string
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          events?: string[]
+          id?: string
+          name: string
+          system: string
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          events?: string[]
+          id?: string
+          name?: string
+          system?: string
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
       integration_events: {
         Row: {
           created_at: string
@@ -758,6 +791,77 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      integration_messages: {
+        Row: {
+          attempts: number
+          created_at: string
+          direction: string
+          endpoint_id: string | null
+          entity_id: string | null
+          entity_table: string | null
+          error: string | null
+          id: string
+          message_id: string
+          message_type: string
+          next_retry_at: string | null
+          payload: Json
+          processed_at: string | null
+          response: Json | null
+          signature_valid: boolean | null
+          status: string
+          system: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          direction: string
+          endpoint_id?: string | null
+          entity_id?: string | null
+          entity_table?: string | null
+          error?: string | null
+          id?: string
+          message_id: string
+          message_type: string
+          next_retry_at?: string | null
+          payload?: Json
+          processed_at?: string | null
+          response?: Json | null
+          signature_valid?: boolean | null
+          status?: string
+          system: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          direction?: string
+          endpoint_id?: string | null
+          entity_id?: string | null
+          entity_table?: string | null
+          error?: string | null
+          id?: string
+          message_id?: string
+          message_type?: string
+          next_retry_at?: string | null
+          payload?: Json
+          processed_at?: string | null
+          response?: Json | null
+          signature_valid?: boolean | null
+          status?: string
+          system?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_messages_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "integration_endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       integration_settings: {
         Row: {
@@ -3049,6 +3153,15 @@ export type Database = {
         Returns: undefined
       }
       orchestrate_order: { Args: { _order: string }; Returns: Json }
+      queue_outbound: {
+        Args: {
+          _entity_id: string
+          _entity_table: string
+          _event: string
+          _payload: Json
+        }
+        Returns: number
+      }
       receive_return: {
         Args: { _location: string; _return: string }
         Returns: undefined
