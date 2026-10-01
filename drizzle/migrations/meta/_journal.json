@@ -15,6 +15,20 @@
       "when": 1790873168695,
       "tag": "0001_orchestration_phase2",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790874100848,
+      "tag": "0002_fulfillment_phase3",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790874122438,
+      "tag": "0003_fulfillment_milestone_helper",
+      "breakpoints": true
     }
   ]
 }

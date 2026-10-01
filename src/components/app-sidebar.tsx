@@ -12,6 +12,7 @@ import {
   Boxes,
   Undo2,
   Bell,
+  PackageCheck,
   Warehouse,
   MapPin,
   Workflow,
@@ -46,6 +47,7 @@ const orders = [
 
 const orchestration = [
   { title: "Orchestration Monitor", url: "/orchestration", icon: Activity },
+  { title: "Fulfillments", url: "/fulfillments", icon: PackageCheck },
   { title: "Business Rules", url: "/rules", icon: Scale },
   { title: "Order Workflow", url: "/workflow", icon: Workflow },
 ];

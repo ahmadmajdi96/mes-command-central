@@ -12,6 +12,7 @@ import { orderStatusOptions } from "@/lib/oms-db";
 import { OrderFeedbackSection } from "@/components/order-feedback-section";
 import { OrderStockPanel } from "@/components/order-stock-panel";
 import { OrderOrchestrationPanel } from "@/components/order-orchestration-panel";
+import { OrderFulfillmentPanel } from "@/components/order-fulfillment-panel";
 import { useNextStatuses, CHANNELS } from "@/lib/orchestration-db";
 
 export const Route = createFileRoute("/orders/$orderId")({
@@ -234,6 +235,7 @@ function OrderDetail() {
       <OrderOrchestrationPanel order={so as any} lines={lines as any} />
 
       <OrderStockPanel orderId={so.id} lines={lines as any} />
+      <OrderFulfillmentPanel orderId={so.id} lines={lines as any} />
 
       <OrderFeedbackSection orderId={so.id} orderLines={lines} />
 
