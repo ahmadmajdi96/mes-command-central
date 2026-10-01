@@ -64,6 +64,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "allocations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "allocations_order_line_id_fkey"
             columns: ["order_line_id"]
             isOneToOne: false
@@ -256,6 +263,81 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      business_rule_history: {
+        Row: {
+          actor_id: string | null
+          at: string
+          change: string
+          id: string
+          rule_id: string | null
+          snapshot: Json | null
+        }
+        Insert: {
+          actor_id?: string | null
+          at?: string
+          change: string
+          id?: string
+          rule_id?: string | null
+          snapshot?: Json | null
+        }
+        Update: {
+          actor_id?: string | null
+          at?: string
+          change?: string
+          id?: string
+          rule_id?: string | null
+          snapshot?: Json | null
+        }
+        Relationships: []
+      }
+      business_rules: {
+        Row: {
+          action: Json
+          active: boolean
+          conditions: Json
+          created_at: string
+          created_by: string | null
+          effective_from: string | null
+          effective_to: string | null
+          id: string
+          name: string
+          notes: string | null
+          priority: number
+          rule_type: string
+          updated_at: string
+        }
+        Insert: {
+          action?: Json
+          active?: boolean
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          priority?: number
+          rule_type?: string
+          updated_at?: string
+        }
+        Update: {
+          action?: Json
+          active?: boolean
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          priority?: number
+          rule_type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       customers: {
         Row: {
@@ -587,6 +669,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "inventory_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "inventory_transactions_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
@@ -838,6 +927,64 @@ export type Database = {
             referencedRelation: "sales_orders"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "order_feedback_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_milestones: {
+        Row: {
+          actor_id: string | null
+          at: string
+          from_status: string | null
+          id: string
+          milestone: string
+          notes: string | null
+          order_id: string
+          source: string
+          to_status: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          at?: string
+          from_status?: string | null
+          id?: string
+          milestone: string
+          notes?: string | null
+          order_id: string
+          source?: string
+          to_status?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          at?: string
+          from_status?: string | null
+          id?: string
+          milestone?: string
+          notes?: string | null
+          order_id?: string
+          source?: string
+          to_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_milestones_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_milestones_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
         ]
       }
       product_requests: {
@@ -1061,6 +1208,13 @@ export type Database = {
             columns: ["sales_order_id"]
             isOneToOne: false
             referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_sales_order_id_fkey"
+            columns: ["sales_order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
             referencedColumns: ["id"]
           },
         ]
@@ -1363,6 +1517,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "reservations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "reservations_order_line_id_fkey"
             columns: ["order_line_id"]
             isOneToOne: false
@@ -1503,10 +1664,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "returns_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "returns_reorder_order_id_fkey"
             columns: ["reorder_order_id"]
             isOneToOne: false
             referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "returns_reorder_order_id_fkey"
+            columns: ["reorder_order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
             referencedColumns: ["id"]
           },
         ]
@@ -1557,6 +1732,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "sales_order_lines_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "sales_order_lines_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
@@ -1574,44 +1756,59 @@ export type Database = {
       }
       sales_orders: {
         Row: {
+          channel: string
           created_at: string
           created_by: string | null
           currency: string
           customer_id: string | null
           due_date: string | null
+          hold_reason: string | null
           id: string
           notes: string | null
           number: string
           order_date: string
+          order_type: string
+          route: string | null
           status: string
+          status_changed_at: string
           total: number
           updated_at: string
         }
         Insert: {
+          channel?: string
           created_at?: string
           created_by?: string | null
           currency?: string
           customer_id?: string | null
           due_date?: string | null
+          hold_reason?: string | null
           id?: string
           notes?: string | null
           number: string
           order_date?: string
+          order_type?: string
+          route?: string | null
           status?: string
+          status_changed_at?: string
           total?: number
           updated_at?: string
         }
         Update: {
+          channel?: string
           created_at?: string
           created_by?: string | null
           currency?: string
           customer_id?: string | null
           due_date?: string | null
+          hold_reason?: string | null
           id?: string
           notes?: string | null
           number?: string
           order_date?: string
+          order_type?: string
+          route?: string | null
           status?: string
+          status_changed_at?: string
           total?: number
           updated_at?: string
         }
@@ -1697,6 +1894,13 @@ export type Database = {
             referencedRelation: "sales_orders"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "shipments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
         ]
       }
       sop_steps: {
@@ -1742,6 +1946,81 @@ export type Database = {
             columns: ["work_order_id"]
             isOneToOne: false
             referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sourcing_decisions: {
+        Row: {
+          created_at: string
+          failure_reason: string | null
+          id: string
+          location_id: string | null
+          order_id: string
+          order_line_id: string
+          qty: number
+          rank: number
+          rule_id: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          failure_reason?: string | null
+          id?: string
+          location_id?: string | null
+          order_id: string
+          order_line_id: string
+          qty?: number
+          rank?: number
+          rule_id?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          failure_reason?: string | null
+          id?: string
+          location_id?: string | null
+          order_id?: string
+          order_line_id?: string
+          qty?: number
+          rank?: number
+          rule_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sourcing_decisions_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sourcing_decisions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sourcing_decisions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sourcing_decisions_order_line_id_fkey"
+            columns: ["order_line_id"]
+            isOneToOne: false
+            referencedRelation: "sales_order_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sourcing_decisions_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "business_rules"
             referencedColumns: ["id"]
           },
         ]
@@ -1958,8 +2237,109 @@ export type Database = {
         }
         Relationships: []
       }
+      workflow_transitions: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          entity: string
+          from_status: string
+          id: string
+          sla_hours: number | null
+          to_status: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          entity?: string
+          from_status: string
+          id?: string
+          sla_hours?: number | null
+          to_status: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          entity?: string
+          from_status?: string
+          id?: string
+          sla_hours?: number | null
+          to_status?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
+      v_order_monitor: {
+        Row: {
+          channel: string | null
+          created_at: string | null
+          customer_id: string | null
+          due_date: string | null
+          failed_steps: number | null
+          hold_reason: string | null
+          hours_in_status: number | null
+          id: string | null
+          last_milestone: string | null
+          number: string | null
+          route: string | null
+          sla_hours: number | null
+          status: string | null
+          status_changed_at: string | null
+          total: number | null
+          unallocated_qty: number | null
+        }
+        Insert: {
+          channel?: string | null
+          created_at?: string | null
+          customer_id?: string | null
+          due_date?: string | null
+          failed_steps?: never
+          hold_reason?: string | null
+          hours_in_status?: never
+          id?: string | null
+          last_milestone?: never
+          number?: string | null
+          route?: string | null
+          sla_hours?: never
+          status?: string | null
+          status_changed_at?: string | null
+          total?: number | null
+          unallocated_qty?: never
+        }
+        Update: {
+          channel?: string | null
+          created_at?: string | null
+          customer_id?: string | null
+          due_date?: string | null
+          failed_steps?: never
+          hold_reason?: string | null
+          hours_in_status?: never
+          id?: string | null
+          last_milestone?: never
+          number?: string | null
+          route?: string | null
+          sla_hours?: never
+          status?: string | null
+          status_changed_at?: string | null
+          total?: number | null
+          unallocated_qty?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       v_supply_demand: {
         Row: {
           demand: number | null
@@ -2044,6 +2424,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      orchestrate_order: { Args: { _order: string }; Returns: Json }
       release_reservation: {
         Args: { _id: string; _status?: string }
         Returns: undefined
@@ -2056,6 +2437,14 @@ export type Database = {
           _qty: number
         }
         Returns: string
+      }
+      rule_matches: {
+        Args: {
+          _c: Json
+          _o: Database["public"]["Tables"]["sales_orders"]["Row"]
+          _product: string
+        }
+        Returns: boolean
       }
     }
     Enums: {
