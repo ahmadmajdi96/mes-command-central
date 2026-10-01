@@ -78,6 +78,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "allocations_order_line_id_fkey"
+            columns: ["order_line_id"]
+            isOneToOne: false
+            referencedRelation: "v_line_fulfillment"
+            referencedColumns: ["order_line_id"]
+          },
+          {
             foreignKeyName: "allocations_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
@@ -427,6 +434,220 @@ export type Database = {
             columns: ["work_order_id"]
             isOneToOne: false
             referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fulfillment_events: {
+        Row: {
+          actor_id: string | null
+          at: string
+          from_status: string | null
+          fulfillment_id: string
+          id: string
+          notes: string | null
+          to_status: string
+        }
+        Insert: {
+          actor_id?: string | null
+          at?: string
+          from_status?: string | null
+          fulfillment_id: string
+          id?: string
+          notes?: string | null
+          to_status: string
+        }
+        Update: {
+          actor_id?: string | null
+          at?: string
+          from_status?: string | null
+          fulfillment_id?: string
+          id?: string
+          notes?: string | null
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fulfillment_events_fulfillment_id_fkey"
+            columns: ["fulfillment_id"]
+            isOneToOne: false
+            referencedRelation: "fulfillments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillment_events_fulfillment_id_fkey"
+            columns: ["fulfillment_id"]
+            isOneToOne: false
+            referencedRelation: "v_fulfillment_monitor"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fulfillment_lines: {
+        Row: {
+          allocation_id: string | null
+          created_at: string
+          fulfillment_id: string
+          id: string
+          order_line_id: string
+          product_id: string | null
+          qty: number
+        }
+        Insert: {
+          allocation_id?: string | null
+          created_at?: string
+          fulfillment_id: string
+          id?: string
+          order_line_id: string
+          product_id?: string | null
+          qty: number
+        }
+        Update: {
+          allocation_id?: string | null
+          created_at?: string
+          fulfillment_id?: string
+          id?: string
+          order_line_id?: string
+          product_id?: string | null
+          qty?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fulfillment_lines_allocation_id_fkey"
+            columns: ["allocation_id"]
+            isOneToOne: false
+            referencedRelation: "allocations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillment_lines_fulfillment_id_fkey"
+            columns: ["fulfillment_id"]
+            isOneToOne: false
+            referencedRelation: "fulfillments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillment_lines_fulfillment_id_fkey"
+            columns: ["fulfillment_id"]
+            isOneToOne: false
+            referencedRelation: "v_fulfillment_monitor"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillment_lines_order_line_id_fkey"
+            columns: ["order_line_id"]
+            isOneToOne: false
+            referencedRelation: "sales_order_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillment_lines_order_line_id_fkey"
+            columns: ["order_line_id"]
+            isOneToOne: false
+            referencedRelation: "v_line_fulfillment"
+            referencedColumns: ["order_line_id"]
+          },
+          {
+            foreignKeyName: "fulfillment_lines_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillment_lines_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
+      fulfillments: {
+        Row: {
+          carrier: string | null
+          created_at: string
+          created_by: string | null
+          delivered_at: string | null
+          failure_reason: string | null
+          id: string
+          location_id: string | null
+          notes: string | null
+          number: string | null
+          order_id: string
+          promised_date: string | null
+          shipment_id: string | null
+          shipped_at: string | null
+          status: string
+          status_changed_at: string
+          tracking: string | null
+          updated_at: string
+        }
+        Insert: {
+          carrier?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivered_at?: string | null
+          failure_reason?: string | null
+          id?: string
+          location_id?: string | null
+          notes?: string | null
+          number?: string | null
+          order_id: string
+          promised_date?: string | null
+          shipment_id?: string | null
+          shipped_at?: string | null
+          status?: string
+          status_changed_at?: string
+          tracking?: string | null
+          updated_at?: string
+        }
+        Update: {
+          carrier?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivered_at?: string | null
+          failure_reason?: string | null
+          id?: string
+          location_id?: string | null
+          notes?: string | null
+          number?: string | null
+          order_id?: string
+          promised_date?: string | null
+          shipment_id?: string | null
+          shipped_at?: string | null
+          status?: string
+          status_changed_at?: string
+          tracking?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fulfillments_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillments_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
             referencedColumns: ["id"]
           },
         ]
@@ -1531,6 +1752,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "reservations_order_line_id_fkey"
+            columns: ["order_line_id"]
+            isOneToOne: false
+            referencedRelation: "v_line_fulfillment"
+            referencedColumns: ["order_line_id"]
+          },
+          {
             foreignKeyName: "reservations_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
@@ -1605,6 +1833,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sales_order_lines"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "return_lines_sales_order_line_id_fkey"
+            columns: ["sales_order_line_id"]
+            isOneToOne: false
+            referencedRelation: "v_line_fulfillment"
+            referencedColumns: ["order_line_id"]
           },
         ]
       }
@@ -1856,6 +2091,7 @@ export type Database = {
         Row: {
           carrier: string | null
           created_at: string
+          fulfillment_id: string | null
           id: string
           number: string
           order_id: string | null
@@ -1867,6 +2103,7 @@ export type Database = {
         Insert: {
           carrier?: string | null
           created_at?: string
+          fulfillment_id?: string | null
           id?: string
           number: string
           order_id?: string | null
@@ -1878,6 +2115,7 @@ export type Database = {
         Update: {
           carrier?: string | null
           created_at?: string
+          fulfillment_id?: string | null
           id?: string
           number?: string
           order_id?: string | null
@@ -1887,6 +2125,20 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "shipments_fulfillment_id_fkey"
+            columns: ["fulfillment_id"]
+            isOneToOne: false
+            referencedRelation: "fulfillments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_fulfillment_id_fkey"
+            columns: ["fulfillment_id"]
+            isOneToOne: false
+            referencedRelation: "v_fulfillment_monitor"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "shipments_order_id_fkey"
             columns: ["order_id"]
@@ -2015,6 +2267,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sales_order_lines"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sourcing_decisions_order_line_id_fkey"
+            columns: ["order_line_id"]
+            isOneToOne: false
+            referencedRelation: "v_line_fulfillment"
+            referencedColumns: ["order_line_id"]
           },
           {
             foreignKeyName: "sourcing_decisions_rule_id_fkey"
@@ -2275,6 +2534,129 @@ export type Database = {
       }
     }
     Views: {
+      v_fulfillment_monitor: {
+        Row: {
+          carrier: string | null
+          created_at: string | null
+          created_by: string | null
+          customer_id: string | null
+          delivered_at: string | null
+          failure_reason: string | null
+          hours_in_status: number | null
+          id: string | null
+          line_count: number | null
+          location_code: string | null
+          location_id: string | null
+          notes: string | null
+          number: string | null
+          order_id: string | null
+          order_number: string | null
+          promised_date: string | null
+          shipment_id: string | null
+          shipped_at: string | null
+          status: string | null
+          status_changed_at: string | null
+          total_qty: number | null
+          tracking: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fulfillments_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillments_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_line_fulfillment: {
+        Row: {
+          allocated_open: number | null
+          in_fulfillment: number | null
+          order_id: string | null
+          order_line_id: string | null
+          ordered: number | null
+          product_id: string | null
+          shipped: number | null
+        }
+        Insert: {
+          allocated_open?: never
+          in_fulfillment?: never
+          order_id?: string | null
+          order_line_id?: string | null
+          ordered?: number | null
+          product_id?: string | null
+          shipped?: never
+        }
+        Update: {
+          allocated_open?: never
+          in_fulfillment?: never
+          order_id?: string | null
+          order_line_id?: string | null
+          ordered?: number | null
+          product_id?: string | null
+          shipped?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_order_lines_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_order_lines_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_order_lines_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_order_lines_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
       v_order_monitor: {
         Row: {
           channel: string | null
@@ -2380,6 +2762,7 @@ export type Database = {
         Args: { _product: string; _qty: number }
         Returns: Json
       }
+      create_fulfillments: { Args: { _order: string }; Returns: number }
       deallocate: { Args: { _id: string }; Returns: undefined }
       expire_reservations: { Args: never; Returns: number }
       has_permission: {
@@ -2445,6 +2828,20 @@ export type Database = {
           _product: string
         }
         Returns: boolean
+      }
+      set_fulfillment_status: {
+        Args: {
+          _carrier?: string
+          _id: string
+          _notes?: string
+          _status: string
+          _tracking?: string
+        }
+        Returns: undefined
+      }
+      try_order_status: {
+        Args: { _order: string; _to: string }
+        Returns: undefined
       }
     }
     Enums: {
