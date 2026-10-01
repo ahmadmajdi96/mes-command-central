@@ -14,6 +14,9 @@ import {
   Bell,
   Warehouse,
   MapPin,
+  Workflow,
+  Scale,
+  Activity,
 } from "lucide-react";
 
 
@@ -39,6 +42,12 @@ const orders = [
   { title: "Customers", url: "/customers", icon: UserCircle },
   { title: "Shipments", url: "/shipments", icon: Truck },
   { title: "Returns", url: "/returns", icon: Undo2 },
+];
+
+const orchestration = [
+  { title: "Orchestration Monitor", url: "/orchestration", icon: Activity },
+  { title: "Business Rules", url: "/rules", icon: Scale },
+  { title: "Order Workflow", url: "/workflow", icon: Workflow },
 ];
 
 const production = [
@@ -117,6 +126,7 @@ export function AppSidebar() {
       <SidebarContent className="px-2">
         {renderGroup("Overview", overview)}
         {renderGroup("Orders", orders)}
+        {renderGroup("Orchestration", orchestration)}
         {renderGroup("Production", production)}
         {renderGroup("Integrations", integrations)}
         {renderGroup("Materials", materials)}
@@ -129,7 +139,7 @@ export function AppSidebar() {
             <span className="font-medium">API healthy · v1.0</span>
           </div>
           <p className="mt-1 text-[10px] text-muted-foreground">
-            Plant 01 · 8 workstations online
+            Live data · realtime sync on
           </p>
         </div>
       </SidebarFooter>

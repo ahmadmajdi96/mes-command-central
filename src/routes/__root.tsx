@@ -116,7 +116,7 @@ function TopBar() {
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/60 bg-background/70 px-4 backdrop-blur-xl">
       <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
       <div className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
-        <span>Plant 01 · Riyadh</span>
+        <span>MANUQUBE</span>
         <ChevronRight className="h-3 w-3" />
         <span className="text-foreground">Order Operations</span>
       </div>
