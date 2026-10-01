@@ -2807,6 +2807,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      log_order_milestone: {
+        Args: { _milestone: string; _notes: string; _order: string }
+        Returns: undefined
+      }
       orchestrate_order: { Args: { _order: string }; Returns: Json }
       release_reservation: {
         Args: { _id: string; _status?: string }
