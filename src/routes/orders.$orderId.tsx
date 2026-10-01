@@ -21,7 +21,7 @@ export const Route = createFileRoute("/orders/$orderId")({
       <Link to="/orders" className="mt-3 inline-flex text-xs text-primary hover:underline">Back to orders</Link>
     </div>
   ),
-  errorComponent: ({ error }) => <p className="text-sm text-destructive">{error.message}</p>,
+  errorComponent: ({ error }) => <p className="text-sm text-destructive">{(error as Error).message}</p>,
 });
 
 function OrderDetail() {
