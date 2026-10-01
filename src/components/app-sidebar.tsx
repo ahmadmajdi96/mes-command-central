@@ -13,6 +13,7 @@ import {
   Undo2,
   Bell,
   PackageCheck,
+  Cable,
   AlertTriangle,
   BellRing,
   Gauge,
@@ -66,6 +67,7 @@ const production = [
 
 const integrations = [
   { title: "Requests", url: "/requests", icon: Send },
+  { title: "Integration Monitor", url: "/integrations", icon: Cable },
 ];
 
 
