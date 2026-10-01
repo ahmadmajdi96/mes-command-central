@@ -18,10 +18,13 @@ import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as OrchestrationRouteImport } from './routes/orchestration'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LocationsRouteImport } from './routes/locations'
+import { Route as KpisRouteImport } from './routes/kpis'
 import { Route as InventoryRouteImport } from './routes/inventory'
 import { Route as FulfillmentsRouteImport } from './routes/fulfillments'
+import { Route as ExceptionsRouteImport } from './routes/exceptions'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuditRouteImport } from './routes/audit'
+import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReturnsIndexRouteImport } from './routes/returns.index'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
@@ -86,6 +89,11 @@ const LocationsRoute = LocationsRouteImport.update({
   path: '/locations',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KpisRoute = KpisRouteImport.update({
+  id: '/kpis',
+  path: '/kpis',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InventoryRoute = InventoryRouteImport.update({
   id: '/inventory',
   path: '/inventory',
@@ -96,6 +104,11 @@ const FulfillmentsRoute = FulfillmentsRouteImport.update({
   path: '/fulfillments',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExceptionsRoute = ExceptionsRouteImport.update({
+  id: '/exceptions',
+  path: '/exceptions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -104,6 +117,11 @@ const AuthRoute = AuthRouteImport.update({
 const AuditRoute = AuditRouteImport.update({
   id: '/audit',
   path: '/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -199,10 +217,13 @@ const ApiPublicOmsOrdersRoute = ApiPublicOmsOrdersRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/exceptions': typeof ExceptionsRoute
   '/fulfillments': typeof FulfillmentsRoute
   '/inventory': typeof InventoryRoute
+  '/kpis': typeof KpisRoute
   '/locations': typeof LocationsRoute
   '/notifications': typeof NotificationsRoute
   '/orchestration': typeof OrchestrationRoute
@@ -232,10 +253,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/exceptions': typeof ExceptionsRoute
   '/fulfillments': typeof FulfillmentsRoute
   '/inventory': typeof InventoryRoute
+  '/kpis': typeof KpisRoute
   '/locations': typeof LocationsRoute
   '/notifications': typeof NotificationsRoute
   '/orchestration': typeof OrchestrationRoute
@@ -266,10 +290,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/exceptions': typeof ExceptionsRoute
   '/fulfillments': typeof FulfillmentsRoute
   '/inventory': typeof InventoryRoute
+  '/kpis': typeof KpisRoute
   '/locations': typeof LocationsRoute
   '/notifications': typeof NotificationsRoute
   '/orchestration': typeof OrchestrationRoute
@@ -301,10 +328,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/alerts'
     | '/audit'
     | '/auth'
+    | '/exceptions'
     | '/fulfillments'
     | '/inventory'
+    | '/kpis'
     | '/locations'
     | '/notifications'
     | '/orchestration'
@@ -334,10 +364,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/alerts'
     | '/audit'
     | '/auth'
+    | '/exceptions'
     | '/fulfillments'
     | '/inventory'
+    | '/kpis'
     | '/locations'
     | '/notifications'
     | '/orchestration'
@@ -367,10 +400,13 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/alerts'
     | '/audit'
     | '/auth'
+    | '/exceptions'
     | '/fulfillments'
     | '/inventory'
+    | '/kpis'
     | '/locations'
     | '/notifications'
     | '/orchestration'
@@ -401,10 +437,13 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlertsRoute: typeof AlertsRoute
   AuditRoute: typeof AuditRoute
   AuthRoute: typeof AuthRoute
+  ExceptionsRoute: typeof ExceptionsRoute
   FulfillmentsRoute: typeof FulfillmentsRoute
   InventoryRoute: typeof InventoryRoute
+  KpisRoute: typeof KpisRoute
   LocationsRoute: typeof LocationsRoute
   NotificationsRoute: typeof NotificationsRoute
   OrchestrationRoute: typeof OrchestrationRoute
@@ -497,6 +536,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kpis': {
+      id: '/kpis'
+      path: '/kpis'
+      fullPath: '/kpis'
+      preLoaderRoute: typeof KpisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inventory': {
       id: '/inventory'
       path: '/inventory'
@@ -511,6 +557,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FulfillmentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/exceptions': {
+      id: '/exceptions'
+      path: '/exceptions'
+      fullPath: '/exceptions'
+      preLoaderRoute: typeof ExceptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -523,6 +576,13 @@ declare module '@tanstack/react-router' {
       path: '/audit'
       fullPath: '/audit'
       preLoaderRoute: typeof AuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -668,10 +728,13 @@ const RequestsRouteWithChildren = RequestsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlertsRoute: AlertsRoute,
   AuditRoute: AuditRoute,
   AuthRoute: AuthRoute,
+  ExceptionsRoute: ExceptionsRoute,
   FulfillmentsRoute: FulfillmentsRoute,
   InventoryRoute: InventoryRoute,
+  KpisRoute: KpisRoute,
   LocationsRoute: LocationsRoute,
   NotificationsRoute: NotificationsRoute,
   OrchestrationRoute: OrchestrationRoute,

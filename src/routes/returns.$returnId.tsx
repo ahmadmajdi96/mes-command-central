@@ -11,6 +11,7 @@ import {
   useCreateReturnLine, useDeleteReturnLine, useCreateRefund, useReorderFromReturn,
 } from "@/lib/returns-db";
 import { useOrders, useProducts } from "@/lib/oms-db";
+import { ReturnProcessingPanel } from "@/components/return-processing-panel";
 
 export const Route = createFileRoute("/returns/$returnId")({
   head: () => ({ meta: [{ title: "Return · OMS" }] }),
@@ -106,6 +107,8 @@ function ReturnDetail() {
           </div>
         </Panel>
       </div>
+
+      <ReturnProcessingPanel ret={ret as any} lines={lines as any} productName={(id) => { const p = products.find((x: any) => x.id === id) as any; return p ? `${p.sku} ${p.name}` : "Item"; }} />
 
       <Panel>
         <div className="mb-3 flex items-center justify-between">

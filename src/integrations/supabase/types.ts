@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      alert_rules: {
+        Row: {
+          create_exception: boolean
+          created_at: string
+          enabled: boolean
+          id: string
+          last_count: number | null
+          last_fired_at: string | null
+          metric: string
+          name: string
+          severity: string
+          threshold: number
+          updated_at: string
+        }
+        Insert: {
+          create_exception?: boolean
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_count?: number | null
+          last_fired_at?: string | null
+          metric: string
+          name: string
+          severity?: string
+          threshold?: number
+          updated_at?: string
+        }
+        Update: {
+          create_exception?: boolean
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_count?: number | null
+          last_fired_at?: string | null
+          metric?: string
+          name?: string
+          severity?: string
+          threshold?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       allocations: {
         Row: {
           created_at: string
@@ -434,6 +476,38 @@ export type Database = {
             columns: ["work_order_id"]
             isOneToOne: false
             referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exception_comments: {
+        Row: {
+          author_id: string | null
+          body: string
+          created_at: string
+          exception_id: string
+          id: string
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          created_at?: string
+          exception_id: string
+          id?: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          exception_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exception_comments_exception_id_fkey"
+            columns: ["exception_id"]
+            isOneToOne: false
+            referencedRelation: "order_exceptions"
             referencedColumns: ["id"]
           },
         ]
@@ -952,6 +1026,27 @@ export type Database = {
         }
         Relationships: []
       }
+      kpi_targets: {
+        Row: {
+          id: string
+          metric: string
+          target: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          metric: string
+          target: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          metric?: string
+          target?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       locations: {
         Row: {
           active: boolean
@@ -1099,6 +1194,101 @@ export type Database = {
           summary?: string | null
         }
         Relationships: []
+      }
+      order_exceptions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_at: string
+          escalated_at: string | null
+          escalation_level: number
+          fulfillment_id: string | null
+          id: string
+          number: string | null
+          order_id: string | null
+          owner_id: string | null
+          resolution: string | null
+          resolved_at: string | null
+          severity: string
+          source: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_at?: string
+          escalated_at?: string | null
+          escalation_level?: number
+          fulfillment_id?: string | null
+          id?: string
+          number?: string | null
+          order_id?: string | null
+          owner_id?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          severity?: string
+          source?: string
+          status?: string
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_at?: string
+          escalated_at?: string | null
+          escalation_level?: number
+          fulfillment_id?: string | null
+          id?: string
+          number?: string | null
+          order_id?: string | null
+          owner_id?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          severity?: string
+          source?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_exceptions_fulfillment_id_fkey"
+            columns: ["fulfillment_id"]
+            isOneToOne: false
+            referencedRelation: "fulfillments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_exceptions_fulfillment_id_fkey"
+            columns: ["fulfillment_id"]
+            isOneToOne: false
+            referencedRelation: "v_fulfillment_monitor"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_exceptions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_exceptions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_feedback: {
         Row: {
@@ -1776,31 +1966,46 @@ export type Database = {
       }
       return_lines: {
         Row: {
+          condition: string | null
           created_at: string
+          disposition: string | null
+          dispositioned_at: string | null
           id: string
+          inspection_notes: string | null
           product_id: string | null
           qty: number
           reason: string | null
+          received_qty: number
           return_id: string
           sales_order_line_id: string | null
           unit_price: number
         }
         Insert: {
+          condition?: string | null
           created_at?: string
+          disposition?: string | null
+          dispositioned_at?: string | null
           id?: string
+          inspection_notes?: string | null
           product_id?: string | null
           qty?: number
           reason?: string | null
+          received_qty?: number
           return_id: string
           sales_order_line_id?: string | null
           unit_price?: number
         }
         Update: {
+          condition?: string | null
           created_at?: string
+          disposition?: string | null
+          dispositioned_at?: string | null
           id?: string
+          inspection_notes?: string | null
           product_id?: string | null
           qty?: number
           reason?: string | null
+          received_qty?: number
           return_id?: string
           sales_order_line_id?: string | null
           unit_price?: number
@@ -1848,12 +2053,17 @@ export type Database = {
           created_at: string
           created_by: string | null
           customer_id: string | null
+          destination_location_id: string | null
           id: string
           notes: string | null
           number: string
           order_id: string
           reason: string | null
+          received_at: string | null
           reorder_order_id: string | null
+          return_carrier: string | null
+          return_shipment_status: string
+          return_tracking: string | null
           status: string
           updated_at: string
         }
@@ -1861,12 +2071,17 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           customer_id?: string | null
+          destination_location_id?: string | null
           id?: string
           notes?: string | null
           number: string
           order_id: string
           reason?: string | null
+          received_at?: string | null
           reorder_order_id?: string | null
+          return_carrier?: string | null
+          return_shipment_status?: string
+          return_tracking?: string | null
           status?: string
           updated_at?: string
         }
@@ -1874,12 +2089,17 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           customer_id?: string | null
+          destination_location_id?: string | null
           id?: string
           notes?: string | null
           number?: string
           order_id?: string
           reason?: string | null
+          received_at?: string | null
           reorder_order_id?: string | null
+          return_carrier?: string | null
+          return_shipment_status?: string
+          return_tracking?: string | null
           status?: string
           updated_at?: string
         }
@@ -1889,6 +2109,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "returns_destination_location_id_fkey"
+            columns: ["destination_location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
             referencedColumns: ["id"]
           },
           {
@@ -2764,6 +2991,16 @@ export type Database = {
       }
       create_fulfillments: { Args: { _order: string }; Returns: number }
       deallocate: { Args: { _id: string }; Returns: undefined }
+      disposition_return_line: {
+        Args: {
+          _condition: string
+          _disposition: string
+          _line: string
+          _notes: string
+        }
+        Returns: undefined
+      }
+      escalate_exceptions: { Args: never; Returns: number }
       expire_reservations: { Args: never; Returns: number }
       has_permission: {
         Args: { _action: string; _resource: string; _user: string }
@@ -2812,6 +3049,10 @@ export type Database = {
         Returns: undefined
       }
       orchestrate_order: { Args: { _order: string }; Returns: Json }
+      receive_return: {
+        Args: { _location: string; _return: string }
+        Returns: undefined
+      }
       release_reservation: {
         Args: { _id: string; _status?: string }
         Returns: undefined
@@ -2833,6 +3074,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      run_alert_rules: { Args: never; Returns: number }
       set_fulfillment_status: {
         Args: {
           _carrier?: string

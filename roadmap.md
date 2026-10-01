@@ -2,5 +2,5 @@
 - [x] Phase 1 — Inventory & availability (locations, stock, movements, supply, reservations, allocations, ATP, supply vs demand)
 - [x] Phase 2 — Orchestration, rules, sourcing
 - [x] Phase 3 — Fulfillment
-- [ ] Phase 4 — Exceptions, returns processing, visibility, KPIs
+- [x] Phase 4 — Exceptions, returns processing, visibility, KPIs
 - [ ] Phase 5 — Integrations (ERP/WMS/channels, message log)
