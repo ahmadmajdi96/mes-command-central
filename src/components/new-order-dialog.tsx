@@ -1,3 +1,5 @@
+import { useAvailability } from "@/lib/inventory-db";
+import { AvailabilityBadge } from "@/components/availability-badge";
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Trash2, Info } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -243,6 +245,7 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
                           {currency} {((Number(l.qty) || 0) * (Number(l.unit_price) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </span>
                       </div>
+                      {l.product_id && <div className="mt-1 pl-1"><LineAvail productId={l.product_id} qty={Number(l.qty) || 0} /></div>}
                     </div>
 
                   );
@@ -271,4 +274,9 @@ function Labeled({ label, children }: { label: string; children: React.ReactNode
       <div className="mt-1">{children}</div>
     </div>
   );
+}
+
+function LineAvail({ productId, qty }: { productId: string; qty: number }) {
+  const { data } = useAvailability(productId, qty);
+  return data ? <AvailabilityBadge a={data} /> : null;
 }

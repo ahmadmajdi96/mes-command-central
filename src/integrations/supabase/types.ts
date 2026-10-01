@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      allocations: {
+        Row: {
+          created_at: string
+          id: string
+          location_id: string
+          order_id: string | null
+          order_line_id: string
+          product_id: string
+          qty: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location_id: string
+          order_id?: string | null
+          order_line_id: string
+          product_id: string
+          qty: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location_id?: string
+          order_id?: string | null
+          order_line_id?: string
+          product_id?: string
+          qty?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "allocations_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "allocations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "allocations_order_line_id_fkey"
+            columns: ["order_line_id"]
+            isOneToOne: false
+            referencedRelation: "sales_order_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "allocations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "allocations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
       app_role_permissions: {
         Row: {
           can_create: boolean
@@ -168,6 +240,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batches_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "batches_production_order_id_fkey"
@@ -339,6 +418,132 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_levels: {
+        Row: {
+          available: number | null
+          id: string
+          last_updated: string
+          location_id: string
+          on_hand: number
+          product_id: string
+          reserved: number
+          source_system: string
+          status: string
+        }
+        Insert: {
+          available?: number | null
+          id?: string
+          last_updated?: string
+          location_id: string
+          on_hand?: number
+          product_id: string
+          reserved?: number
+          source_system?: string
+          status?: string
+        }
+        Update: {
+          available?: number | null
+          id?: string
+          last_updated?: string
+          location_id?: string
+          on_hand?: number
+          product_id?: string
+          reserved?: number
+          source_system?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_levels_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_levels_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_levels_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
+      inventory_movements: {
+        Row: {
+          at: string
+          id: string
+          location_id: string
+          product_id: string
+          qty: number
+          reference: string | null
+          source_system: string
+          to_location_id: string | null
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          at?: string
+          id?: string
+          location_id: string
+          product_id: string
+          qty: number
+          reference?: string | null
+          source_system?: string
+          to_location_id?: string | null
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          at?: string
+          id?: string
+          location_id?: string
+          product_id?: string
+          qty?: number
+          reference?: string | null
+          source_system?: string
+          to_location_id?: string | null
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_movements_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_to_location_id_fkey"
+            columns: ["to_location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_transactions: {
         Row: {
           at: string
@@ -389,6 +594,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "inventory_transactions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
+          },
+          {
             foreignKeyName: "inventory_transactions_work_order_id_fkey"
             columns: ["work_order_id"]
             isOneToOne: false
@@ -427,6 +639,45 @@ export type Database = {
           source?: string
           unit?: string | null
           value?: number
+        }
+        Relationships: []
+      }
+      locations: {
+        Row: {
+          active: boolean
+          address: string | null
+          code: string
+          created_at: string
+          id: string
+          name: string
+          priority: number
+          source_system: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          address?: string | null
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+          priority?: number
+          source_system?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          address?: string | null
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+          priority?: number
+          source_system?: string | null
+          type?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -486,6 +737,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "non_conformances_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "non_conformances_work_order_id_fkey"
@@ -648,6 +906,13 @@ export type Database = {
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "product_requests_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
+          },
         ]
       }
       product_routings: {
@@ -697,6 +962,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_routings_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "product_routings_request_id_fkey"
@@ -776,6 +1048,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "production_orders_sales_order_id_fkey"
@@ -919,6 +1198,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "qc_inspections_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
+          },
+          {
             foreignKeyName: "qc_inspections_work_order_id_fkey"
             columns: ["work_order_id"]
             isOneToOne: false
@@ -1024,6 +1310,81 @@ export type Database = {
           },
         ]
       }
+      reservations: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          location_id: string
+          order_id: string | null
+          order_line_id: string
+          product_id: string
+          qty: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          location_id: string
+          order_id?: string | null
+          order_line_id: string
+          product_id: string
+          qty: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          location_id?: string
+          order_id?: string | null
+          order_line_id?: string
+          product_id?: string
+          qty?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_order_line_id_fkey"
+            columns: ["order_line_id"]
+            isOneToOne: false
+            referencedRelation: "sales_order_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
       return_lines: {
         Row: {
           created_at: string
@@ -1062,6 +1423,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "return_lines_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "return_lines_return_id_fkey"
@@ -1194,6 +1562,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_order_lines_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
           },
         ]
       }
@@ -1415,6 +1790,67 @@ export type Database = {
           },
         ]
       }
+      supply: {
+        Row: {
+          created_at: string
+          expected_date: string | null
+          id: string
+          location_id: string | null
+          product_id: string
+          qty: number
+          reference: string | null
+          source_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expected_date?: string | null
+          id?: string
+          location_id?: string | null
+          product_id: string
+          qty: number
+          reference?: string | null
+          source_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expected_date?: string | null
+          id?: string
+          location_id?: string | null
+          product_id?: string
+          qty?: number
+          reference?: string | null
+          source_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supply_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supply_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supply_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
+          },
+        ]
+      }
       user_app_roles: {
         Row: {
           created_at: string
@@ -1524,9 +1960,48 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_supply_demand: {
+        Row: {
+          demand: number | null
+          incoming: number | null
+          name: string | null
+          on_hand: number | null
+          product_id: string | null
+          reserved: number | null
+          sku: string | null
+        }
+        Insert: {
+          demand?: never
+          incoming?: never
+          name?: string | null
+          on_hand?: never
+          product_id?: string | null
+          reserved?: never
+          sku?: string | null
+        }
+        Update: {
+          demand?: never
+          incoming?: never
+          name?: string | null
+          on_hand?: never
+          product_id?: string | null
+          reserved?: never
+          sku?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      allocate_line: {
+        Args: { _line: string; _location: string; _qty: number }
+        Returns: string
+      }
+      check_availability: {
+        Args: { _product: string; _qty: number }
+        Returns: Json
+      }
+      deallocate: { Args: { _id: string }; Returns: undefined }
+      expire_reservations: { Args: never; Returns: number }
       has_permission: {
         Args: { _action: string; _resource: string; _user: string }
         Returns: boolean
@@ -1537,6 +2012,50 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      inv_move: {
+        Args: {
+          _location: string
+          _product: string
+          _qty: number
+          _reference?: string
+          _to_location?: string
+          _type: string
+        }
+        Returns: undefined
+      }
+      inv_upsert_row: {
+        Args: { _l: string; _p: string }
+        Returns: {
+          available: number | null
+          id: string
+          last_updated: string
+          location_id: string
+          on_hand: number
+          product_id: string
+          reserved: number
+          source_system: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "inventory_levels"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      release_reservation: {
+        Args: { _id: string; _status?: string }
+        Returns: undefined
+      }
+      reserve_stock: {
+        Args: {
+          _line: string
+          _location: string
+          _minutes?: number
+          _qty: number
+        }
+        Returns: string
       }
     }
     Enums: {

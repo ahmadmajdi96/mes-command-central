@@ -10,6 +10,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { FormDialog } from "@/components/form-dialog";
 import { orderStatusOptions } from "@/lib/oms-db";
 import { OrderFeedbackSection } from "@/components/order-feedback-section";
+import { OrderStockPanel } from "@/components/order-stock-panel";
 
 export const Route = createFileRoute("/orders/$orderId")({
   head: ({ params }) => ({ meta: [{ title: `${params.orderId} · Sales Order · CORTA OMS` }] }),
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/orders/$orderId")({
       <Link to="/orders" className="mt-3 inline-flex text-xs text-primary hover:underline">Back to orders</Link>
     </div>
   ),
-  errorComponent: ({ error }) => <p className="text-sm text-destructive">{error.message}</p>,
+  errorComponent: ({ error }) => <p className="text-sm text-destructive">{(error as Error).message}</p>,
 });
 
 function OrderDetail() {
@@ -226,6 +227,8 @@ function OrderDetail() {
           </div>
         )}
       </Panel>
+
+      <OrderStockPanel orderId={so.id} lines={lines as any} />
 
       <OrderFeedbackSection orderId={so.id} orderLines={lines} />
 

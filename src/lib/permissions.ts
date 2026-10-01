@@ -5,14 +5,14 @@ import { useSession } from "@/hooks/use-session";
 export type Resource =
   | "orders" | "customers" | "products" | "shipments"
   | "production_orders" | "batches" | "requests" | "feedback"
-  | "audit" | "settings" | "users" | "roles";
+  | "audit" | "settings" | "users" | "roles" | "inventory" | "locations";
 
 export type Action = "read" | "create" | "update" | "delete";
 
 export const RESOURCES: Resource[] = [
   "orders", "customers", "products", "shipments",
   "production_orders", "batches", "requests", "feedback",
-  "audit", "settings", "users", "roles",
+  "audit", "settings", "users", "roles", "inventory", "locations",
 ];
 
 export const ACTIONS: Action[] = ["read", "create", "update", "delete"];

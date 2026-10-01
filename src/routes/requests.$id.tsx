@@ -19,7 +19,7 @@ export const Route = createFileRoute("/requests/$id")({
   head: ({ params }) => ({ meta: [{ title: `Request ${params.id.slice(0, 8)} · CORTA OMS` }] }),
   component: RequestDetailPage,
   errorComponent: ({ error }) => (
-    <div className="glass-panel rounded-2xl p-6 text-sm text-destructive">{error.message}</div>
+    <div className="glass-panel rounded-2xl p-6 text-sm text-destructive">{(error as Error).message}</div>
   ),
   notFoundComponent: () => (
     <div className="glass-panel rounded-2xl p-6 text-sm text-muted-foreground">Request not found.</div>
