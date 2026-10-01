@@ -9,90 +9,40 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuditRouteImport } from './routes/audit'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as InventoryRouteImport } from './routes/inventory'
-import { Route as LocationsRouteImport } from './routes/locations'
-import { Route as NotificationsRouteImport } from './routes/notifications'
-import { Route as OrchestrationRouteImport } from './routes/orchestration'
-import { Route as RequestsRouteImport } from './routes/requests'
-import { Route as RulesRouteImport } from './routes/rules'
-import { Route as SetPasswordRouteImport } from './routes/set-password'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ShipmentsRouteImport } from './routes/shipments'
 import { Route as WorkflowRouteImport } from './routes/workflow'
-import { Route as BatchesIndexRouteImport } from './routes/batches.index'
-import { Route as BatchesBatchIdRouteImport } from './routes/batches.$batchId'
-import { Route as CustomersIndexRouteImport } from './routes/customers.index'
-import { Route as CustomersCustomerIdRouteImport } from './routes/customers.$customerId'
-import { Route as OrdersIndexRouteImport } from './routes/orders.index'
-import { Route as OrdersOrderIdRouteImport } from './routes/orders.$orderId'
-import { Route as ProductionOrdersIndexRouteImport } from './routes/production-orders.index'
-import { Route as ProductionOrdersPoIdRouteImport } from './routes/production-orders.$poId'
-import { Route as ProductsIndexRouteImport } from './routes/products.index'
-import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
-import { Route as RequestsIdRouteImport } from './routes/requests.$id'
+import { Route as ShipmentsRouteImport } from './routes/shipments'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SetPasswordRouteImport } from './routes/set-password'
+import { Route as RulesRouteImport } from './routes/rules'
+import { Route as RequestsRouteImport } from './routes/requests'
+import { Route as OrchestrationRouteImport } from './routes/orchestration'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as LocationsRouteImport } from './routes/locations'
+import { Route as InventoryRouteImport } from './routes/inventory'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuditRouteImport } from './routes/audit'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReturnsIndexRouteImport } from './routes/returns.index'
+import { Route as ProductsIndexRouteImport } from './routes/products.index'
+import { Route as ProductionOrdersIndexRouteImport } from './routes/production-orders.index'
+import { Route as OrdersIndexRouteImport } from './routes/orders.index'
+import { Route as CustomersIndexRouteImport } from './routes/customers.index'
+import { Route as BatchesIndexRouteImport } from './routes/batches.index'
 import { Route as ReturnsReturnIdRouteImport } from './routes/returns.$returnId'
-import { Route as ApiPublicOmsOrdersRouteImport } from './routes/api/public/oms.orders'
-import { Route as ApiPublicOmsWorkOrdersRouteImport } from './routes/api/public/oms.work-orders'
-import { Route as ApiPublicWebhooksMesRouteImport } from './routes/api/public/webhooks.mes'
+import { Route as RequestsIdRouteImport } from './routes/requests.$id'
+import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
+import { Route as ProductionOrdersPoIdRouteImport } from './routes/production-orders.$poId'
+import { Route as OrdersOrderIdRouteImport } from './routes/orders.$orderId'
+import { Route as CustomersCustomerIdRouteImport } from './routes/customers.$customerId'
+import { Route as BatchesBatchIdRouteImport } from './routes/batches.$batchId'
 import { Route as ApiPublicWebhooksQcRouteImport } from './routes/api/public/webhooks.qc'
+import { Route as ApiPublicWebhooksMesRouteImport } from './routes/api/public/webhooks.mes'
+import { Route as ApiPublicOmsWorkOrdersRouteImport } from './routes/api/public/oms.work-orders'
+import { Route as ApiPublicOmsOrdersRouteImport } from './routes/api/public/oms.orders'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuditRoute = AuditRouteImport.update({
-  id: '/audit',
-  path: '/audit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InventoryRoute = InventoryRouteImport.update({
-  id: '/inventory',
-  path: '/inventory',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LocationsRoute = LocationsRouteImport.update({
-  id: '/locations',
-  path: '/locations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NotificationsRoute = NotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OrchestrationRoute = OrchestrationRouteImport.update({
-  id: '/orchestration',
-  path: '/orchestration',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RequestsRoute = RequestsRouteImport.update({
-  id: '/requests',
-  path: '/requests',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RulesRoute = RulesRouteImport.update({
-  id: '/rules',
-  path: '/rules',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SetPasswordRoute = SetPasswordRouteImport.update({
-  id: '/set-password',
-  path: '/set-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+const WorkflowRoute = WorkflowRouteImport.update({
+  id: '/workflow',
+  path: '/workflow',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShipmentsRoute = ShipmentsRouteImport.update({
@@ -100,49 +50,64 @@ const ShipmentsRoute = ShipmentsRouteImport.update({
   path: '/shipments',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WorkflowRoute = WorkflowRouteImport.update({
-  id: '/workflow',
-  path: '/workflow',
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BatchesIndexRoute = BatchesIndexRouteImport.update({
-  id: '/batches/',
-  path: '/batches/',
+const SetPasswordRoute = SetPasswordRouteImport.update({
+  id: '/set-password',
+  path: '/set-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BatchesBatchIdRoute = BatchesBatchIdRouteImport.update({
-  id: '/batches/$batchId',
-  path: '/batches/$batchId',
+const RulesRoute = RulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CustomersIndexRoute = CustomersIndexRouteImport.update({
-  id: '/customers/',
-  path: '/customers/',
+const RequestsRoute = RequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CustomersCustomerIdRoute = CustomersCustomerIdRouteImport.update({
-  id: '/customers/$customerId',
-  path: '/customers/$customerId',
+const OrchestrationRoute = OrchestrationRouteImport.update({
+  id: '/orchestration',
+  path: '/orchestration',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrdersIndexRoute = OrdersIndexRouteImport.update({
-  id: '/orders/',
-  path: '/orders/',
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrdersOrderIdRoute = OrdersOrderIdRouteImport.update({
-  id: '/orders/$orderId',
-  path: '/orders/$orderId',
+const LocationsRoute = LocationsRouteImport.update({
+  id: '/locations',
+  path: '/locations',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProductionOrdersIndexRoute = ProductionOrdersIndexRouteImport.update({
-  id: '/production-orders/',
-  path: '/production-orders/',
+const InventoryRoute = InventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProductionOrdersPoIdRoute = ProductionOrdersPoIdRouteImport.update({
-  id: '/production-orders/$poId',
-  path: '/production-orders/$poId',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditRoute = AuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReturnsIndexRoute = ReturnsIndexRouteImport.update({
+  id: '/returns/',
+  path: '/returns/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsIndexRoute = ProductsIndexRouteImport.update({
@@ -150,19 +115,24 @@ const ProductsIndexRoute = ProductsIndexRouteImport.update({
   path: '/products/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProductsProductIdRoute = ProductsProductIdRouteImport.update({
-  id: '/products/$productId',
-  path: '/products/$productId',
+const ProductionOrdersIndexRoute = ProductionOrdersIndexRouteImport.update({
+  id: '/production-orders/',
+  path: '/production-orders/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RequestsIdRoute = RequestsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => RequestsRoute,
+const OrdersIndexRoute = OrdersIndexRouteImport.update({
+  id: '/orders/',
+  path: '/orders/',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const ReturnsIndexRoute = ReturnsIndexRouteImport.update({
-  id: '/returns/',
-  path: '/returns/',
+const CustomersIndexRoute = CustomersIndexRouteImport.update({
+  id: '/customers/',
+  path: '/customers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BatchesIndexRoute = BatchesIndexRouteImport.update({
+  id: '/batches/',
+  path: '/batches/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReturnsReturnIdRoute = ReturnsReturnIdRouteImport.update({
@@ -170,14 +140,39 @@ const ReturnsReturnIdRoute = ReturnsReturnIdRouteImport.update({
   path: '/returns/$returnId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicOmsOrdersRoute = ApiPublicOmsOrdersRouteImport.update({
-  id: '/api/public/oms/orders',
-  path: '/api/public/oms/orders',
+const RequestsIdRoute = RequestsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => RequestsRoute,
+} as any)
+const ProductsProductIdRoute = ProductsProductIdRouteImport.update({
+  id: '/products/$productId',
+  path: '/products/$productId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicOmsWorkOrdersRoute = ApiPublicOmsWorkOrdersRouteImport.update({
-  id: '/api/public/oms/work-orders',
-  path: '/api/public/oms/work-orders',
+const ProductionOrdersPoIdRoute = ProductionOrdersPoIdRouteImport.update({
+  id: '/production-orders/$poId',
+  path: '/production-orders/$poId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersOrderIdRoute = OrdersOrderIdRouteImport.update({
+  id: '/orders/$orderId',
+  path: '/orders/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomersCustomerIdRoute = CustomersCustomerIdRouteImport.update({
+  id: '/customers/$customerId',
+  path: '/customers/$customerId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BatchesBatchIdRoute = BatchesBatchIdRouteImport.update({
+  id: '/batches/$batchId',
+  path: '/batches/$batchId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicWebhooksQcRoute = ApiPublicWebhooksQcRouteImport.update({
+  id: '/api/public/webhooks/qc',
+  path: '/api/public/webhooks/qc',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicWebhooksMesRoute = ApiPublicWebhooksMesRouteImport.update({
@@ -185,9 +180,14 @@ const ApiPublicWebhooksMesRoute = ApiPublicWebhooksMesRouteImport.update({
   path: '/api/public/webhooks/mes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicWebhooksQcRoute = ApiPublicWebhooksQcRouteImport.update({
-  id: '/api/public/webhooks/qc',
-  path: '/api/public/webhooks/qc',
+const ApiPublicOmsWorkOrdersRoute = ApiPublicOmsWorkOrdersRouteImport.update({
+  id: '/api/public/oms/work-orders',
+  path: '/api/public/oms/work-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicOmsOrdersRoute = ApiPublicOmsOrdersRouteImport.update({
+  id: '/api/public/oms/orders',
+  path: '/api/public/oms/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -421,81 +421,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/audit': {
-      id: '/audit'
-      path: '/audit'
-      fullPath: '/audit'
-      preLoaderRoute: typeof AuditRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/inventory': {
-      id: '/inventory'
-      path: '/inventory'
-      fullPath: '/inventory'
-      preLoaderRoute: typeof InventoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/locations': {
-      id: '/locations'
-      path: '/locations'
-      fullPath: '/locations'
-      preLoaderRoute: typeof LocationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notifications': {
-      id: '/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof NotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/orchestration': {
-      id: '/orchestration'
-      path: '/orchestration'
-      fullPath: '/orchestration'
-      preLoaderRoute: typeof OrchestrationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/requests': {
-      id: '/requests'
-      path: '/requests'
-      fullPath: '/requests'
-      preLoaderRoute: typeof RequestsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rules': {
-      id: '/rules'
-      path: '/rules'
-      fullPath: '/rules'
-      preLoaderRoute: typeof RulesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/set-password': {
-      id: '/set-password'
-      path: '/set-password'
-      fullPath: '/set-password'
-      preLoaderRoute: typeof SetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
+    '/workflow': {
+      id: '/workflow'
+      path: '/workflow'
+      fullPath: '/workflow'
+      preLoaderRoute: typeof WorkflowRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shipments': {
@@ -505,67 +435,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShipmentsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/workflow': {
-      id: '/workflow'
-      path: '/workflow'
-      fullPath: '/workflow'
-      preLoaderRoute: typeof WorkflowRouteImport
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/batches/': {
-      id: '/batches/'
-      path: '/batches'
-      fullPath: '/batches/'
-      preLoaderRoute: typeof BatchesIndexRouteImport
+    '/set-password': {
+      id: '/set-password'
+      path: '/set-password'
+      fullPath: '/set-password'
+      preLoaderRoute: typeof SetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/batches/$batchId': {
-      id: '/batches/$batchId'
-      path: '/batches/$batchId'
-      fullPath: '/batches/$batchId'
-      preLoaderRoute: typeof BatchesBatchIdRouteImport
+    '/rules': {
+      id: '/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof RulesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/customers/': {
-      id: '/customers/'
-      path: '/customers'
-      fullPath: '/customers/'
-      preLoaderRoute: typeof CustomersIndexRouteImport
+    '/requests': {
+      id: '/requests'
+      path: '/requests'
+      fullPath: '/requests'
+      preLoaderRoute: typeof RequestsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/customers/$customerId': {
-      id: '/customers/$customerId'
-      path: '/customers/$customerId'
-      fullPath: '/customers/$customerId'
-      preLoaderRoute: typeof CustomersCustomerIdRouteImport
+    '/orchestration': {
+      id: '/orchestration'
+      path: '/orchestration'
+      fullPath: '/orchestration'
+      preLoaderRoute: typeof OrchestrationRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/orders/': {
-      id: '/orders/'
-      path: '/orders'
-      fullPath: '/orders/'
-      preLoaderRoute: typeof OrdersIndexRouteImport
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/orders/$orderId': {
-      id: '/orders/$orderId'
-      path: '/orders/$orderId'
-      fullPath: '/orders/$orderId'
-      preLoaderRoute: typeof OrdersOrderIdRouteImport
+    '/locations': {
+      id: '/locations'
+      path: '/locations'
+      fullPath: '/locations'
+      preLoaderRoute: typeof LocationsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/production-orders/': {
-      id: '/production-orders/'
-      path: '/production-orders'
-      fullPath: '/production-orders/'
-      preLoaderRoute: typeof ProductionOrdersIndexRouteImport
+    '/inventory': {
+      id: '/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof InventoryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/production-orders/$poId': {
-      id: '/production-orders/$poId'
-      path: '/production-orders/$poId'
-      fullPath: '/production-orders/$poId'
-      preLoaderRoute: typeof ProductionOrdersPoIdRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audit': {
+      id: '/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/returns/': {
+      id: '/returns/'
+      path: '/returns'
+      fullPath: '/returns/'
+      preLoaderRoute: typeof ReturnsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products/': {
@@ -575,25 +526,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/products/$productId': {
-      id: '/products/$productId'
-      path: '/products/$productId'
-      fullPath: '/products/$productId'
-      preLoaderRoute: typeof ProductsProductIdRouteImport
+    '/production-orders/': {
+      id: '/production-orders/'
+      path: '/production-orders'
+      fullPath: '/production-orders/'
+      preLoaderRoute: typeof ProductionOrdersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/requests/$id': {
-      id: '/requests/$id'
-      path: '/$id'
-      fullPath: '/requests/$id'
-      preLoaderRoute: typeof RequestsIdRouteImport
-      parentRoute: typeof RequestsRoute
+    '/orders/': {
+      id: '/orders/'
+      path: '/orders'
+      fullPath: '/orders/'
+      preLoaderRoute: typeof OrdersIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/returns/': {
-      id: '/returns/'
-      path: '/returns'
-      fullPath: '/returns/'
-      preLoaderRoute: typeof ReturnsIndexRouteImport
+    '/customers/': {
+      id: '/customers/'
+      path: '/customers'
+      fullPath: '/customers/'
+      preLoaderRoute: typeof CustomersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/batches/': {
+      id: '/batches/'
+      path: '/batches'
+      fullPath: '/batches/'
+      preLoaderRoute: typeof BatchesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/returns/$returnId': {
@@ -603,18 +561,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReturnsReturnIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/oms/orders': {
-      id: '/api/public/oms/orders'
-      path: '/api/public/oms/orders'
-      fullPath: '/api/public/oms/orders'
-      preLoaderRoute: typeof ApiPublicOmsOrdersRouteImport
+    '/requests/$id': {
+      id: '/requests/$id'
+      path: '/$id'
+      fullPath: '/requests/$id'
+      preLoaderRoute: typeof RequestsIdRouteImport
+      parentRoute: typeof RequestsRoute
+    }
+    '/products/$productId': {
+      id: '/products/$productId'
+      path: '/products/$productId'
+      fullPath: '/products/$productId'
+      preLoaderRoute: typeof ProductsProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/oms/work-orders': {
-      id: '/api/public/oms/work-orders'
-      path: '/api/public/oms/work-orders'
-      fullPath: '/api/public/oms/work-orders'
-      preLoaderRoute: typeof ApiPublicOmsWorkOrdersRouteImport
+    '/production-orders/$poId': {
+      id: '/production-orders/$poId'
+      path: '/production-orders/$poId'
+      fullPath: '/production-orders/$poId'
+      preLoaderRoute: typeof ProductionOrdersPoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders/$orderId': {
+      id: '/orders/$orderId'
+      path: '/orders/$orderId'
+      fullPath: '/orders/$orderId'
+      preLoaderRoute: typeof OrdersOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customers/$customerId': {
+      id: '/customers/$customerId'
+      path: '/customers/$customerId'
+      fullPath: '/customers/$customerId'
+      preLoaderRoute: typeof CustomersCustomerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/batches/$batchId': {
+      id: '/batches/$batchId'
+      path: '/batches/$batchId'
+      fullPath: '/batches/$batchId'
+      preLoaderRoute: typeof BatchesBatchIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/qc': {
+      id: '/api/public/webhooks/qc'
+      path: '/api/public/webhooks/qc'
+      fullPath: '/api/public/webhooks/qc'
+      preLoaderRoute: typeof ApiPublicWebhooksQcRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/webhooks/mes': {
@@ -624,11 +617,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksMesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/webhooks/qc': {
-      id: '/api/public/webhooks/qc'
-      path: '/api/public/webhooks/qc'
-      fullPath: '/api/public/webhooks/qc'
-      preLoaderRoute: typeof ApiPublicWebhooksQcRouteImport
+    '/api/public/oms/work-orders': {
+      id: '/api/public/oms/work-orders'
+      path: '/api/public/oms/work-orders'
+      fullPath: '/api/public/oms/work-orders'
+      preLoaderRoute: typeof ApiPublicOmsWorkOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/oms/orders': {
+      id: '/api/public/oms/orders'
+      path: '/api/public/oms/orders'
+      fullPath: '/api/public/oms/orders'
+      preLoaderRoute: typeof ApiPublicOmsOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
