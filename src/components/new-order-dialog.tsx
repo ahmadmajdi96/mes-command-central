@@ -273,3 +273,8 @@ function Labeled({ label, children }: { label: string; children: React.ReactNode
     </div>
   );
 }
+
+function LineAvail({ productId, qty }: { productId: string; qty: number }) {
+  const { data } = useAvailability(productId, qty);
+  return data ? <AvailabilityBadge a={data} /> : null;
+}

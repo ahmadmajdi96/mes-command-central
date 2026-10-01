@@ -51,7 +51,6 @@ function NotFoundComponent() {
 
 function ErrorComponent({ error: rawError, reset }: { error: unknown; reset: () => void }) {
   const error = rawError as Error;
-  if (false {
   console.error(error);
   const router = useRouter();
   useEffect(() => {

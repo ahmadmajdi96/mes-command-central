@@ -14,7 +14,7 @@ import { useProductionOrders } from "@/lib/production-orders-db";
 export const Route = createFileRoute("/batches/$batchId")({
   head: ({ params }) => ({ meta: [{ title: `Batch ${params.batchId.slice(0, 8)} · CORTA OMS` }] }),
   component: BatchDetail,
-  errorComponent: ({ error }) => <div className="glass-panel rounded-2xl p-6 text-sm text-destructive">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="glass-panel rounded-2xl p-6 text-sm text-destructive">{(error as Error).message}</div>,
   notFoundComponent: () => <div className="glass-panel rounded-2xl p-6 text-sm text-muted-foreground">Batch not found.</div>,
 });
 

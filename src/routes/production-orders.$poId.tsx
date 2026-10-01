@@ -20,7 +20,7 @@ import { useProducts, useOrders } from "@/lib/oms-db";
 export const Route = createFileRoute("/production-orders/$poId")({
   head: ({ params }) => ({ meta: [{ title: `PO ${params.poId.slice(0, 8)} · CORTA OMS` }] }),
   component: PODetail,
-  errorComponent: ({ error }) => <div className="glass-panel rounded-2xl p-6 text-sm text-destructive">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="glass-panel rounded-2xl p-6 text-sm text-destructive">{(error as Error).message}</div>,
   notFoundComponent: () => <div className="glass-panel rounded-2xl p-6 text-sm text-muted-foreground">Production order not found.</div>,
 });
 
