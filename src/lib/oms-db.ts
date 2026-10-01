@@ -637,7 +637,7 @@ export function useDeleteShipment() {
 }
 
 /* ------------------------- Seed helpers ---------------------------- */
-export const orderStatusOptions = ["draft", "confirmed", "in_production", "partially_shipped", "shipped", "cancelled"];
+export const orderStatusOptions = ["draft", "confirmed", "on_hold", "sourced", "in_production", "partially_shipped", "shipped", "delivered", "cancelled"];
 export const workOrderStatusOptions = ["pending", "in_progress", "paused", "completed", "cancelled"];
 export const shipmentStatusOptions = ["draft", "packed", "shipped", "delivered"];
 export const inventoryTypeOptions = ["receipt", "issue", "transfer", "adjust"];

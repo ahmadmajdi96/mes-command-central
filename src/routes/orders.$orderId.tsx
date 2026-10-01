@@ -36,7 +36,7 @@ function OrderDetail() {
   const update = useUpdateOrder();
   const updateLine = useUpdateOrderLine();
   const del = useDeleteOrder();
-  const nextStatuses = useNextStatuses(so_status_placeholder);
+  const nextStatuses = useNextStatuses(so?.status);
 
   const [openEdit, setOpenEdit] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -90,10 +90,10 @@ function OrderDetail() {
             {true && (
               <>
                 <button onClick={() => setOpenEdit(true)} className="flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs hover:bg-card"><Edit className="h-3.5 w-3.5" /> Edit</button>
-                <button onClick={() => update.mutate({ id: so.id, patch: { status: "cancelled" }, note: "Cancelled order" })}
+                {nextStatuses.includes("cancelled") && <button onClick={() => update.mutate({ id: so.id, patch: { status: "cancelled" }, note: "Cancelled order" })}
                   className="flex items-center gap-1.5 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs text-destructive hover:bg-destructive/20">
                   <XCircle className="h-3.5 w-3.5" /> Cancel
-                </button>
+                </button>}
                 <button onClick={() => setConfirmDelete(true)}
                   className="flex items-center gap-1.5 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs text-destructive hover:bg-destructive/20">
                   <Trash2 className="h-3.5 w-3.5" /> Delete
@@ -231,6 +231,8 @@ function OrderDetail() {
         )}
       </Panel>
 
+      <OrderOrchestrationPanel order={so as any} lines={lines as any} />
+
       <OrderStockPanel orderId={so.id} lines={lines as any} />
 
       <OrderFeedbackSection orderId={so.id} orderLines={lines} />
@@ -256,11 +258,12 @@ function OrderDetail() {
         submitLabel="Save changes"
         initial={{
           status: so.status, order_date: so.order_date, due_date: so.due_date ?? "",
-          total: Number(so.total), currency: so.currency, notes: so.notes ?? "",
+          total: Number(so.total), currency: so.currency, channel: (so as any).channel ?? "direct", notes: so.notes ?? "",
         } as any}
         fields={[
           { name: "status", label: "Status", type: "select",
-            options: orderStatusOptions.map((s) => ({ value: s, label: s.replace("_", " ") })) },
+            options: [so.status, ...nextStatuses].map((s) => ({ value: s, label: s.replace(/_/g, " ") })) },
+          { name: "channel", label: "Channel", type: "select", options: CHANNELS.map((c) => ({ value: c, label: c })) },
           { name: "order_date", label: "Order date", type: "date" },
           { name: "due_date", label: "Due date", type: "date" },
           { name: "total", label: "Total", type: "number", step: 0.01 },
@@ -270,7 +273,7 @@ function OrderDetail() {
         onSubmit={async (v: any) => {
           await update.mutateAsync({
             id: so.id,
-            patch: { status: v.status, order_date: v.order_date || null, due_date: v.due_date || null, total: v.total, currency: v.currency, notes: v.notes || null },
+            patch: { status: v.status, channel: v.channel || "direct", order_date: v.order_date || null, due_date: v.due_date || null, total: v.total, currency: v.currency, notes: v.notes || null },
             note: "Edited order",
           });
           toast.success("Order updated");
