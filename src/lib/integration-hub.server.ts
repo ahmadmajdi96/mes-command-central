@@ -153,7 +153,7 @@ async function sendOne(m: any, ep: any, secret: string) {
 export async function dispatchDue(limit = 50) {
   const db = await admin();
   const secret = process.env.INTEGRATION_WEBHOOK_SECRET ?? "";
-  const { data: due } = await db.from("integration_messages").select("*").eq("direction", "outbound").in("status", ["pending", "failed"]).lte("next_retry_at", new Date().toISOString()).order("created_at").limit(limit);
+  const { data: due } = await db.from("integration_messages").select("*").eq("direction", "outbound").in("status", ["pending", "failed"]).or(`next_retry_at.is.null,next_retry_at.lte.${new Date().toISOString()}`).order("created_at").limit(limit);
   const { data: eps } = await db.from("integration_endpoints").select("*");
   let sent = 0, failed = 0;
   for (const m of due ?? []) (await sendOne(m, (eps ?? []).find((e: any) => e.id === m.endpoint_id), secret)) ? sent++ : failed++;
