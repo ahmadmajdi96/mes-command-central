@@ -794,6 +794,8 @@ export type Database = {
       }
       integration_messages: {
         Row: {
+          ai_explained_at: string | null
+          ai_explanation: Json | null
           attempts: number
           created_at: string
           direction: string
@@ -814,6 +816,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_explained_at?: string | null
+          ai_explanation?: Json | null
           attempts?: number
           created_at?: string
           direction: string
@@ -834,6 +838,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_explained_at?: string | null
+          ai_explanation?: Json | null
           attempts?: number
           created_at?: string
           direction?: string
@@ -2418,6 +2424,45 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduler_runs: {
+        Row: {
+          id: string
+          ok: boolean
+          ran_at: string
+          result: Json
+          source: string
+        }
+        Insert: {
+          id?: string
+          ok?: boolean
+          ran_at?: string
+          result?: Json
+          source: string
+        }
+        Update: {
+          id?: string
+          ok?: boolean
+          ran_at?: string
+          result?: Json
+          source?: string
+        }
+        Relationships: []
+      }
+      scheduler_token: {
+        Row: {
+          id: number
+          token: string
+        }
+        Insert: {
+          id?: number
+          token?: string
+        }
+        Update: {
+          id?: number
+          token?: string
+        }
+        Relationships: []
+      }
       shipments: {
         Row: {
           carrier: string | null
@@ -3188,6 +3233,7 @@ export type Database = {
         Returns: boolean
       }
       run_alert_rules: { Args: never; Returns: number }
+      run_scheduled_housekeeping: { Args: never; Returns: Json }
       set_fulfillment_status: {
         Args: {
           _carrier?: string
