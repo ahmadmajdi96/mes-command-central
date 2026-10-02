@@ -43,6 +43,13 @@
       "when": 1790878571207,
       "tag": "0005_integrations_phase5",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790920155878,
+      "tag": "0006_scheduled_runs_and_ai_explain",
+      "breakpoints": true
     }
   ]
 }
