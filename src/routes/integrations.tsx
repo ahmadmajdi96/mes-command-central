@@ -3,14 +3,15 @@ import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { RotateCw, Play, FlaskConical } from "lucide-react";
+import { RotateCw, Play, FlaskConical, Sparkles, Clock } from "lucide-react";
+import { useSession } from "@/hooks/use-session";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, DataTable, Panel } from "@/components/page-shell";
 import { AnalyticsCards } from "@/components/analytics-cards";
 import { CSVExportButton } from "@/components/csv-export-button";
 import { StatusPill } from "@/components/status-pill";
 import { useRealtimeInvalidate } from "@/lib/oms-db";
-import { retryIntegrationMessage, runIntegrationScheduler, sendTestInbound } from "@/lib/integration-hub.functions";
+import { retryIntegrationMessage, runIntegrationScheduler, sendTestInbound, explainIntegrationFailure } from "@/lib/integration-hub.functions";
 
 export const Route = createFileRoute("/integrations")({
   head: () => ({ meta: [

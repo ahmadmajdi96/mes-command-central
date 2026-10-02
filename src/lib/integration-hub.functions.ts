@@ -26,3 +26,22 @@ export const sendTestInbound = createServerFn({ method: "POST" })
     const r = await receiveInbound(data.system, data.message_id, data.type, data.payload, true);
     return JSON.parse(JSON.stringify(r.body)) as { ok: boolean; duplicate?: boolean; error?: string; message?: string };
   });
+
+/** Admin-only: ask Lovable AI to explain a failed message and suggest a safe next step. */
+export const explainIntegrationFailure = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sb = context.supabase as any;
+    const { data: isAdmin } = await sb.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Only operations admins can use AI explanations");
+    const { data: m, error } = await sb.from("integration_messages").select("*").eq("id", data.id).maybeSingle();
+    if (error || !m) throw new Error("Message not found");
+    if (!["failed", "dead", "held"].includes(m.status)) throw new Error("Only failed, dead or held messages can be explained");
+    const { data: ep } = m.endpoint_id ? await sb.from("integration_endpoints").select("url, enabled, events").eq("id", m.endpoint_id).maybeSingle() : { data: null };
+    const { explainFailure } = await import("./ai-explain.server");
+    const ex = await explainFailure(m, ep);
+    const at = new Date().toISOString();
+    await sb.from("integration_messages").update({ ai_explanation: ex, ai_explained_at: at }).eq("id", data.id);
+    return { ...ex, explained_at: at };
+  });
