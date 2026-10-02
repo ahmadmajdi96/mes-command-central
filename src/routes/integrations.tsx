@@ -25,7 +25,11 @@ export const Route = createFileRoute("/integrations")({
   component: IntegrationsPage,
 });
 
-type Msg = { id: string; message_id: string; system: string; direction: string; message_type: string; status: string; payload: unknown; response: unknown; error: string | null; signature_valid: boolean | null; attempts: number; next_retry_at: string | null; created_at: string; processed_at: string | null };
+type Explanation = { cause: string; next_action: string; safe_to_retry: "yes" | "no" | "after_fix" };
+type Msg = { id: string; message_id: string; system: string; direction: string; message_type: string; status: string; payload: unknown; response: unknown; error: string | null; signature_valid: boolean | null; attempts: number; next_retry_at: string | null; created_at: string; processed_at: string | null; ai_explanation: Explanation | null; ai_explained_at: string | null };
+type Run = { id: string; source: string; ran_at: string; ok: boolean; result: Record<string, unknown> };
+const EXPLAINABLE = ["failed", "dead", "held"];
+const RETRY_LABEL = { yes: "Safe to retry now", no: "Do not retry", after_fix: "Retry after fixing the cause" } as const;
 type Endpoint = { id: string; system: string; name: string; url: string | null; enabled: boolean; events: string[] };
 const KEY = ["integration_messages"];
 const SYS_LABEL: Record<string, string> = { erp: "ERP", wms: "Warehouse (WMS)", fulfillment: "Fulfillment / 3PL", channel: "Sales channel" };
@@ -46,7 +50,21 @@ function IntegrationsPage() {
   const testFn = useServerFn(sendTestInbound);
   const [q, setQ] = useState<typeof QUEUES[number]>("All");
   const [sys, setSys] = useState("");
-  const [open, setOpen] = useState<Msg | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const setOpen = (m: Msg | null) => setOpenId(m?.id ?? null);
+  const { roles } = useSession();
+  const isAdmin = roles.includes("admin" as never);
+  const explainFn = useServerFn(explainIntegrationFailure);
+  const explain = useMutation({
+    mutationFn: (id: string) => explainFn({ data: { id } }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: KEY }); toast.success("AI explanation ready"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  useRealtimeInvalidate("scheduler_runs" as never, [[...KEY, "runs"]]);
+  const { data: runs = [] } = useQuery({ queryKey: [...KEY, "runs"], refetchInterval: 60_000, queryFn: async (): Promise<Run[]> => {
+    const { data, error } = await supabase.from("scheduler_runs" as never).select("*").order("ran_at", { ascending: false }).limit(10);
+    if (error) throw error; return (data ?? []) as unknown as Run[];
+  } });
 
   const { data: msgs = [], isLoading } = useQuery({ queryKey: KEY, queryFn: async (): Promise<Msg[]> => {
     const { data, error } = await supabase.from("integration_messages" as never).select("*").order("created_at", { ascending: false }).limit(2000);
@@ -102,6 +120,23 @@ function IntegrationsPage() {
       <AnalyticsCards cards={cards} />
 
       <Panel>
+        <h3 className="mb-1 flex items-center gap-1.5 text-sm font-semibold"><Clock className="h-4 w-4" /> Automatic runs</h3>
+        <p className="mb-2 text-[11px] text-muted-foreground">Every 5 minutes the system escalates overdue exceptions, checks alert rules, releases expired reservations and, when messages are waiting, sends them. Sending runs from the live (published) app.</p>
+        {runs.length === 0 ? <p className="text-xs text-muted-foreground">No automatic run yet — the first one happens within 5 minutes.</p> : (
+          <div className="space-y-1 text-xs">
+            {runs.slice(0, 5).map((r) => (
+              <div key={r.id} className="flex flex-wrap items-center gap-2 rounded-md border border-border/60 px-2 py-1">
+                <span className="font-mono">{new Date(r.ran_at).toLocaleString()}</span>
+                <span className="text-muted-foreground">{r.source === "database" ? "Checks" : r.source === "manual" ? "Manual run" : "Sending"}</span>
+                <StatusPill status={r.ok ? "ok" : "failed"} />
+                <span className="text-muted-foreground">{r.ok ? summarizeRun(r.result) : String(r.result.error ?? "")}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </Panel>
+
+      <Panel>
         <h3 className="mb-1 text-sm font-semibold">Connections (outgoing)</h3>
         <p className="mb-3 text-[11px] text-muted-foreground">Where the OMS sends updates. Every message is signed (X-Signature: sha256 HMAC of the body with your shared secret) and carries an X-Message-Id. Failed sends retry up to 5 times with growing waits.</p>
         <div className="space-y-2">{eps.map((e) => <EndpointRow key={e.id} ep={e} onSave={(v) => saveEp.mutate(v)} />)}</div>
@@ -126,7 +161,12 @@ function IntegrationsPage() {
         { key: "st", label: "Status", render: (m) => <StatusPill status={m.status} /> },
         { key: "a", label: "Tries", align: "right", render: (m) => <span className="font-mono text-xs">{m.attempts}</span> },
         { key: "e", label: "Error / next try", render: (m) => <span className="block max-w-xs truncate text-[11px] text-destructive" title={m.error ?? ""}>{m.error ?? ""}{m.next_retry_at && m.status === "failed" ? <span className="text-muted-foreground"> · next {new Date(m.next_retry_at).toLocaleTimeString()}</span> : null}</span> },
-        { key: "r", label: "", align: "right", render: (m) => ["failed", "dead", "held", "pending", "received"].includes(m.status) ? <button disabled={retry.isPending} onClick={() => retry.mutate(m.id)} className="inline-flex items-center gap-1 text-xs text-primary hover:underline"><RotateCw className="h-3 w-3" /> Retry</button> : null },
+        { key: "r", label: "", align: "right", render: (m) => (
+          <span className="inline-flex items-center gap-3">
+            {isAdmin && EXPLAINABLE.includes(m.status) ? <button onClick={() => { setOpen(m); if (!m.ai_explanation) explain.mutate(m.id); }} className="inline-flex items-center gap-1 text-xs text-accent hover:underline"><Sparkles className="h-3 w-3" /> Explain</button> : null}
+            {["failed", "dead", "held", "pending", "received"].includes(m.status) ? <button disabled={retry.isPending} onClick={() => retry.mutate(m.id)} className="inline-flex items-center gap-1 text-xs text-primary hover:underline"><RotateCw className="h-3 w-3" /> Retry</button> : null}
+          </span>
+        ) },
       ]} />
 
       {open && (
