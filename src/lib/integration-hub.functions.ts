@@ -14,7 +14,10 @@ export const runIntegrationScheduler = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { runScheduled } = await import("./integration-hub.server");
-    return runScheduled();
+    const r = await runScheduled();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await (supabaseAdmin as any).from("scheduler_runs").insert({ source: "manual", result: r });
+    return r;
   });
 
 /** Send a signed sample message through the real inbound pipeline (for testing a connection). */

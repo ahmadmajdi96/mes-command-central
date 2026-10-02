@@ -174,6 +174,22 @@ function IntegrationsPage() {
           <div className="glass-panel max-h-[85vh] w-full max-w-2xl overflow-auto rounded-2xl p-4" onClick={(e) => e.stopPropagation()}>
             <div className="mb-2 flex items-center justify-between"><h3 className="font-mono text-sm">{open.message_type} · {open.message_id}</h3><button className="text-xs text-muted-foreground" onClick={() => setOpen(null)}>Close</button></div>
             <div className="mb-2 text-xs text-muted-foreground">Signature {open.signature_valid == null ? "n/a (outgoing, signed by OMS)" : open.signature_valid ? "verified" : "invalid"} · {open.attempts} attempt(s){open.processed_at ? ` · done ${new Date(open.processed_at).toLocaleString()}` : ""}</div>
+            {isAdmin && EXPLAINABLE.includes(open.status) && (
+              <div className="mb-3 rounded-lg border border-accent/40 bg-accent/5 p-3 text-xs" data-testid="ai-explanation">
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 font-semibold"><Sparkles className="h-3.5 w-3.5 text-accent" /> AI explanation</span>
+                  <button disabled={explain.isPending} onClick={() => explain.mutate(open.id)} className="text-[11px] text-accent hover:underline disabled:opacity-50">{explain.isPending ? "Thinking…" : open.ai_explanation ? "Explain again" : "Explain"}</button>
+                </div>
+                {explain.isPending && !open.ai_explanation ? <p className="text-muted-foreground">Looking at the error, payload and connection…</p> : open.ai_explanation ? (
+                  <div className="space-y-1.5">
+                    <p><b>Likely cause:</b> {open.ai_explanation.cause}</p>
+                    {open.ai_explanation.next_action && <p><b>Recommended next step:</b> {open.ai_explanation.next_action}</p>}
+                    <p><b>Retry:</b> {RETRY_LABEL[open.ai_explanation.safe_to_retry] ?? open.ai_explanation.safe_to_retry}</p>
+                    <p className="text-[10px] text-muted-foreground">AI suggestion — review before acting.{open.ai_explained_at ? ` Generated ${new Date(open.ai_explained_at).toLocaleString()}.` : ""}</p>
+                  </div>
+                ) : <p className="text-muted-foreground">Press Explain to get the likely cause and a safe next step.</p>}
+              </div>
+            )}
             <div className="text-[11px] font-semibold">Payload</div>
             <pre className="mb-3 overflow-auto rounded-md bg-card/60 p-2 text-[11px]">{JSON.stringify(open.payload, null, 2)}</pre>
             <div className="text-[11px] font-semibold">Result</div>
