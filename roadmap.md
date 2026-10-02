@@ -4,3 +4,5 @@
 - [x] Phase 3 — Fulfillment
 - [x] Phase 4 — Exceptions, returns processing, visibility, KPIs
 - [x] Phase 5 — Integrations (ERP/WMS/channels, message log)
+- [x] Automatic scheduled runs
+- [x] AI explanation of failed integration messages

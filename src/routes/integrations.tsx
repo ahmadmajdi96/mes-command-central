@@ -169,7 +169,7 @@ function IntegrationsPage() {
         ) },
       ]} />
 
-      {open && (
+      {(() => { const open = msgs.find((x) => x.id === openId); return open ? (
         <div className="fixed inset-0 z-50 grid place-items-center bg-background/70 p-4" onClick={() => setOpen(null)}>
           <div className="glass-panel max-h-[85vh] w-full max-w-2xl overflow-auto rounded-2xl p-4" onClick={(e) => e.stopPropagation()}>
             <div className="mb-2 flex items-center justify-between"><h3 className="font-mono text-sm">{open.message_type} · {open.message_id}</h3><button className="text-xs text-muted-foreground" onClick={() => setOpen(null)}>Close</button></div>
@@ -196,9 +196,14 @@ function IntegrationsPage() {
             <pre className="overflow-auto rounded-md bg-card/60 p-2 text-[11px]">{JSON.stringify(open.response ?? open.error, null, 2)}</pre>
           </div>
         </div>
-      )}
+      ) : null; })()}
     </div>
   );
+}
+
+function summarizeRun(r: Record<string, any>) {
+  if (r.dispatch) return `sent ${r.dispatch.sent}, failed ${r.dispatch.failed} · ${r.escalated ?? 0} escalated · ${r.alerts_fired ?? 0} alerts`;
+  return `${r.escalated ?? 0} escalated · ${r.alerts_fired ?? 0} alerts · ${r.outbound_due ?? 0} waiting to send`;
 }
 
 function EndpointRow({ ep, onSave }: { ep: Endpoint; onSave: (v: Partial<Endpoint> & { id: string }) => void }) {
