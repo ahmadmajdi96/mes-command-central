@@ -1307,6 +1307,7 @@ export type Database = {
       }
       order_exceptions: {
         Row: {
+          auto_key: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -1315,6 +1316,7 @@ export type Database = {
           escalation_level: number
           fulfillment_id: string | null
           id: string
+          integration_message_id: string | null
           number: string | null
           order_id: string | null
           owner_id: string | null
@@ -1328,6 +1330,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          auto_key?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1336,6 +1339,7 @@ export type Database = {
           escalation_level?: number
           fulfillment_id?: string | null
           id?: string
+          integration_message_id?: string | null
           number?: string | null
           order_id?: string | null
           owner_id?: string | null
@@ -1349,6 +1353,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          auto_key?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1357,6 +1362,7 @@ export type Database = {
           escalation_level?: number
           fulfillment_id?: string | null
           id?: string
+          integration_message_id?: string | null
           number?: string | null
           order_id?: string | null
           owner_id?: string | null
@@ -1382,6 +1388,13 @@ export type Database = {
             columns: ["fulfillment_id"]
             isOneToOne: false
             referencedRelation: "v_fulfillment_monitor"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_exceptions_integration_message_id_fkey"
+            columns: ["integration_message_id"]
+            isOneToOne: false
+            referencedRelation: "integration_messages"
             referencedColumns: ["id"]
           },
           {
@@ -3244,6 +3257,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      sweep_exceptions: { Args: never; Returns: Json }
       try_order_status: {
         Args: { _order: string; _to: string }
         Returns: undefined

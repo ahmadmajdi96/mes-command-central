@@ -50,6 +50,13 @@
       "when": 1790920155878,
       "tag": "0006_scheduled_runs_and_ai_explain",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791353520725,
+      "tag": "0007_exception_escalator_priority_queue",
+      "breakpoints": true
     }
   ]
 }
