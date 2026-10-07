@@ -57,6 +57,13 @@
       "when": 1791353520725,
       "tag": "0007_exception_escalator_priority_queue",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791353570031,
+      "tag": "0008_exception_escalator_v2",
+      "breakpoints": true
     }
   ]
 }

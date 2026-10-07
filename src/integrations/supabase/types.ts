@@ -510,6 +510,13 @@ export type Database = {
             referencedRelation: "order_exceptions"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "exception_comments_exception_id_fkey"
+            columns: ["exception_id"]
+            isOneToOne: false
+            referencedRelation: "v_exception_queue"
+            referencedColumns: ["id"]
+          },
         ]
       }
       fulfillment_events: {
@@ -2923,6 +2930,73 @@ export type Database = {
       }
     }
     Views: {
+      v_exception_queue: {
+        Row: {
+          auto_key: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          due_at: string | null
+          escalated_at: string | null
+          escalation_level: number | null
+          fulfillment_id: string | null
+          fulfillment_number: string | null
+          id: string | null
+          integration_message_id: string | null
+          message_system: string | null
+          message_type: string | null
+          number: string | null
+          order_id: string | null
+          order_number: string | null
+          owner_id: string | null
+          priority_score: number | null
+          resolution: string | null
+          resolved_at: string | null
+          severity: string | null
+          source: string | null
+          status: string | null
+          title: string | null
+          type: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_exceptions_fulfillment_id_fkey"
+            columns: ["fulfillment_id"]
+            isOneToOne: false
+            referencedRelation: "fulfillments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_exceptions_fulfillment_id_fkey"
+            columns: ["fulfillment_id"]
+            isOneToOne: false
+            referencedRelation: "v_fulfillment_monitor"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_exceptions_integration_message_id_fkey"
+            columns: ["integration_message_id"]
+            isOneToOne: false
+            referencedRelation: "integration_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_exceptions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_exceptions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_monitor"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       v_fulfillment_monitor: {
         Row: {
           carrier: string | null
