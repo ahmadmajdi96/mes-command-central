@@ -30,7 +30,7 @@ const DEF: Record<string, { label: string; unit: string; higher: boolean; help: 
   fill_rate: { label: "Fill rate", unit: "%", higher: true, help: "Units shipped ÷ units ordered, for orders that have started shipping" },
   avg_cycle_hours: { label: "Order-to-ship time", unit: "h", higher: false, help: "Average hours from order creation to shipment" },
   exception_rate: { label: "Exception rate", unit: "%", higher: false, help: "Orders with at least one exception ÷ active orders" },
-  return_rate: { label: "Return rate", unit: "%", higher: false, help: "Returns ÷ shipped or delivered orders" },
+  return_rate: { label: "Return rate", unit: "%", higher: false, help: "Shipped orders with at least one return ÷ shipped orders" },
   open_backorder_units: { label: "Open backorder units", unit: "", higher: false, help: "Units still owed on partly shipped orders" },
 };
 const PERIODS = [{ d: 30, l: "Last 30 days" }, { d: 90, l: "Last 90 days" }, { d: 365, l: "Last year" }, { d: 0, l: "All time" }];
@@ -63,8 +63,9 @@ function KpiPage() {
     const cyc = shipped.map((f) => (new Date(f.shipped_at!).getTime() - new Date(created.get(f.order_id)!).getTime()) / 36e5);
     const active = os.filter((o: any) => o.status !== "cancelled");
     const withExc = new Set(exc.filter((e) => e.order_id && ids.has(e.order_id)).map((e) => e.order_id));
-    const done = os.filter((o: any) => ["shipped", "delivered"].includes(o.status)).length;
-    const r = rets.filter((x) => ids.has(x.order_id)).length;
+    const doneIds = new Set(os.filter((o: any) => ["shipped", "delivered", "partially_shipped"].includes(o.status)).map((o: any) => o.id));
+    const done = doneIds.size;
+    const r = new Set(rets.filter((x) => doneIds.has(x.order_id)).map((x) => x.order_id)).size;
     const pct = (a: number, b: number) => (b ? Math.round((a / b) * 1000) / 10 : null);
     const fd = shipped.map((f: any) => (new Date(f.shipped_at!).getTime() - new Date(f.created_at).getTime()) / 864e5).filter((x) => x >= 0);
     const boOrders = new Set(prog.filter((p) => ids.has(p.order_id) && backorderOf(p) > 0).map((p) => p.order_id));
