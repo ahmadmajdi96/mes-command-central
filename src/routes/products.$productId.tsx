@@ -145,6 +145,7 @@ function ProductDetail() {
             <Field label="Standard Cost" value={`$${(p as any).standard_cost ?? 0}`} mono />
             <Field label="Sale Price" value={`$${(p as any).sale_price ?? 0}`} mono />
             <Field label="Batching Limit" value={(p as any).batching_limit ?? "—"} mono />
+            <Field label="Reorder Point" value={Number((p as any).reorder_point ?? 0) > 0 ? (p as any).reorder_point : "Off"} mono />
           </div>
         </Panel>
       </div>
@@ -301,6 +302,7 @@ function EditProductDialog({
     sale_price: Number((product as any).sale_price ?? 0),
     lead_time: Number((product as any).lead_time ?? 0),
     batching_limit: Number((product as any).batching_limit ?? 0),
+    reorder_point: Number((product as any).reorder_point ?? 0),
   });
 
   useEffect(() => {
@@ -315,6 +317,7 @@ function EditProductDialog({
         sale_price: Number((product as any).sale_price ?? 0),
         lead_time: Number((product as any).lead_time ?? 0),
         batching_limit: Number((product as any).batching_limit ?? 0),
+    reorder_point: Number((product as any).reorder_point ?? 0),
       });
     }
   }, [open, product]);
@@ -333,7 +336,7 @@ function EditProductDialog({
         sku: v.sku, name: v.name, description: v.description || null,
         uom: v.uom, type: v.type,
         standard_cost: v.standard_cost, sale_price: v.sale_price,
-        lead_time: v.lead_time, batching_limit: v.batching_limit,
+        lead_time: v.lead_time, batching_limit: v.batching_limit, reorder_point: v.reorder_point,
       } as never);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Save failed");
@@ -361,6 +364,7 @@ function EditProductDialog({
           <Field2 label="Sale price"><input type="number" min={0} value={v.sale_price} onChange={(e) => setV({ ...v, sale_price: Math.max(0, Number(e.target.value) || 0) })} className={inputCls} /></Field2>
           <Field2 label="Lead time (days)"><input type="number" min={0} value={v.lead_time} onChange={(e) => setV({ ...v, lead_time: Math.max(0, Number(e.target.value) || 0) })} className={inputCls} /></Field2>
           <Field2 label="Batching limit"><input type="number" min={0} step={1} value={v.batching_limit} onChange={(e) => setV({ ...v, batching_limit: Math.max(0, Math.floor(Number(e.target.value) || 0)) })} className={inputCls} /></Field2>
+          <Field2 label="Reorder point (0 = off)"><input type="number" min={0} value={v.reorder_point} onChange={(e) => setV({ ...v, reorder_point: Math.max(0, Number(e.target.value) || 0) })} className={inputCls} /></Field2>
           <div className="md:col-span-2">
             <Field2 label="Description"><textarea rows={3} value={v.description} onChange={(e) => setV({ ...v, description: e.target.value })} className="mt-1 w-full rounded-lg border border-border/60 bg-card/60 p-2 text-sm" /></Field2>
           </div>

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { trackingUrl } from "@/lib/tracking";
 import { StatusPill } from "@/components/status-pill";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
@@ -132,7 +133,7 @@ function ShipmentsPage() {
           )},
           { key: "cust", label: "Customer", sortAccessor: (s) => customerFor(s.order_id), render: (s) => <span className="text-sm">{customerFor(s.order_id) || "—"}</span> },
           { key: "carrier", label: "Carrier", sortAccessor: (s) => s.carrier ?? "", render: (s) => <span className="text-xs">{s.carrier}</span> },
-          { key: "tracking", label: "Tracking", render: (s) => <span className="font-mono text-xs text-muted-foreground">{s.tracking ?? "—"}</span> },
+          { key: "tracking", label: "Tracking", render: (s) => s.tracking ? <a href={trackingUrl(s.carrier, s.tracking)!} target="_blank" rel="noopener noreferrer" className="font-mono text-xs text-primary hover:underline">{s.tracking} ↗</a> : <span className="font-mono text-xs text-muted-foreground">—</span> },
           { key: "shipped", label: "Shipped", sortAccessor: (s) => s.shipped_at ?? "", render: (s) => <span className="font-mono text-xs">{s.shipped_at ? new Date(s.shipped_at).toLocaleDateString() : "—"}</span> },
           { key: "status", label: "Status", sortAccessor: (s) => s.status, render: (s) => <StatusPill status={s.status} /> },
           ...(true ? [{

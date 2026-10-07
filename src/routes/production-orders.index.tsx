@@ -6,6 +6,7 @@ import { StatusPill } from "@/components/status-pill";
 import { FormDialog } from "@/components/form-dialog";
 import { CSVExportButton } from "@/components/csv-export-button";
 import { AnalyticsCards } from "@/components/analytics-cards";
+import { CapacityView } from "@/components/capacity-view";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -101,6 +102,7 @@ function POList() {
       />
 
       <AnalyticsCards cards={analytics} />
+      <CapacityView orders={rows as any} />
 
       <div className="glass-panel flex flex-wrap items-center gap-3 rounded-2xl p-3">
         <div className="relative flex-1 min-w-[240px]">

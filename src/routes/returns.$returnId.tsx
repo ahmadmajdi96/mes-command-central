@@ -12,6 +12,7 @@ import {
 } from "@/lib/returns-db";
 import { useOrders, useProducts } from "@/lib/oms-db";
 import { ReturnProcessingPanel } from "@/components/return-processing-panel";
+import { uploadProductFiles, deleteProductFile, signedUrlFor } from "@/lib/product-attachments";
 
 export const Route = createFileRoute("/returns/$returnId")({
   head: () => ({ meta: [{ title: "Return · OMS" }] }),
@@ -90,6 +91,29 @@ function ReturnDetail() {
             <Field label="Notes" value={ret.notes ?? "—"} />
             <Field label="Line total" value={`$${totalLine.toLocaleString()}`} mono />
             <Field label="Refunded" value={`$${totalRefund.toLocaleString()}`} mono />
+            <Field label="Return label" value={
+              <span className="flex flex-wrap items-center gap-2 text-xs">
+                {(ret as any).label_path ? (<>
+                  <button className="text-primary hover:underline" onClick={async () => window.open(await signedUrlFor((ret as any).label_path), "_blank", "noopener")}>{(ret as any).label_name ?? "Open label"}</button>
+                  <button className="text-destructive hover:underline" onClick={async () => {
+                    try { await deleteProductFile((ret as any).label_path); await updateReturn.mutateAsync({ id: ret.id, patch: { label_path: null, label_name: null } as any }); toast.success("Label removed"); } catch (e) { toast.error((e as Error).message); }
+                  }}>Remove</button>
+                </>) : <span className="text-muted-foreground">None</span>}
+                <label className="cursor-pointer text-primary hover:underline">
+                  {(ret as any).label_path ? "Replace" : "Upload label"}
+                  <input type="file" accept="application/pdf,image/*" className="hidden" onChange={async (e) => {
+                    const f = e.target.files?.[0]; e.target.value = ""; if (!f) return;
+                    if (f.size > 10 * 1024 * 1024) { toast.error("Label must be under 10 MB"); return; }
+                    try {
+                      const [up] = await uploadProductFiles(`returns/${ret.id}`, [f]);
+                      if ((ret as any).label_path) await deleteProductFile((ret as any).label_path).catch(() => {});
+                      await updateReturn.mutateAsync({ id: ret.id, patch: { label_path: up.path, label_name: up.name } as any });
+                      toast.success("Return label uploaded");
+                    } catch (err) { toast.error((err as Error).message || "Upload failed"); }
+                  }} />
+                </label>
+              </span>
+            } />
           </div>
         </Panel>
         <Panel>

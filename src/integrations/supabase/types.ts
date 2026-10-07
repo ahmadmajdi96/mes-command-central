@@ -395,9 +395,11 @@ export type Database = {
           contact: string | null
           created_at: string
           created_by: string | null
+          credit_limit: number | null
           email: string | null
           id: string
           name: string
+          payment_terms: string | null
           phone: string | null
           updated_at: string
         }
@@ -407,9 +409,11 @@ export type Database = {
           contact?: string | null
           created_at?: string
           created_by?: string | null
+          credit_limit?: number | null
           email?: string | null
           id?: string
           name: string
+          payment_terms?: string | null
           phone?: string | null
           updated_at?: string
         }
@@ -419,9 +423,11 @@ export type Database = {
           contact?: string | null
           created_at?: string
           created_by?: string | null
+          credit_limit?: number | null
           email?: string | null
           id?: string
           name?: string
+          payment_terms?: string | null
           phone?: string | null
           updated_at?: string
         }
@@ -479,6 +485,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      exception_assignment_rules: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          owner_id: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          owner_id: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          owner_id?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       exception_comments: {
         Row: {
@@ -1770,6 +1803,7 @@ export type Database = {
           id: string
           lead_time: number
           name: string
+          reorder_point: number
           sale_price: number
           sku: string
           specifications: Json
@@ -1787,6 +1821,7 @@ export type Database = {
           id?: string
           lead_time?: number
           name: string
+          reorder_point?: number
           sale_price?: number
           sku: string
           specifications?: Json
@@ -1804,6 +1839,7 @@ export type Database = {
           id?: string
           lead_time?: number
           name?: string
+          reorder_point?: number
           sale_price?: number
           sku?: string
           specifications?: Json
@@ -2185,6 +2221,8 @@ export type Database = {
           customer_id: string | null
           destination_location_id: string | null
           id: string
+          label_name: string | null
+          label_path: string | null
           notes: string | null
           number: string
           order_id: string
@@ -2203,6 +2241,8 @@ export type Database = {
           customer_id?: string | null
           destination_location_id?: string | null
           id?: string
+          label_name?: string | null
+          label_path?: string | null
           notes?: string | null
           number: string
           order_id: string
@@ -2221,6 +2261,8 @@ export type Database = {
           customer_id?: string | null
           destination_location_id?: string | null
           id?: string
+          label_name?: string | null
+          label_path?: string | null
           notes?: string | null
           number?: string
           order_id?: string
@@ -3285,6 +3327,16 @@ export type Database = {
         Returns: undefined
       }
       orchestrate_order: { Args: { _order: string }; Returns: Json }
+      preview_rule: {
+        Args: { _conditions: Json }
+        Returns: {
+          channel: string
+          number: string
+          order_id: string
+          status: string
+          total: number
+        }[]
+      }
       queue_outbound: {
         Args: {
           _entity_id: string

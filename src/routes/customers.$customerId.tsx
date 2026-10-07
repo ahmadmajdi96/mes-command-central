@@ -61,6 +61,8 @@ function CustomerDetail() {
             <Field label="Email" value={c.email ?? "—"} />
             <Field label="Phone" value={c.phone ?? "—"} mono />
             <Field label="Address" value={c.address ?? "—"} />
+            <Field label="Credit limit" value={c.credit_limit != null ? `$${Number(c.credit_limit).toLocaleString()}` : "—"} mono />
+            <Field label="Payment terms" value={c.payment_terms ?? "—"} />
           </div>
         </Panel>
         <Panel>
@@ -68,6 +70,7 @@ function CustomerDetail() {
           <div className="space-y-3">
             <Field label="Total Orders" value={custOrders.length} mono />
             <Field label="Lifetime Value" value={`$${total.toLocaleString()}`} mono />
+            {c.credit_limit != null && <Field label="Open balance vs credit" value={`$${custOrders.filter((o: any) => !["delivered","cancelled"].includes(o.status)).reduce((a: number, o: any) => a + Number(o.total), 0).toLocaleString()} / $${Number(c.credit_limit).toLocaleString()}`} mono />}
             <Field label="Open Orders" value={custOrders.filter(o => !["shipped","cancelled"].includes(o.status)).length} mono />
           </div>
         </Panel>
@@ -109,21 +112,25 @@ function CustomerDetail() {
         onOpenChange={setEditing}
         title="Edit customer"
         submitLabel="Save"
-        initial={{ name: c.name, contact: c.contact ?? "", email: c.email ?? "", phone: c.phone ?? "", address: c.address ?? "" }}
+        initial={{ name: c.name, contact: c.contact ?? "", email: c.email ?? "", phone: c.phone ?? "", address: c.address ?? "", credit_limit: c.credit_limit ?? "", payment_terms: c.payment_terms ?? "" } as any}
         fields={[
           { name: "name", label: "Name", required: true },
           { name: "contact", label: "Contact" },
           { name: "email", label: "Email", type: "email" },
           { name: "phone", label: "Phone" },
           { name: "address", label: "Address", type: "textarea" },
+          { name: "credit_limit", label: "Credit limit", type: "number" },
+          { name: "payment_terms", label: "Payment terms", type: "select", options: ["Prepaid","Net 15","Net 30","Net 45","Net 60","Cash on delivery"].map((x) => ({ value: x, label: x })) },
         ]}
-        onSubmit={async (v: { name: string; contact?: string; email?: string; phone?: string; address?: string }) => {
+        onSubmit={async (v: any) => {
           await updateCustomer.mutateAsync({ id: c.id, patch: {
             name: v.name,
             contact: v.contact || null,
             email: v.email || null,
             phone: v.phone || null,
             address: v.address || null,
+            credit_limit: v.credit_limit === "" || v.credit_limit == null ? null : Number(v.credit_limit),
+            payment_terms: v.payment_terms || null,
           }});
           toast.success("Customer updated");
         }}

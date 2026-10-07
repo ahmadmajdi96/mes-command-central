@@ -9,6 +9,8 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { FormDialog } from "@/components/form-dialog";
 import { NewOrderDialog } from "@/components/new-order-dialog";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   useOrders, useBulkUpdateOrderStatus, useUpdateOrder, useDeleteOrder,
   useCustomers, useRealtimeInvalidate,
@@ -36,6 +38,8 @@ function OrdersList() {
   const updateOrder = useUpdateOrder();
   const deleteOrder = useDeleteOrder();
 
+  const qc = useQueryClient();
+  const [bulkBusy, setBulkBusy] = useState(false);
   const [confirm, setConfirm] = useState<
     | null
     | { ids: string[]; clear: () => void; targetStatus: string; label: string; variant?: "destructive" }
@@ -149,6 +153,17 @@ function OrdersList() {
             <button onClick={() => setConfirm({ ids: selected.map((s) => s.id), clear, targetStatus: "cancelled", label: "Cancel orders", variant: "destructive" })}
               className="rounded-md border border-destructive/40 bg-destructive/10 px-2.5 py-1 text-[11px] text-destructive hover:bg-destructive/20">
               Cancel
+            </button>
+            <button disabled={bulkBusy} onClick={async () => {
+              setBulkBusy(true); let ok = 0, short = 0, failed = 0;
+              for (const o of selected) {
+                const { data, error } = await (supabase.rpc as any)("orchestrate_order", { _order: o.id });
+                if (error) failed++; else if ((data as any)?.result === "sourced") ok++; else short++;
+              }
+              setBulkBusy(false); clear(); qc.invalidateQueries();
+              toast[failed ? "warning" : "success"](`Sourcing: ${ok} fully sourced, ${short} partly/on hold, ${failed} failed`);
+            }} className="rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 text-[11px] text-primary hover:bg-primary/20 disabled:opacity-50">
+              {bulkBusy ? "Sourcing…" : "Run sourcing"}
             </button>
             <CSVExportButton filename="sales-orders-selection" rows={selected} label="Export selection"
               columns={[

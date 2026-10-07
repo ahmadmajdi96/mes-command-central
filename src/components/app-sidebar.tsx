@@ -37,6 +37,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { usePermissions, type Resource } from "@/lib/permissions";
 
 const overview = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -85,7 +86,17 @@ const platform = [
 ];
 
 
+const RES: Record<string, Resource> = {
+  "/orders": "orders", "/customers": "customers", "/shipments": "shipments", "/returns": "orders",
+  "/orchestration": "orchestration", "/fulfillments": "fulfillments", "/exceptions": "exceptions", "/alerts": "alerts", "/kpis": "kpis",
+  "/rules": "rules", "/workflow": "workflow", "/production-orders": "production_orders", "/batches": "batches",
+  "/requests": "requests", "/integrations": "integrations", "/products": "products", "/inventory": "inventory", "/locations": "locations",
+  "/audit": "audit", "/settings": "settings",
+};
+
 export function AppSidebar() {
+  const { data: perm } = usePermissions();
+  const canSee = (url: string) => !perm || perm.isAdmin || !perm.hasRoles || !RES[url] || !!perm.matrix[RES[url]]?.read;
   const path = useRouterState({ select: (r) => r.location.pathname });
   const isActive = (url: string) => (url === "/" ? path === "/" : path.startsWith(url));
 
@@ -96,7 +107,7 @@ export function AppSidebar() {
       </SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          {items.map((item) => {
+          {items.filter((i) => canSee(i.url)).map((item) => {
             const active = isActive(item.url);
             return (
               <SidebarMenuItem key={item.url}>

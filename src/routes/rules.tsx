@@ -5,6 +5,9 @@ import { PageHeader, DataTable } from "@/components/page-shell";
 import { AnalyticsCards } from "@/components/analytics-cards";
 import { CSVExportButton } from "@/components/csv-export-button";
 import { FormDialog } from "@/components/form-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { Link } from "@tanstack/react-router";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useCustomers, useProducts, useRealtimeInvalidate } from "@/lib/oms-db";
 import { useLocations } from "@/lib/inventory-db";
@@ -40,6 +43,12 @@ function RulesPage() {
   const [edit, setEdit] = useState<Partial<BusinessRule> | null>(null);
   const [toDel, setToDel] = useState<BusinessRule | null>(null);
   const [type, setType] = useState("all");
+  const [test, setTest] = useState<{ rule: BusinessRule; rows: any[] | null; error?: string } | null>(null);
+  const runTest = async (r: BusinessRule) => {
+    setTest({ rule: r, rows: null });
+    const { data, error } = await (supabase.rpc as any)("preview_rule", { _conditions: r.conditions ?? {} });
+    setTest({ rule: r, rows: data ?? [], error: error?.message });
+  };
 
   const cName = (id?: string) => customers.find((c) => c.id === id)?.name;
   const pName = (id?: string) => products.find((p) => p.id === id)?.sku;
@@ -109,6 +118,7 @@ function RulesPage() {
           { key: "state", label: "State", render: (r) => <span className={`text-xs ${effective(r) ? "text-success" : "text-muted-foreground"}`}>{effective(r) ? "In effect" : r.active ? "Scheduled/expired" : "Disabled"}</span> },
           { key: "a", label: "", align: "right", render: (r) => (
             <div className="flex justify-end gap-1">
+              <button onClick={() => runTest(r)} className="mr-1 text-[11px] text-primary hover:underline">Test</button>
               <button onClick={() => setEdit(r)} aria-label="Edit"><Pencil className="h-3.5 w-3.5 text-muted-foreground" /></button>
               <button onClick={() => setToDel(r)} aria-label="Delete"><Trash2 className="h-3.5 w-3.5 text-destructive" /></button>
             </div>) },
@@ -122,6 +132,23 @@ function RulesPage() {
         ]} />
       )}
 
+      <Dialog open={!!test} onOpenChange={(o) => !o && setTest(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Test run: {test?.rule.name}</DialogTitle></DialogHeader>
+          <p className="text-xs text-muted-foreground">When {test ? describeCond(test.rule) : ""} → {test ? describeAction(test.rule) : ""}. Nothing is changed; this only shows which open orders would match today.</p>
+          {test?.rows == null ? <p className="text-xs">Checking…</p> : test.error ? <p className="text-xs text-destructive">{test.error}</p> : (
+            <div className="max-h-80 space-y-1 overflow-auto">
+              <p className="text-xs font-medium">{test.rows.length} open order(s) match{!effective(test.rule) ? " — note: this rule is not in effect right now" : ""}</p>
+              {test.rows.map((o) => (
+                <div key={o.order_id} className="flex justify-between border-b border-border/40 py-1 text-xs">
+                  <Link to="/orders/$orderId" params={{ orderId: o.order_id }} className="font-mono text-primary hover:underline">{o.number}</Link>
+                  <span className="text-muted-foreground">{o.channel} · {o.status} · ${Number(o.total).toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
       <FormDialog open={!!edit} onOpenChange={(o) => !o && setEdit(null)} title={edit?.id ? "Edit rule" : "New rule"} submitLabel="Save rule"
         description="Leave a condition empty to match any value."
         initial={edit ? {

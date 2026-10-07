@@ -20,6 +20,7 @@ export const ALERT_METRICS: Record<string, string> = {
   open_exceptions: "Open exceptions",
   backorder_units: "Backordered units",
   returns_pending: "Returns waiting",
+  low_stock: "Products at or below reorder point",
 };
 
 export interface OrderException {

@@ -19,6 +19,7 @@ export const ACTIONS: Action[] = ["read", "create", "update", "delete"];
 
 interface Perm {
   isAdmin: boolean;
+  hasRoles: boolean;
   matrix: Record<string, Record<Action, boolean>>;
 }
 
@@ -28,14 +29,14 @@ export function usePermissions() {
     queryKey: ["permissions", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Perm> => {
-      if (!user) return { isAdmin: false, matrix: {} };
+      if (!user) return { isAdmin: false, hasRoles: false, matrix: {} };
       const isAdmin = roles.includes("admin");
       const { data: assignments } = await supabase
         .from("user_app_roles" as never)
         .select("role_id")
         .eq("user_id", user.id);
       const roleIds = (assignments ?? []).map((r: { role_id: string }) => r.role_id);
-      if (roleIds.length === 0) return { isAdmin, matrix: {} };
+      if (roleIds.length === 0) return { isAdmin, hasRoles: false, matrix: {} };
       const { data: perms } = await supabase
         .from("app_role_permissions" as never)
         .select("resource, can_read, can_create, can_update, can_delete")
@@ -50,7 +51,7 @@ export function usePermissions() {
           delete: cur.delete || p.can_delete,
         };
       }
-      return { isAdmin, matrix };
+      return { isAdmin, hasRoles: true, matrix };
     },
     staleTime: 60_000,
   });
@@ -60,5 +61,7 @@ export function usePermission(resource: Resource, action: Action): boolean {
   const { data } = usePermissions();
   if (!data) return true; // permissive while loading to avoid UI flicker
   if (data.isAdmin) return true;
-  return data.matrix[resource]?.[action] ?? true; // default permissive — users with no assigned roles keep full access until roles are configured
+  // Users without any role can look but not change anything; users with roles get exactly what their roles grant.
+  if (!data.hasRoles) return action === "read";
+  return data.matrix[resource]?.[action] ?? false;
 }

@@ -7,6 +7,7 @@ import { CSVExportButton } from "@/components/csv-export-button";
 import { StatusPill } from "@/components/status-pill";
 import { ExceptionEditor } from "@/components/exception-editor";
 import { PriorityQueuePanel } from "@/components/priority-queue-panel";
+import { ExceptionAssignmentPanel } from "@/components/exception-assignment-panel";
 import { useOrders, useRealtimeInvalidate } from "@/lib/oms-db";
 import { ageHours, excKey, isOpenExc, useDeleteException, useEscalate, useExceptions, usePeople, type OrderException } from "@/lib/exceptions-db";
 
@@ -70,6 +71,7 @@ function ExceptionsPage() {
         </>} />
       <AnalyticsCards cards={cards} />
       <PriorityQueuePanel limit={15} />
+      <ExceptionAssignmentPanel />
       <div className="glass-panel flex flex-wrap gap-1 rounded-2xl p-3">
         {QUEUES.map((x) => <button key={x} onClick={() => setQ(x)} className={`rounded-lg px-2.5 py-1 text-[11px] ${q === x ? "border border-primary/30 bg-primary/15 text-primary" : "border border-transparent text-muted-foreground"}`}>{x}</button>)}
       </div>
