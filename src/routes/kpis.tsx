@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState } from "react";
 import { PageHeader, Panel } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
@@ -19,7 +21,11 @@ export const Route = createFileRoute("/kpis")({
   component: KpiPage,
 });
 
-const DEF: Record<string, { label: string; unit: string; higher: boolean; help: string }> = {
+const DEF: Record<string, { label: string; unit: string; higher: boolean; help: string; link?: "/integrations" }> = {
+  order_volume: { label: "Order volume", unit: "", higher: true, help: "Orders received in this period (excluding drafts)" },
+  avg_fulfillment_days: { label: "Fulfillment days", unit: "d", higher: false, help: "Average days from fulfillment created to shipped" },
+  backorder_rate: { label: "Backorder rate", unit: "%", higher: false, help: "Share of active orders with units still on backorder" },
+  integration_success_rate: { label: "Integration message success", unit: "%", higher: true, help: "Messages processed or sent ÷ all finished messages", link: "/integrations" },
   on_time_ship_rate: { label: "On-time shipping", unit: "%", higher: true, help: "Shipped fulfillments sent on or before the promised date" },
   fill_rate: { label: "Fill rate", unit: "%", higher: true, help: "Units shipped ÷ units ordered, for orders that have started shipping" },
   avg_cycle_hours: { label: "Order-to-ship time", unit: "h", higher: false, help: "Average hours from order creation to shipment" },
@@ -38,6 +44,10 @@ function KpiPage() {
   const { data: targets = [] } = useKpiTargets();
   const saveT = useSaveKpiTarget();
   const [days, setDays] = useState(90);
+  const { data: msgs = [] } = useQuery({ queryKey: ["kpi", "integration_messages"], queryFn: async () => {
+    const { data, error } = await supabase.from("integration_messages" as never).select("status, created_at").order("created_at", { ascending: false }).limit(5000);
+    if (error) throw error; return (data ?? []) as unknown as { status: string; created_at: string }[];
+  } });
 
   const values = useMemo(() => {
     const since = days ? Date.now() - days * 864e5 : 0;
@@ -56,7 +66,14 @@ function KpiPage() {
     const done = os.filter((o: any) => ["shipped", "delivered"].includes(o.status)).length;
     const r = rets.filter((x) => ids.has(x.order_id)).length;
     const pct = (a: number, b: number) => (b ? Math.round((a / b) * 1000) / 10 : null);
+    const fd = shipped.map((f: any) => (new Date(f.shipped_at!).getTime() - new Date(f.created_at).getTime()) / 864e5).filter((x) => x >= 0);
+    const boOrders = new Set(prog.filter((p) => ids.has(p.order_id) && backorderOf(p) > 0).map((p) => p.order_id));
+    const ms = msgs.filter((m) => inP(m.created_at) && ["processed", "sent", "failed", "dead"].includes(m.status));
     return {
+      order_volume: os.length,
+      avg_fulfillment_days: fd.length ? Math.round((fd.reduce((s, x) => s + x, 0) / fd.length) * 10) / 10 : null,
+      backorder_rate: pct([...boOrders].filter((id) => active.some((o: any) => o.id === id)).length, active.length),
+      integration_success_rate: pct(ms.filter((m) => ["processed", "sent"].includes(m.status)).length, ms.length),
       on_time_ship_rate: pct(onTime, shipped.length),
       fill_rate: pct(sh, ord),
       avg_cycle_hours: cyc.length ? Math.round(cyc.reduce((s, x) => s + x, 0) / cyc.length) : null,
@@ -64,7 +81,7 @@ function KpiPage() {
       return_rate: pct(r, done),
       open_backorder_units: sp.reduce((s, p) => s + backorderOf(p), 0),
     } as Record<string, number | null>;
-  }, [orders, ful, prog, exc, rets, days]);
+  }, [orders, ful, prog, exc, rets, msgs, days]);
 
   const rows = Object.keys(DEF).map((k) => {
     const t = targets.find((x) => x.metric === k); const v = values[k]; const d = DEF[k];
@@ -93,6 +110,7 @@ function KpiPage() {
             </div>
             <div className="mt-2 font-mono text-3xl font-semibold">{r.value == null ? "—" : `${r.value}${r.unit}`}</div>
             <p className="mt-1 text-[11px] text-muted-foreground">{r.value == null ? "Not enough data in this period. " : ""}{r.help}</p>
+            {r.link && <Link to={r.link} className="mt-1 inline-block text-[11px] text-primary hover:underline">Open Integration Monitor →</Link>}
             {r.targetId && (
               <label className="mt-3 flex items-center gap-2 text-[11px] text-muted-foreground">
                 Target {r.higher ? "≥" : "≤"}
