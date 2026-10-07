@@ -6,3 +6,7 @@
 - [x] Phase 5 — Integrations (ERP/WMS/channels, message log)
 - [x] Automatic scheduled runs
 - [x] AI explanation of failed integration messages
+- [x] Exceptions escalator + priority queue
+- [x] KPI additions linked to Integration Monitor
+- [x] Alert rules for overdue orders, delayed fulfillments, failed messages
+- [ ] Connect real ERP and warehouse — waiting on their addresses from the user
