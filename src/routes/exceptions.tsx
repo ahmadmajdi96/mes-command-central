@@ -6,6 +6,7 @@ import { AnalyticsCards } from "@/components/analytics-cards";
 import { CSVExportButton } from "@/components/csv-export-button";
 import { StatusPill } from "@/components/status-pill";
 import { ExceptionEditor } from "@/components/exception-editor";
+import { PriorityQueuePanel } from "@/components/priority-queue-panel";
 import { useOrders, useRealtimeInvalidate } from "@/lib/oms-db";
 import { ageHours, excKey, isOpenExc, useDeleteException, useEscalate, useExceptions, usePeople, type OrderException } from "@/lib/exceptions-db";
 
@@ -59,7 +60,7 @@ function ExceptionsPage() {
     <div className="space-y-5">
       <PageHeader title="Exceptions" subtitle={isLoading ? "Loading…" : `${open.length} open · ${rows.length} total`}
         actions={<>
-          <button onClick={() => escalate.mutate(undefined)} className="inline-flex items-center gap-1.5 rounded-lg border border-warning/40 bg-warning/10 px-3 py-1.5 text-xs text-warning"><ArrowUpCircle className="h-3.5 w-3.5" /> Escalate overdue</button>
+          <button onClick={() => escalate.mutate(undefined)} className="inline-flex items-center gap-1.5 rounded-lg border border-warning/40 bg-warning/10 px-3 py-1.5 text-xs text-warning"><ArrowUpCircle className="h-3.5 w-3.5" /> Run escalator</button>
           <CSVExportButton filename={`exceptions-${q}`} rows={filtered} columns={[
             { key: "number", label: "Number" }, { key: "title", label: "Title" }, { key: "type", label: "Type" }, { key: "severity", label: "Severity" },
             { key: "status", label: "Status" }, { key: "owner", label: "Owner", get: (r) => who(r.owner_id) }, { key: "order", label: "Order", get: (r) => ord(r.order_id)?.number ?? "" },
@@ -68,6 +69,7 @@ function ExceptionsPage() {
           <button onClick={() => setEdit({})} className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary"><Plus className="h-3.5 w-3.5" /> New exception</button>
         </>} />
       <AnalyticsCards cards={cards} />
+      <PriorityQueuePanel limit={15} />
       <div className="glass-panel flex flex-wrap gap-1 rounded-2xl p-3">
         {QUEUES.map((x) => <button key={x} onClick={() => setQ(x)} className={`rounded-lg px-2.5 py-1 text-[11px] ${q === x ? "border border-primary/30 bg-primary/15 text-primary" : "border border-transparent text-muted-foreground"}`}>{x}</button>)}
       </div>

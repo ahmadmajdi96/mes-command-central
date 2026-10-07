@@ -7,11 +7,13 @@ const T = (name: string) => supabase.from(name as never);
 const rpc = (fn: string, args: Record<string, unknown> = {}) => (supabase.rpc as any)(fn, args);
 
 export const excKey = ["exceptions"] as const;
-export const EXC_TYPES = ["sourcing_failed", "fulfillment_failed", "delayed", "stock_shortage", "address_issue", "payment_issue", "damaged", "customer_request", "alert", "other"];
+export const EXC_TYPES = ["sourcing_failed", "fulfillment_failed", "delayed", "stock_shortage", "address_issue", "payment_issue", "damaged", "customer_request", "integration_failed", "alert", "other"];
 export const EXC_SEVERITIES = ["low", "medium", "high", "critical"];
 export const EXC_STATUSES = ["open", "in_progress", "escalated", "resolved", "closed"];
 export const ALERT_METRICS: Record<string, string> = {
   orders_past_sla: "Orders past their time limit",
+  orders_overdue: "Overdue orders (past due date)",
+  messages_failed: "Failed integration messages",
   orders_on_hold: "Orders on hold",
   fulfillments_delayed: "Delayed fulfillments",
   fulfillments_failed: "Failed fulfillments",
@@ -73,7 +75,22 @@ export const useSaveException = () => useM(
   "Exception saved", (v) => ["exception." + (v.id ? "update" : "create"), v.id ?? v.title ?? "exception", v.status]);
 export const useDeleteException = () => useM((id: string) => T("order_exceptions").delete().eq("id", id), "Exception deleted");
 export const useAddComment = () => useM((v: { exception_id: string; body: string }) => T("exception_comments").insert(v as never), "Comment added");
-export const useEscalate = () => useM(() => rpc("escalate_exceptions"), (r) => `${r ?? 0} exception(s) escalated`);
+export const useEscalate = () => useM(async () => {
+  const sw = await rpc("sweep_exceptions"); if (sw.error) return sw;
+  const es = await rpc("escalate_exceptions"); if (es.error) return es;
+  return { data: { ...(sw.data ?? {}), escalated: es.data ?? 0 }, error: null };
+}, (r: any) => `${r?.created ?? 0} new in queue · ${r?.auto_resolved ?? 0} auto-resolved · ${r?.escalated ?? 0} escalated`);
+
+export interface QueueRow extends OrderException { priority_score: number; order_number: string | null; fulfillment_number: string | null; message_type: string | null; message_system: string | null; integration_message_id: string | null }
+export const usePriorityQueue = () => useQuery({
+  queryKey: [...excKey, "queue"],
+  queryFn: async (): Promise<QueueRow[]> => {
+    const { data, error } = await T("v_exception_queue").select("*").order("priority_score", { ascending: false }).limit(500);
+    if (error) throw error;
+    return (data ?? []) as unknown as QueueRow[];
+  },
+  refetchInterval: 60_000,
+});
 
 export const useSaveAlertRule = () => useM(
   (v: Partial<AlertRule>) => v.id ? T("alert_rules").update(v as never).eq("id", v.id) : T("alert_rules").insert(v as never),
