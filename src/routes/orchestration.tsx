@@ -1,3 +1,4 @@
+import { PriorityQueuePanel } from "@/components/priority-queue-panel";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Workflow } from "lucide-react";
@@ -58,6 +59,7 @@ function MonitorPage() {
           { key: "failed_steps", label: "Failed steps" }, { key: "unallocated_qty", label: "Unallocated" }, { key: "last_milestone", label: "Last milestone" },
         ]} />} />
       <AnalyticsCards cards={cards} />
+      <PriorityQueuePanel title="Problems needing attention" />
       <div className="glass-panel flex flex-wrap gap-1 rounded-2xl p-3">
         {QUEUES.map((x) => <button key={x} onClick={() => setQ(x)} className={`rounded-lg px-2.5 py-1 text-[11px] ${q === x ? "border border-primary/30 bg-primary/15 text-primary" : "border border-transparent text-muted-foreground"}`}>{x}</button>)}
       </div>
