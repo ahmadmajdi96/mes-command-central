@@ -133,6 +133,8 @@ function CustomersList() {
           { name: "email", label: "Email", type: "email" },
           { name: "phone", label: "Phone" },
           { name: "address", label: "Address", type: "textarea" },
+          { name: "credit_limit", label: "Credit limit", type: "number" },
+          { name: "payment_terms", label: "Payment terms", type: "select", options: ["Prepaid","Net 15","Net 30","Net 45","Net 60","Cash on delivery"].map((x) => ({ value: x, label: x })) },
         ]}
         onSubmit={async (v: any) => {
           const created = await createCustomer.mutateAsync({
@@ -141,6 +143,8 @@ function CustomersList() {
             email: v.email || null,
             phone: v.phone || null,
             address: v.address || null,
+            credit_limit: v.credit_limit === "" || v.credit_limit == null ? null : Number(v.credit_limit),
+            payment_terms: v.payment_terms || null,
           } as any);
           toast.success(`Customer ${created.code} created`);
         }}

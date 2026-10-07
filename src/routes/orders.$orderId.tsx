@@ -15,6 +15,8 @@ import { OrderOrchestrationPanel } from "@/components/order-orchestration-panel"
 import { OrderFulfillmentPanel } from "@/components/order-fulfillment-panel";
 import { OrderExceptionsPanel } from "@/components/order-exceptions-panel";
 import { useNextStatuses, CHANNELS } from "@/lib/orchestration-db";
+import { printOrder } from "@/lib/print-order";
+import { trackingUrl } from "@/lib/tracking";
 
 export const Route = createFileRoute("/orders/$orderId")({
   head: ({ params }) => ({ meta: [{ title: `${params.orderId} · Sales Order · CORTA OMS` }] }),
@@ -89,6 +91,8 @@ function OrderDetail() {
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <StatusPill status={so.status} />
+            <button onClick={() => printOrder(so, customer, lines, "summary")} className="rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs hover:bg-card">Print summary</button>
+            <button onClick={() => printOrder(so, customer, lines, "packing")} className="rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs hover:bg-card">Packing slip</button>
             {true && (
               <>
                 <button onClick={() => setOpenEdit(true)} className="flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs hover:bg-card"><Edit className="h-3.5 w-3.5" /> Edit</button>
@@ -224,7 +228,7 @@ function OrderDetail() {
               <div key={s.id} className="flex items-center justify-between rounded-lg border border-border/60 bg-card/40 p-3">
                 <div>
                   <div className="font-mono text-xs text-primary">{s.number}</div>
-                  <div className="text-xs text-muted-foreground">{s.carrier ?? "—"} · {s.tracking ?? "—"}</div>
+                  <div className="text-xs text-muted-foreground">{s.carrier ?? "—"} · {s.tracking ? <a className="text-primary hover:underline" target="_blank" rel="noopener noreferrer" href={trackingUrl(s.carrier, s.tracking)!}>{s.tracking} ↗</a> : "—"}</div>
                 </div>
                 <StatusPill status={s.status} />
               </div>

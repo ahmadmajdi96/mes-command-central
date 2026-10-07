@@ -15,6 +15,7 @@ export type NewProductValues = {
   sale_price: number;
   lead_time: number;
   batching_limit: number;
+  reorder_point: number;
   specifications: string[];
   acceptance_criteria: string[];
   files: File[];
@@ -84,6 +85,7 @@ export function NewProductDialog({
             <TextField label="Sale price" type="number" value={String(v.sale_price)} onChange={(x) => setV((s) => ({ ...s, sale_price: Math.max(0, Number(x) || 0) }))} />
             <TextField label="Lead time (days)" type="number" value={String(v.lead_time)} onChange={(x) => setV((s) => ({ ...s, lead_time: Math.max(0, Number(x) || 0) }))} />
             <TextField label="Batching limit" type="number" value={String(v.batching_limit)} onChange={(x) => setV((s) => ({ ...s, batching_limit: Math.max(0, Math.floor(Number(x) || 0)) }))} />
+            <TextField label="Reorder point (0 = off)" type="number" value={String(v.reorder_point)} onChange={(x) => setV((s) => ({ ...s, reorder_point: Math.max(0, Number(x) || 0) }))} />
           </div>
           <TextAreaField label="Description" value={v.description} onChange={(x) => setV((s) => ({ ...s, description: x }))} />
 
@@ -126,7 +128,7 @@ export function NewProductDialog({
 function seed(): NewProductValues {
   return {
     sku: "", name: "", description: "", uom: "EA", type: "finished",
-    standard_cost: 0, sale_price: 0, lead_time: 0, batching_limit: 0,
+    standard_cost: 0, sale_price: 0, lead_time: 0, batching_limit: 0, reorder_point: 0,
     specifications: [], acceptance_criteria: [], files: [],
   };
 }

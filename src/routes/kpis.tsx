@@ -8,6 +8,7 @@ import { useOrders } from "@/lib/oms-db";
 import { useFulfillmentMonitor, useLineProgressAll, backorderOf } from "@/lib/fulfillment-db";
 import { useExceptions, useKpiTargets, useSaveKpiTarget } from "@/lib/exceptions-db";
 import { useReturns } from "@/lib/returns-db";
+import { KpiTrend } from "@/components/kpi-trend";
 
 export const Route = createFileRoute("/kpis")({
   head: () => ({ meta: [
@@ -102,6 +103,7 @@ function KpiPage() {
             { key: "met", label: "Target met", get: (r) => r.met == null ? "n/a" : r.met ? "yes" : "no" },
           ]} />
         </>} />
+      <KpiTrend orders={orders as any[]} ful={ful as any} exc={exc} msgs={msgs} targets={targets} />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {rows.map((r) => (
           <Panel key={r.key}>

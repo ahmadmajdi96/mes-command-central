@@ -6,12 +6,17 @@ import { DashboardCharts } from "@/components/dashboard-charts";
 import { useOrders, useCustomers, useProducts, useShipments } from "@/lib/oms-db";
 import { useProductionOrders } from "@/lib/production-orders-db";
 import { useBatches } from "@/lib/batches-db";
+import { usePriorityQueue } from "@/lib/exceptions-db";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Dashboard · CORTA OMS" },
       { name: "description", content: "Real-time order, production and shipment KPIs across the plant." },
+      { property: "og:title", content: "Dashboard · CORTA OMS" },
+      { property: "og:description", content: "Real-time order, production and shipment KPIs across the plant." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Dashboard,
@@ -58,6 +63,7 @@ function Dashboard() {
   const { data: shipments = [] } = useShipments();
   const { data: pos = [] } = useProductionOrders();
   const { data: batches = [] } = useBatches();
+  const { data: queue = [] } = usePriorityQueue();
 
   const stats = useMemo(() => {
     const today = new Date().toISOString().slice(0, 10);
@@ -92,13 +98,14 @@ function Dashboard() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <Kpi label="Open Orders" value={stats.openOrders} icon={ShoppingCart} accent="primary" href="/orders" />
         <Kpi label="In Production" value={stats.inProduction} icon={Factory} accent="info" href="/production-orders" />
-        <Kpi label="Overdue" value={stats.overdue} icon={AlertTriangle} accent="warning" />
+        <Kpi label="Overdue" value={stats.overdue} icon={AlertTriangle} accent="warning" href="/orchestration" />
         <Kpi label="Shipped / wk" value={stats.shippedWeek} icon={Package} accent="success" href="/shipments" />
         <Kpi label="Shipped Rate" value={stats.otdRate} suffix="%" icon={CheckCircle2} accent="success" />
         <Kpi label="Revenue" value={`$${(stats.totalRevenue / 1000).toFixed(1)}k`} icon={TrendingUp} accent="accent" hint="All orders" />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <Kpi label="Problems needing attention" value={queue.length} icon={AlertTriangle} accent="warning" href="/exceptions" hint={`${queue.filter((q: any) => ["high", "critical"].includes(q.severity)).length} high or critical`} />
         <Kpi label="Customers" value={customers.length} icon={UserCircle} accent="info" href="/customers" />
         <Kpi label="Products" value={products.length} icon={Package} accent="primary" href="/products" />
         <Kpi label="Production Orders" value={pos.length} icon={Factory} accent="info" href="/production-orders" />
