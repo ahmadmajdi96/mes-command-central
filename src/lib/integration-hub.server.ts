@@ -180,9 +180,10 @@ export async function retryMessage(id: string) {
 /** Periodic housekeeping: outbound delivery + exception escalation + alert rules. */
 export async function runScheduled() {
   const db = await admin();
+  const sweep = await db.rpc("sweep_exceptions");
   const dispatch = await dispatchDue();
   const esc = await db.rpc("escalate_exceptions");
   const alerts = await db.rpc("run_alert_rules");
   await db.rpc("expire_reservations");
-  return { dispatch, escalated: esc.data ?? 0, alerts_fired: alerts.data ?? 0 };
+  return { dispatch, queued: sweep.data?.created ?? 0, auto_resolved: sweep.data?.auto_resolved ?? 0, escalated: esc.data ?? 0, alerts_fired: alerts.data ?? 0 };
 }
