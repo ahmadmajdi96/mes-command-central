@@ -3263,6 +3263,7 @@ export type Database = {
         Args: { _line: string; _location: string; _qty: number }
         Returns: string
       }
+      app_can_any: { Args: { _act: string; _res: string[] }; Returns: boolean }
       check_availability: {
         Args: { _product: string; _qty: number }
         Returns: Json
@@ -3326,6 +3327,8 @@ export type Database = {
         Args: { _milestone: string; _notes: string; _order: string }
         Returns: undefined
       }
+      mark_notifications_read: { Args: { _ids: string[] }; Returns: number }
+      notification_resource: { Args: { _t: string }; Returns: string[] }
       orchestrate_order: { Args: { _order: string }; Returns: Json }
       preview_rule: {
         Args: { _conditions: Json }

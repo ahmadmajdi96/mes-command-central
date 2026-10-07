@@ -71,6 +71,20 @@
       "when": 1791354429084,
       "tag": "0009_review_items",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791355115269,
+      "tag": "0010_permission_based_rls",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791355129312,
+      "tag": "0011_fix_roles_read_policy",
+      "breakpoints": true
     }
   ]
 }

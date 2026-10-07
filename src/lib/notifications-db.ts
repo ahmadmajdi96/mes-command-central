@@ -38,8 +38,7 @@ export function useMarkNotificationRead() {
   return useMutation({
     mutationFn: async ({ id, userId, currentReadBy }: { id: string; userId: string; currentReadBy: string[] }) => {
       if (currentReadBy.includes(userId)) return;
-      const next = [...currentReadBy, userId];
-      const { error } = await supabase.from("notifications" as never).update({ read_by: next } as never).eq("id", id);
+      const { error } = await supabase.rpc("mark_notifications_read" as never, { _ids: [id] } as never);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: notificationsKey }),
@@ -49,15 +48,9 @@ export function useMarkNotificationRead() {
 export function useMarkAllRead() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (userId: string) => {
-      const { data } = await supabase.from("notifications" as never).select("id,read_by").limit(200);
-      const rows = (data ?? []) as Array<{ id: string; read_by: string[] }>;
-      const toUpdate = rows.filter((r) => !(r.read_by ?? []).includes(userId));
-      for (const r of toUpdate) {
-        await supabase.from("notifications" as never)
-          .update({ read_by: [...(r.read_by ?? []), userId] } as never)
-          .eq("id", r.id);
-      }
+    mutationFn: async (_userId: string) => {
+      const { error } = await supabase.rpc("mark_notifications_read" as never, { _ids: null } as never);
+      if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: notificationsKey }),
   });
