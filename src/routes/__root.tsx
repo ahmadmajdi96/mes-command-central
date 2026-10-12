@@ -138,6 +138,8 @@ function RootComponent() {
   const navigate = useNavigate();
   const isAuthRoute = pathname === "/auth" || pathname === "/set-password";
 
+  useEffect(() => { import("@/lib/number-guard").then((m) => m.installNumberGuard()); }, []);
+
   useEffect(() => {
     if (!loading && !session && !isAuthRoute) {
       navigate({ to: "/auth", replace: true });
