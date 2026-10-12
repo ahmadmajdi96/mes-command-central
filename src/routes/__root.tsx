@@ -137,14 +137,15 @@ function RootComponent() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const isAuthRoute = pathname === "/auth" || pathname === "/set-password";
+  const isPublicRoute = pathname === "/documentation" || pathname.startsWith("/documentation/");
 
   useEffect(() => { import("@/lib/number-guard").then((m) => m.installNumberGuard()); }, []);
 
   useEffect(() => {
-    if (!loading && !session && !isAuthRoute) {
+    if (!loading && !session && !isAuthRoute && !isPublicRoute) {
       navigate({ to: "/auth", replace: true });
     }
-  }, [loading, session, isAuthRoute, navigate]);
+  }, [loading, session, isAuthRoute, isPublicRoute, navigate]);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -163,6 +164,8 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {isAuthRoute ? (
         <Outlet />
+      ) : !session && isPublicRoute && !loading ? (
+        <main className="min-h-screen bg-background p-4 sm:p-6"><Outlet /></main>
       ) : !session ? (
         <div className="flex min-h-screen items-center justify-center bg-background">
           <div className="text-sm text-muted-foreground">
