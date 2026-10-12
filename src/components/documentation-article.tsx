@@ -28,7 +28,7 @@ export function DocumentationArticle({ chapter, index }: { chapter: DocChapter; 
     </header>
     {chapter.image && <figure className="my-7">
       <div className="relative overflow-hidden rounded-lg border border-border bg-card">
-        <img src={chapter.image.url} alt={chapter.image.alt} className="h-auto w-full" loading="lazy" width={1024} height={700} />
+        <img src={chapter.image.url} alt={chapter.image.alt} className="h-auto w-full" loading="eager" width={1024} height={700} />
         <Button variant="secondary" size="icon" title="Enlarge screenshot" aria-label={`Enlarge ${chapter.title} screenshot`} onClick={() => setZoom(true)} className="absolute bottom-3 right-3 print:hidden"><ZoomIn /></Button>
       </div>
       <figcaption className="mt-3 text-xs leading-5 text-muted-foreground">{chapter.image.caption}</figcaption>

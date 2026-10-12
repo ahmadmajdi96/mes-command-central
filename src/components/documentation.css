@@ -1,6 +1,7 @@
 @media print {
   body:has(.technical-documentation) { background: var(--background); }
   body:has(.technical-documentation) [data-slot="sidebar"],
+  body:has(.technical-documentation) .group.peer[data-side],
   body:has(.technical-documentation) [data-sidebar="sidebar"],
   body:has(.technical-documentation) header.sticky,
   body:has(.technical-documentation) [data-sonner-toaster] { display: none !important; }
