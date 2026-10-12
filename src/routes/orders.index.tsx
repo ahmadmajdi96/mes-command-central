@@ -31,7 +31,6 @@ function OrdersList() {
   const [openNew, setOpenNew] = useState(false);
   const [editing, setEditing] = useState<OrderWithCustomer | null>(null);
   const [lineQty, setLineQty] = useState<Record<string, number>>({});
-  const qc = useQueryClient();
   const [deleting, setDeleting] = useState<OrderWithCustomer | null>(null);
   useRealtimeInvalidate("sales_orders", [ordersKey]);
 
