@@ -1,0 +1,16 @@
+@media print {
+  body:has(.technical-documentation) { background: var(--background); }
+  body:has(.technical-documentation) [data-slot="sidebar"],
+  body:has(.technical-documentation) [data-sidebar="sidebar"],
+  body:has(.technical-documentation) header.sticky,
+  body:has(.technical-documentation) [data-sonner-toaster] { display: none !important; }
+  body:has(.technical-documentation) main { padding: 0 !important; }
+  .technical-documentation .doc-layout { display: block; }
+  .technical-documentation .doc-article { break-before: page; }
+  .technical-documentation .doc-article:first-child { break-before: auto; }
+  .technical-documentation table { min-width: 0; }
+  .technical-documentation figure { break-inside: avoid; }
+  .technical-documentation img { max-height: 160mm; object-fit: contain; }
+  .technical-documentation pre { white-space: pre-wrap; overflow: visible; }
+  .technical-documentation { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
