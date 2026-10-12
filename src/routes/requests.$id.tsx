@@ -16,7 +16,14 @@ import { useRequestEvents } from "@/lib/request-events-db";
 
 
 export const Route = createFileRoute("/requests/$id")({
-  head: ({ params }) => ({ meta: [{ title: `Request ${params.id.slice(0, 8)} · CORTA OMS` }] }),
+  head: () => ({ meta: [
+    { title: "Request Details · MANUQUBE OMS" },
+    { name: "description", content: "Inspect a system request, payload, review status and event history." },
+    { property: "og:title", content: "Request Details · MANUQUBE OMS" },
+    { property: "og:description", content: "Inspect a system request, payload, review status and event history." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: RequestDetailPage,
   errorComponent: ({ error }) => (
     <div className="glass-panel rounded-2xl p-6 text-sm text-destructive">{(error as Error).message}</div>

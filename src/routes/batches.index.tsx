@@ -14,7 +14,14 @@ import { useProducts } from "@/lib/oms-db";
 import { useProductionOrders } from "@/lib/production-orders-db";
 
 export const Route = createFileRoute("/batches/")({
-  head: () => ({ meta: [{ title: "Batches · CORTA OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Batches · MANUQUBE OMS" },
+    { name: "description", content: "Track manufacturing batches, quantities, statuses and production order links." },
+    { property: "og:title", content: "Batches · MANUQUBE OMS" },
+    { property: "og:description", content: "Track manufacturing batches, quantities, statuses and production order links." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: BatchList,
 });
 

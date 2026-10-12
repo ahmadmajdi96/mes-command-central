@@ -18,7 +18,14 @@ import { useBatches, useCreateBatch, useUpdateBatch, useDeleteBatch, type Batch 
 import { useProducts, useOrders } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/production-orders/$poId")({
-  head: ({ params }) => ({ meta: [{ title: `PO ${params.poId.slice(0, 8)} · CORTA OMS` }] }),
+  head: () => ({ meta: [
+    { title: "Production Order Details · MANUQUBE OMS" },
+    { name: "description", content: "Inspect manufacturing quantities, batches, requests, routing and production progress." },
+    { property: "og:title", content: "Production Order Details · MANUQUBE OMS" },
+    { property: "og:description", content: "Inspect manufacturing quantities, batches, requests, routing and production progress." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: PODetail,
   errorComponent: ({ error }) => <div className="glass-panel rounded-2xl p-6 text-sm text-destructive">{(error as Error).message}</div>,
   notFoundComponent: () => <div className="glass-panel rounded-2xl p-6 text-sm text-muted-foreground">Production order not found.</div>,

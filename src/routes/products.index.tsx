@@ -13,7 +13,14 @@ import { uploadProductFiles } from "@/lib/product-attachments";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/products/")({
-  head: () => ({ meta: [{ title: "Products · CORTA OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Products · MANUQUBE OMS" },
+    { name: "description", content: "Manage the OMS product catalog, sale prices, batching limits and reorder points." },
+    { property: "og:title", content: "Products · MANUQUBE OMS" },
+    { property: "og:description", content: "Manage the OMS product catalog, sale prices, batching limits and reorder points." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: ProductsList,
 });
 

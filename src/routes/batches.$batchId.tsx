@@ -12,7 +12,14 @@ import { useProducts } from "@/lib/oms-db";
 import { useProductionOrders } from "@/lib/production-orders-db";
 
 export const Route = createFileRoute("/batches/$batchId")({
-  head: ({ params }) => ({ meta: [{ title: `Batch ${params.batchId.slice(0, 8)} · CORTA OMS` }] }),
+  head: () => ({ meta: [
+    { title: "Batch Details · MANUQUBE OMS" },
+    { name: "description", content: "Inspect a manufacturing batch, progress, linked requests and execution history." },
+    { property: "og:title", content: "Batch Details · MANUQUBE OMS" },
+    { property: "og:description", content: "Inspect a manufacturing batch, progress, linked requests and execution history." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: BatchDetail,
   errorComponent: ({ error }) => <div className="glass-panel rounded-2xl p-6 text-sm text-destructive">{(error as Error).message}</div>,
   notFoundComponent: () => <div className="glass-panel rounded-2xl p-6 text-sm text-muted-foreground">Batch not found.</div>,

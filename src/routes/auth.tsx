@@ -5,7 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Sign in · CORTA OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Sign in · MANUQUBE OMS" },
+    { name: "description", content: "Sign in to MANUQUBE OMS to access your authorized operational workspace." },
+    { property: "og:title", content: "Sign in · MANUQUBE OMS" },
+    { property: "og:description", content: "Sign in to MANUQUBE OMS to access your authorized operational workspace." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: AuthPage,
 });
 

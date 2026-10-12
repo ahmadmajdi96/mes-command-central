@@ -9,7 +9,14 @@ import { useReturns, useCreateReturn, type ReturnRow } from "@/lib/returns-db";
 import { useOrders, useRealtimeInvalidate } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/returns/")({
-  head: () => ({ meta: [{ title: "Returns · OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Returns · MANUQUBE OMS" },
+    { name: "description", content: "Manage reverse logistics, return authorization and refund records." },
+    { property: "og:title", content: "Returns · MANUQUBE OMS" },
+    { property: "og:description", content: "Manage reverse logistics, return authorization and refund records." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: ReturnsList,
 });
 

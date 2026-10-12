@@ -19,7 +19,14 @@ import { printOrder } from "@/lib/print-order";
 import { trackingUrl } from "@/lib/tracking";
 
 export const Route = createFileRoute("/orders/$orderId")({
-  head: ({ params }) => ({ meta: [{ title: `${params.orderId} · Sales Order · CORTA OMS` }] }),
+  head: () => ({ meta: [
+    { title: "Sales Order Details · MANUQUBE OMS" },
+    { name: "description", content: "Review order lines, stock, sourcing, fulfillments, shipments, milestones and customer feedback." },
+    { property: "og:title", content: "Sales Order Details · MANUQUBE OMS" },
+    { property: "og:description", content: "Review order lines, stock, sourcing, fulfillments, shipments, milestones and customer feedback." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: OrderDetail,
   notFoundComponent: () => (
     <div className="glass-panel rounded-2xl p-8 text-center">

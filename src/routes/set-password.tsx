@@ -5,7 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/set-password")({
-  head: () => ({ meta: [{ title: "Set password · CORTA OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Set Password · MANUQUBE OMS" },
+    { name: "description", content: "Complete required password setup for your MANUQUBE OMS account." },
+    { property: "og:title", content: "Set Password · MANUQUBE OMS" },
+    { property: "og:description", content: "Complete required password setup for your MANUQUBE OMS account." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: SetPasswordPage,
 });
 

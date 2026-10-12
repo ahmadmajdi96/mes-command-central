@@ -11,7 +11,14 @@ import { RESOURCES, ACTIONS, type Resource, type Action } from "@/lib/permission
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
 export const Route = createFileRoute("/settings")({
-  head: () => ({ meta: [{ title: "Settings · CORTA OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Settings · MANUQUBE OMS" },
+    { name: "description", content: "Administer OMS user accounts and dynamic resource permissions." },
+    { property: "og:title", content: "Settings · MANUQUBE OMS" },
+    { property: "og:description", content: "Administer OMS user accounts and dynamic resource permissions." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: SettingsPage,
 });
 

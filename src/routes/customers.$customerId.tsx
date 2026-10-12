@@ -9,7 +9,14 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useCustomers, useOrders, useUpdateCustomer, useDeleteCustomer, useRealtimeInvalidate, customersKey } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/customers/$customerId")({
-  head: () => ({ meta: [{ title: `Customer · OMS` }] }),
+  head: () => ({ meta: [
+    { title: "Customer Profile · MANUQUBE OMS" },
+    { name: "description", content: "Review customer contacts, commercial terms and linked sales orders." },
+    { property: "og:title", content: "Customer Profile · MANUQUBE OMS" },
+    { property: "og:description", content: "Review customer contacts, commercial terms and linked sales orders." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: CustomerDetail,
   notFoundComponent: () => <p className="text-sm text-muted-foreground">Customer not found.</p>,
 });

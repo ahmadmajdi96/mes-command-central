@@ -8,7 +8,14 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/audit")({
-  head: () => ({ meta: [{ title: "Audit Log · CORTA OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Audit Log · MANUQUBE OMS" },
+    { name: "description", content: "Review OMS activity and change history across operational records." },
+    { property: "og:title", content: "Audit Log · MANUQUBE OMS" },
+    { property: "og:description", content: "Review OMS activity and change history across operational records." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: AuditPage,
 });
 

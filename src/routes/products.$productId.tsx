@@ -9,7 +9,14 @@ import { useProducts, useRealtimeInvalidate, useUpdateProduct, useDeleteProduct,
 import { uploadProductFiles, deleteProductFile, signedUrlFor, type ProductAttachment } from "@/lib/product-attachments";
 
 export const Route = createFileRoute("/products/$productId")({
-  head: () => ({ meta: [{ title: `Product · CORTA OMS` }] }),
+  head: () => ({ meta: [
+    { title: "Product Profile · MANUQUBE OMS" },
+    { name: "description", content: "Maintain product pricing, specifications, acceptance criteria and protected attachments." },
+    { property: "og:title", content: "Product Profile · MANUQUBE OMS" },
+    { property: "og:description", content: "Maintain product pricing, specifications, acceptance criteria and protected attachments." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: ProductDetail,
   notFoundComponent: () => <p className="text-sm text-muted-foreground">Product not found.</p>,
 });

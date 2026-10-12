@@ -19,7 +19,14 @@ import {
 import { useProducts, useOrders } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/production-orders/")({
-  head: () => ({ meta: [{ title: "Production Orders · CORTA OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Production Orders · MANUQUBE OMS" },
+    { name: "description", content: "Manage manufacturing orders and review weekly production capacity." },
+    { property: "og:title", content: "Production Orders · MANUQUBE OMS" },
+    { property: "og:description", content: "Manage manufacturing orders and review weekly production capacity." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: POList,
 });
 
