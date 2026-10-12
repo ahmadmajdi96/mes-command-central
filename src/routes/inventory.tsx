@@ -248,7 +248,7 @@ function InventoryPage() {
           { name: "product", label: "Product", type: "select", options: pOpts, required: true },
           { name: "location", label: moveOpen === "transfer" ? "From location" : "Location", type: "select", options: lOpts, required: true },
           ...(moveOpen === "transfer" ? [{ name: "to", label: "To location", type: "select" as const, options: lOpts, required: true }] : []),
-          { name: "qty", label: "Quantity", type: "number", required: true },
+          { name: "qty", label: "Quantity", type: "number", required: true, ...(moveOpen === "adjustment" ? { allowNegative: true, hint: "Negative reduces stock, positive adds." } : { min: 0.0001, hint: "Must be more than zero." }) },
           { name: "reference", label: "Reference" },
         ]}
         onSubmit={async (v: any) => {

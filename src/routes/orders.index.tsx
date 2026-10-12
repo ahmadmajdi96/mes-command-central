@@ -8,12 +8,13 @@ import { AnalyticsCards } from "@/components/analytics-cards";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { FormDialog } from "@/components/form-dialog";
 import { NewOrderDialog } from "@/components/new-order-dialog";
+import { NumberField } from "@/components/ui/form-controls";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useOrders, useBulkUpdateOrderStatus, useUpdateOrder, useDeleteOrder,
-  useCustomers, useRealtimeInvalidate,
+  useCustomers, useRealtimeInvalidate, useOrder,
   ordersKey, orderStatusOptions, type OrderWithCustomer,
 } from "@/lib/oms-db";
 
@@ -29,6 +30,7 @@ function OrdersList() {
   const [status, setStatus] = useState<string>("all");
   const [openNew, setOpenNew] = useState(false);
   const [editing, setEditing] = useState<OrderWithCustomer | null>(null);
+  const [lineQty, setLineQty] = useState<Record<string, number>>({});
   const [deleting, setDeleting] = useState<OrderWithCustomer | null>(null);
   useRealtimeInvalidate("sales_orders", [ordersKey]);
 
@@ -220,9 +222,11 @@ function OrdersList() {
 
       <FormDialog
         open={!!editing}
-        onOpenChange={(v) => !v && setEditing(null)}
+        onOpenChange={(v) => { if (!v) { setEditing(null); setLineQty({}); } }}
         title={editing ? `Edit ${editing.number}` : "Edit order"}
         submitLabel="Save changes"
+        wide
+        children={editing ? <EditOrderLines orderId={editing.id} status={editing.status} value={lineQty} onChange={setLineQty} /> : null}
         initial={editing ? {
           customer_id: editing.customer_id ?? "",
           status: editing.status,
@@ -244,6 +248,19 @@ function OrdersList() {
         onSubmit={async (v: any) => {
           if (!editing) return;
           try {
+            const changed = Object.entries(lineQty).filter(([, q]) => q !== undefined);
+            for (const [, q] of changed) if (!(Number(q) > 0)) throw new Error("Each line quantity must be more than zero");
+            if (changed.length) {
+              const { data: ls, error: le } = await supabase.from("sales_order_lines").select("id, qty, unit_price").eq("order_id", editing.id);
+              if (le) throw le;
+              for (const [id, q] of changed) {
+                const { error } = await supabase.from("sales_order_lines").update({ qty: Number(q) }).eq("id", id);
+                if (error) throw error;
+              }
+              const total = (ls ?? []).reduce((a, l) => a + (lineQty[l.id] ?? Number(l.qty)) * Number(l.unit_price || 0), 0);
+              const { error: te } = await supabase.from("sales_orders").update({ total }).eq("id", editing.id);
+              if (te) throw te;
+            }
             await updateOrder.mutateAsync({
               id: editing.id,
               patch: {
@@ -257,6 +274,8 @@ function OrdersList() {
             });
             toast.success(`Order ${editing.number} updated`);
             setEditing(null);
+            setLineQty({});
+            qc.invalidateQueries({ queryKey: ordersKey });
           } catch (e: any) {
             toast.error(e?.message ?? "Failed to update order");
           }
@@ -281,6 +300,35 @@ function OrdersList() {
           }
         }}
       />
+    </div>
+  );
+}
+
+const LOCKED = ["shipped", "partially_shipped", "delivered", "cancelled"];
+
+function EditOrderLines({ orderId, status, value, onChange }: { orderId: string; status: string; value: Record<string, number>; onChange: (v: Record<string, number>) => void }) {
+  const { data } = useOrder(orderId);
+  const lines = ((data as any)?.lines ?? []) as any[];
+  const locked = LOCKED.includes(status);
+  return (
+    <div className="rounded-xl border border-border/60 bg-card/40 p-3">
+      <div className="mb-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Order items ({lines.length})</div>
+      {locked && <p className="mb-2 text-[11px] text-warning">Quantities can't be changed once an order is {status.replace("_", " ")}.</p>}
+      <div className="space-y-2">
+        {lines.map((l) => {
+          const q = value[l.id] ?? Number(l.qty);
+          return (
+            <div key={l.id} className="grid grid-cols-[1fr_9rem_6rem] items-center gap-2 text-xs">
+              <span className="truncate">{l.product?.sku} — {l.product?.name}</span>
+              {locked ? <span className="font-mono">{q}</span> : (
+                <NumberField value={q} min={1} onChange={(v) => onChange({ ...value, [l.id]: v === "" ? 0 : Number(v) })} />
+              )}
+              <span className="text-right font-mono text-muted-foreground">{(q * Number(l.unit_price || 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            </div>
+          );
+        })}
+        {lines.length === 0 && <p className="text-xs text-muted-foreground">No items on this order.</p>}
+      </div>
     </div>
   );
 }

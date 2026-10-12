@@ -85,6 +85,13 @@
       "when": 1791355129312,
       "tag": "0011_fix_roles_read_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791788089761,
+      "tag": "0012_no_negative_values",
+      "breakpoints": true
     }
   ]
 }
