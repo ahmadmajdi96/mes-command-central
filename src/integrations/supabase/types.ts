@@ -1143,6 +1143,39 @@ export type Database = {
           },
         ]
       }
+      kpi_drift_events: {
+        Row: {
+          created_at: string
+          direction: string
+          email_status: string
+          emailed_at: string | null
+          id: string
+          metric: string
+          target: number
+          value: number | null
+        }
+        Insert: {
+          created_at?: string
+          direction: string
+          email_status?: string
+          emailed_at?: string | null
+          id?: string
+          metric: string
+          target: number
+          value?: number | null
+        }
+        Update: {
+          created_at?: string
+          direction?: string
+          email_status?: string
+          emailed_at?: string | null
+          id?: string
+          metric?: string
+          target?: number
+          value?: number | null
+        }
+        Relationships: []
+      }
       kpi_snapshots: {
         Row: {
           captured_at: string
@@ -3268,6 +3301,7 @@ export type Database = {
         Args: { _product: string; _qty: number }
         Returns: Json
       }
+      check_kpi_drift: { Args: never; Returns: number }
       create_fulfillments: { Args: { _order: string }; Returns: number }
       deallocate: { Args: { _id: string }; Returns: undefined }
       disposition_return_line: {
@@ -3322,6 +3356,13 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      kpi_current_values: {
+        Args: { _days?: number }
+        Returns: {
+          metric: string
+          value: number
+        }[]
       }
       log_order_milestone: {
         Args: { _milestone: string; _notes: string; _order: string }
