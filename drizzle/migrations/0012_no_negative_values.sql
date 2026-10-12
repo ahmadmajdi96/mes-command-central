@@ -1,0 +1,14 @@
+ALTER TABLE public.refunds ADD CONSTRAINT refunds_amount_nonneg CHECK (amount >= 0) NOT VALID;
+ALTER TABLE public.return_lines ADD CONSTRAINT return_lines_qty_pos CHECK (qty > 0) NOT VALID;
+ALTER TABLE public.return_lines ADD CONSTRAINT return_lines_price_nonneg CHECK (unit_price >= 0) NOT VALID;
+ALTER TABLE public.customers ADD CONSTRAINT customers_credit_nonneg CHECK (credit_limit IS NULL OR credit_limit >= 0) NOT VALID;
+ALTER TABLE public.alert_rules ADD CONSTRAINT alert_rules_threshold_nonneg CHECK (threshold >= 0) NOT VALID;
+ALTER TABLE public.locations ADD CONSTRAINT locations_priority_nonneg CHECK (priority >= 0) NOT VALID;
+ALTER TABLE public.batches ADD CONSTRAINT batches_qty_nonneg CHECK (qty >= 0 AND qty_good >= 0 AND qty_scrap >= 0) NOT VALID;
+ALTER TABLE public.production_orders ADD CONSTRAINT po_qty_nonneg CHECK (qty >= 0 AND qty_produced >= 0 AND qty_scrap >= 0) NOT VALID;
+ALTER TABLE public.products ADD CONSTRAINT products_numbers_nonneg CHECK (standard_cost >= 0 AND sale_price >= 0 AND lead_time >= 0 AND batching_limit >= 0 AND reorder_point >= 0) NOT VALID;
+ALTER TABLE public.sales_order_lines ADD CONSTRAINT sol_qty_pos CHECK (qty > 0 AND unit_price >= 0) NOT VALID;
+ALTER TABLE public.supply ADD CONSTRAINT supply_qty_nonneg CHECK (qty >= 0) NOT VALID;
+ALTER TABLE public.kpi_targets ADD CONSTRAINT kpi_target_nonneg CHECK (target >= 0) NOT VALID;
+ALTER TABLE public.workflow_transitions ADD CONSTRAINT wf_sla_nonneg CHECK (sla_hours IS NULL OR sla_hours >= 0) NOT VALID;
+ALTER TABLE public.customers ADD CONSTRAINT customers_email_format CHECK (email IS NULL OR email = '' OR email ~* '^[^\s@]+@[^\s@]+\.[^\s@]{2,}$') NOT VALID;
