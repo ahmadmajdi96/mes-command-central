@@ -3,6 +3,8 @@ import { Copy, Check, ZoomIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import type { DocChapter } from "@/lib/documentation";
+import { workflowDiagrams } from "@/lib/documentation-diagrams";
+import { WorkflowDiagramView } from "@/components/workflow-diagram";
 
 function CodeBlock({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
@@ -26,6 +28,7 @@ export function DocumentationArticle({ chapter, index }: { chapter: DocChapter; 
       <h2 className="font-display text-3xl font-semibold leading-tight">{chapter.title}</h2>
       <p className="mt-3 max-w-3xl text-sm leading-7 text-muted-foreground">{chapter.summary}</p>
     </header>
+    {(workflowDiagrams[chapter.id] ?? []).map((w) => <WorkflowDiagramView key={w.title} diagram={w} />)}
     {chapter.image && <figure className="my-7">
       <div className="relative overflow-hidden rounded-lg border border-border bg-card">
         <img src={chapter.image.url} alt={chapter.image.alt} className="h-auto w-full" loading="eager" width={1024} height={700} />
