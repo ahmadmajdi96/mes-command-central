@@ -82,7 +82,7 @@ export function FormDialog<T extends Record<string, any>>({
       await onSubmit(values as T);
       onOpenChange(false);
     } catch (e: any) {
-      toast.error(e?.message ?? "Save failed");
+      toast.error(friendlyError(e));
     } finally {
       setBusy(false);
     }
@@ -140,4 +140,13 @@ export function FormDialog<T extends Record<string, any>>({
       </DialogContent>
     </Dialog>
   );
+}
+
+/** Turns database rule errors into plain messages. */
+export function friendlyError(e: any): string {
+  const m = String(e?.message ?? "Save failed");
+  if (/email_format/.test(m)) return "Please enter a valid email, e.g. name@company.com";
+  if (/check constraint/i.test(m)) return "Amounts and quantities can't be negative (and quantities must be more than zero).";
+  if (/duplicate key/i.test(m)) return "That code or number already exists.";
+  return m;
 }
