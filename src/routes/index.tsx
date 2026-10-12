@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { NewOrderDialog } from "@/components/new-order-dialog";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { CheckCircle2, Factory, Package, ShoppingCart, TrendingUp, AlertTriangle, UserCircle, Boxes } from "lucide-react";
@@ -57,6 +59,7 @@ function Kpi({
 }
 
 function Dashboard() {
+  const [openNew, setOpenNew] = useState(false);
   const { data: orders = [] } = useOrders();
   const { data: customers = [] } = useCustomers();
   const { data: products = [] } = useProducts();
@@ -90,8 +93,7 @@ function Dashboard() {
           <p className="text-sm text-muted-foreground">Live view of orders, production and shipments</p>
         </div>
         <div className="flex items-center gap-2">
-          <Link to="/orders" className="rounded-lg border border-border/60 bg-card/60 px-3 py-1.5 text-xs hover:bg-card">View orders</Link>
-          <Link to="/orders" className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">+ New Sales Order</Link>
+          <button type="button" onClick={() => setOpenNew(true)} className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">+ New Sales Order</button>
         </div>
       </div>
 
@@ -112,6 +114,7 @@ function Dashboard() {
         <Kpi label="Batches" value={batches.length} icon={Boxes} accent="accent" href="/batches" />
       </div>
       <DashboardCharts />
+      <NewOrderDialog open={openNew} onOpenChange={setOpenNew} />
 
 
       <div className="glass-panel rounded-2xl p-5">
