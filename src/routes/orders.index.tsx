@@ -8,12 +8,13 @@ import { AnalyticsCards } from "@/components/analytics-cards";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { FormDialog } from "@/components/form-dialog";
 import { NewOrderDialog } from "@/components/new-order-dialog";
+import { NumberField } from "@/components/ui/form-controls";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useOrders, useBulkUpdateOrderStatus, useUpdateOrder, useDeleteOrder,
-  useCustomers, useRealtimeInvalidate,
+  useCustomers, useRealtimeInvalidate, useOrder,
   ordersKey, orderStatusOptions, type OrderWithCustomer,
 } from "@/lib/oms-db";
 
