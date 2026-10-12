@@ -133,3 +133,46 @@
   50% { box-shadow: 0 0 0 6px oklch(0.72 0.18 155 / 0%); }
 }
 @utility animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+/* ---------- Form controls: keep every native control on-theme (QA MQ-OMS-001…020) ---------- */
+@layer base {
+  :root { color-scheme: dark; }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    padding-right: 2rem !important;
+    cursor: pointer;
+  }
+  select option, select optgroup { background-color: var(--popover); color: var(--popover-foreground); }
+  select:focus-visible, input:focus-visible, textarea:focus-visible { outline: none; border-color: color-mix(in oklch, var(--primary) 55%, transparent); box-shadow: 0 0 0 2px color-mix(in oklch, var(--primary) 18%, transparent); }
+
+  /* Hide browser number spinners everywhere; NumberField supplies themed +/- buttons. */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+  /* Date / time pickers: dark popup + tinted calendar icon. */
+  input[type="date"], input[type="datetime-local"], input[type="time"], input[type="month"] { color-scheme: dark; }
+  input::-webkit-calendar-picker-indicator { filter: invert(0.7) sepia(1) saturate(3) hue-rotate(150deg); opacity: 0.8; cursor: pointer; }
+  input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+  /* Browser autofill must not paint fields white. */
+  input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus,
+  textarea:-webkit-autofill, select:-webkit-autofill {
+    -webkit-text-fill-color: var(--foreground);
+    caret-color: var(--foreground);
+    -webkit-box-shadow: 0 0 0 1000px var(--card) inset;
+    box-shadow: 0 0 0 1000px var(--card) inset;
+    transition: background-color 9999s ease-out 0s;
+  }
+
+  /* Themed scrollbars (modals, tables, pages). */
+  * { scrollbar-width: thin; scrollbar-color: color-mix(in oklch, var(--muted-foreground) 35%, transparent) transparent; }
+  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb { background: color-mix(in oklch, var(--muted-foreground) 30%, transparent); border-radius: 9999px; border: 2px solid transparent; background-clip: padding-box; }
+  *::-webkit-scrollbar-thumb:hover { background-color: color-mix(in oklch, var(--muted-foreground) 55%, transparent); }
+}
