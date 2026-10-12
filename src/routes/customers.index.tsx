@@ -129,11 +129,11 @@ function CustomersList() {
         submitLabel="Create customer"
         fields={[
           { name: "name", label: "Name", required: true },
-          { name: "contact", label: "Contact" },
-          { name: "email", label: "Email", type: "email" },
-          { name: "phone", label: "Phone" },
+          { name: "contact", label: "Contact person", placeholder: "e.g. Jane Smith", hint: "Name of the main person to talk to at this customer." },
+          { name: "email", label: "Email", type: "email", placeholder: "name@company.com" },
+          { name: "phone", label: "Phone", type: "tel", placeholder: "+1 555 000 0000" },
           { name: "address", label: "Address", type: "textarea" },
-          { name: "credit_limit", label: "Credit limit", type: "number" },
+          { name: "credit_limit", label: "Credit limit", type: "number", min: 0, step: 100, hint: "Zero or more. Leave 0 for no credit." },
           { name: "payment_terms", label: "Payment terms", type: "select", options: ["Prepaid","Net 15","Net 30","Net 45","Net 60","Cash on delivery"].map((x) => ({ value: x, label: x })) },
         ]}
         onSubmit={async (v: any) => {
