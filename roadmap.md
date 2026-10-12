@@ -11,4 +11,8 @@
 - [x] Alert rules for overdue orders, delayed fulfillments, failed messages
 - [ ] Connect real ERP and warehouse — waiting on their addresses from the user
 - [x] Review items: dashboard problems tile, bulk order actions, printable order/packing slip, customer credit/terms, tracking links, return label upload, barcode pick/pack, exception auto-owner, KPI trends, rule test-run, weekly capacity, reorder points + low-stock alert, 90-day notification cleanup, no-role access fix, test data cleanup
-- [ ] Email alerts for critical rules — needs an email sending domain from the user
+- [x] Team roles (Order desk, Managers) + go-live checklist
+- [x] End-to-end order test (sourcing → fulfillment → shipment)
+- [x] KPI drift detection (in-app)
+- [ ] KPI drift + critical rule emails — needs an email sending domain from the user
+- [ ] Connect oms.manuqube.com — user declined the connect card for now
