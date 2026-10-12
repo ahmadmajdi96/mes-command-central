@@ -9,7 +9,14 @@ import { toast } from "sonner";
 import { useCustomers, useCreateCustomer, useOrders, useRealtimeInvalidate, customersKey, type Customer } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/customers/")({
-  head: () => ({ meta: [{ title: "Customers · CORTA OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Customers · MANUQUBE OMS" },
+    { name: "description", content: "Manage OMS customer records, contacts, credit limits and payment terms." },
+    { property: "og:title", content: "Customers · MANUQUBE OMS" },
+    { property: "og:description", content: "Manage OMS customer records, contacts, credit limits and payment terms." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: CustomersList,
 });
 

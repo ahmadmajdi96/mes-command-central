@@ -15,7 +15,14 @@ import { ReturnProcessingPanel } from "@/components/return-processing-panel";
 import { uploadProductFiles, deleteProductFile, signedUrlFor } from "@/lib/product-attachments";
 
 export const Route = createFileRoute("/returns/$returnId")({
-  head: () => ({ meta: [{ title: "Return · OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Return Details · MANUQUBE OMS" },
+    { name: "description", content: "Manage return receiving, inspection, disposition, refunds and replacement orders." },
+    { property: "og:title", content: "Return Details · MANUQUBE OMS" },
+    { property: "og:description", content: "Manage return receiving, inspection, disposition, refunds and replacement orders." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: ReturnDetail,
   notFoundComponent: () => <p className="text-sm text-muted-foreground">Return not found.</p>,
 });

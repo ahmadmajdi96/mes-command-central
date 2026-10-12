@@ -19,7 +19,14 @@ import {
 } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/orders/")({
-  head: () => ({ meta: [{ title: "Sales Orders · CORTA OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Sales Orders · MANUQUBE OMS" },
+    { name: "description", content: "Manage customer demand, order lifecycle, bulk actions and commercial totals." },
+    { property: "og:title", content: "Sales Orders · MANUQUBE OMS" },
+    { property: "og:description", content: "Manage customer demand, order lifecycle, bulk actions and commercial totals." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: OrdersList,
 });
 

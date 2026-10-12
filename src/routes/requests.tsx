@@ -21,7 +21,14 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/requests")({
-  head: () => ({ meta: [{ title: "Requests · CORTA OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Requests · MANUQUBE OMS" },
+    { name: "description", content: "Track registered EMS, RMS and MES requests and their review outcomes." },
+    { property: "og:title", content: "Requests · MANUQUBE OMS" },
+    { property: "og:description", content: "Track registered EMS, RMS and MES requests and their review outcomes." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: RequestsPage,
 });
 

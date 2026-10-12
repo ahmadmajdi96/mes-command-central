@@ -22,6 +22,7 @@ import {
   Workflow,
   Scale,
   Activity,
+  BookOpen,
 } from "lucide-react";
 
 
@@ -80,6 +81,7 @@ const materials = [
 
 
 const platform = [
+  { title: "Documentation", url: "/documentation", icon: BookOpen },
   { title: "Notifications", url: "/notifications", icon: Bell },
   { title: "Audit Log", url: "/audit", icon: History },
   { title: "Settings", url: "/settings", icon: Settings },

@@ -16,7 +16,14 @@ import {
 } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/shipments")({
-  head: () => ({ meta: [{ title: "Shipments · CORTA OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Shipments · MANUQUBE OMS" },
+    { name: "description", content: "Manage shipments and review carrier tracking and order links." },
+    { property: "og:title", content: "Shipments · MANUQUBE OMS" },
+    { property: "og:description", content: "Manage shipments and review carrier tracking and order links." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: ShipmentsPage,
 });
 

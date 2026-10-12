@@ -1,4 +1,5 @@
 # Roadmap (OMS spec coverage)
+- [x] Detailed technical documentation page with real, redacted screenshots and explained workflows
 - [x] Phase 1 — Inventory & availability (locations, stock, movements, supply, reservations, allocations, ATP, supply vs demand)
 - [x] Phase 2 — Orchestration, rules, sourcing
 - [x] Phase 3 — Fulfillment

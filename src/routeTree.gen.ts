@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DocumentationRouteImport } from './routes/documentation'
 import { Route as ExceptionsRouteImport } from './routes/exceptions'
 import { Route as FulfillmentsRouteImport } from './routes/fulfillments'
 import { Route as IntegrationsRouteImport } from './routes/integrations'
@@ -65,6 +66,11 @@ const AuditRoute = AuditRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentationRoute = DocumentationRouteImport.update({
+  id: '/documentation',
+  path: '/documentation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExceptionsRoute = ExceptionsRouteImport.update({
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/documentation': typeof DocumentationRoute
   '/exceptions': typeof ExceptionsRoute
   '/fulfillments': typeof FulfillmentsRoute
   '/integrations': typeof IntegrationsRoute
@@ -279,6 +286,7 @@ export interface FileRoutesByTo {
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/documentation': typeof DocumentationRoute
   '/exceptions': typeof ExceptionsRoute
   '/fulfillments': typeof FulfillmentsRoute
   '/integrations': typeof IntegrationsRoute
@@ -319,6 +327,7 @@ export interface FileRoutesById {
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/documentation': typeof DocumentationRoute
   '/exceptions': typeof ExceptionsRoute
   '/fulfillments': typeof FulfillmentsRoute
   '/integrations': typeof IntegrationsRoute
@@ -360,6 +369,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/audit'
     | '/auth'
+    | '/documentation'
     | '/exceptions'
     | '/fulfillments'
     | '/integrations'
@@ -399,6 +409,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/audit'
     | '/auth'
+    | '/documentation'
     | '/exceptions'
     | '/fulfillments'
     | '/integrations'
@@ -438,6 +449,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/audit'
     | '/auth'
+    | '/documentation'
     | '/exceptions'
     | '/fulfillments'
     | '/integrations'
@@ -478,6 +490,7 @@ export interface RootRouteChildren {
   AlertsRoute: typeof AlertsRoute
   AuditRoute: typeof AuditRoute
   AuthRoute: typeof AuthRoute
+  DocumentationRoute: typeof DocumentationRoute
   ExceptionsRoute: typeof ExceptionsRoute
   FulfillmentsRoute: typeof FulfillmentsRoute
   IntegrationsRoute: typeof IntegrationsRoute
@@ -540,6 +553,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/documentation': {
+      id: '/documentation'
+      path: '/documentation'
+      fullPath: '/documentation'
+      preLoaderRoute: typeof DocumentationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/exceptions': {
@@ -793,6 +813,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlertsRoute: AlertsRoute,
   AuditRoute: AuditRoute,
   AuthRoute: AuthRoute,
+  DocumentationRoute: DocumentationRoute,
   ExceptionsRoute: ExceptionsRoute,
   FulfillmentsRoute: FulfillmentsRoute,
   IntegrationsRoute: IntegrationsRoute,

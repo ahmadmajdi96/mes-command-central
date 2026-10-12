@@ -12,7 +12,14 @@ import { useSession } from "@/hooks/use-session";
 import { useRealtimeInvalidate } from "@/lib/oms-db";
 
 export const Route = createFileRoute("/notifications")({
-  head: () => ({ meta: [{ title: "Notifications · OMS" }] }),
+  head: () => ({ meta: [
+    { title: "Notifications · MANUQUBE OMS" },
+    { name: "description", content: "Filter operational notifications and manage read status across OMS changes." },
+    { property: "og:title", content: "Notifications · MANUQUBE OMS" },
+    { property: "og:description", content: "Filter operational notifications and manage read status across OMS changes." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: NotificationsPage,
 });
 
