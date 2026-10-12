@@ -57,7 +57,7 @@ export function NumberField({
   const bump = (d: number) => onChange(clamp((cur ?? 0) + d * step));
   return (
     <div className={cn("flex h-9 w-full items-stretch overflow-hidden rounded-lg border border-border/60 bg-card/60 focus-within:border-primary/50", invalid && "border-destructive/70", className)}>
-      <input id={id} type="number" inputMode="decimal" min={min} max={max} step={step} placeholder={placeholder}
+      <input id={id} type="number" inputMode="decimal" data-allow-negative={min == null || min < 0 ? "" : undefined} min={min} max={max} step={step} placeholder={placeholder}
         value={value ?? ""}
         onKeyDown={(e) => { if ((min ?? -1) >= 0 && (e.key === "-" || e.key === "e" || e.key === "E")) e.preventDefault(); }}
         onChange={(e) => {
