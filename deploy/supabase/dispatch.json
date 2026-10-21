@@ -1,0 +1,558 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "batch/v1",
+      "kind": "CronJob",
+      "metadata": {
+        "name": "oms-dispatch",
+        "namespace": "development"
+      },
+      "spec": {
+        "schedule": "*/5 * * * *",
+        "concurrencyPolicy": "Forbid",
+        "successfulJobsHistoryLimit": 1,
+        "failedJobsHistoryLimit": 2,
+        "jobTemplate": {
+          "spec": {
+            "backoffLimit": 1,
+            "activeDeadlineSeconds": 90,
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "oms-dispatch"
+                }
+              },
+              "spec": {
+                "automountServiceAccountToken": false,
+                "restartPolicy": "Never",
+                "securityContext": {
+                  "runAsUser": 10001,
+                  "runAsGroup": 10001,
+                  "runAsNonRoot": true,
+                  "seccompProfile": {
+                    "type": "RuntimeDefault"
+                  }
+                },
+                "containers": [
+                  {
+                    "name": "dispatch",
+                    "image": "node:24-alpine",
+                    "command": [
+                      "node",
+                      "--input-type=module",
+                      "-e",
+                      "const base=process.env.BACKEND,key=process.env.SERVICE_KEY;const headers={apikey:key,Authorization:'Bearer '+key};const r=await fetch(base+'/rest/v1/scheduler_token?select=token&id=eq.1',{headers});if(!r.ok)throw Error('Token lookup '+r.status);const rows=await r.json();if(!rows[0]?.token)throw Error('Missing scheduler token');const response=await fetch(process.env.APP_URL+'/api/public/integrations/scheduled',{method:'POST',headers:{'Content-Type':'application/json','x-cron-token':rows[0].token},body:'{}'});if(!response.ok)throw Error('Scheduler callback '+response.status);const d=await response.json();if(!d.ok)throw Error('Scheduler failed');console.log('Verified HTTPS OMS dispatch completed');"
+                    ],
+                    "env": [
+                      {
+                        "name": "BACKEND",
+                        "value": "https://oms-supabase.development.svc.cluster.local:8443"
+                      },
+                      {
+                        "name": "APP_URL",
+                        "value": "https://oms.development.svc.cluster.local:8443"
+                      },
+                      {
+                        "name": "SERVICE_KEY",
+                        "valueFrom": {
+                          "secretKeyRef": {
+                            "name": "oms-supabase",
+                            "key": "SERVICE_ROLE_KEY"
+                          }
+                        }
+                      },
+                      {
+                        "name": "NODE_EXTRA_CA_CERTS",
+                        "value": "/certs/ca.crt"
+                      }
+                    ],
+                    "volumeMounts": [
+                      {
+                        "name": "ca",
+                        "mountPath": "/certs",
+                        "readOnly": true
+                      }
+                    ],
+                    "resources": {
+                      "requests": {
+                        "cpu": "5m",
+                        "memory": "32Mi"
+                      },
+                      "limits": {
+                        "cpu": "200m",
+                        "memory": "128Mi"
+                      }
+                    },
+                    "securityContext": {
+                      "allowPrivilegeEscalation": false,
+                      "readOnlyRootFilesystem": true,
+                      "capabilities": {
+                        "drop": [
+                          "ALL"
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "volumes": [
+                  {
+                    "name": "ca",
+                    "secret": {
+                      "secretName": "oms-supabase-tls",
+                      "items": [
+                        {
+                          "key": "ca.crt",
+                          "path": "ca.crt"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "metadata": {
+        "name": "oms-dispatch",
+        "namespace": "development"
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "app": "oms-dispatch"
+          }
+        },
+        "policyTypes": [
+          "Egress"
+        ],
+        "egress": [
+          {
+            "to": [
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "app": "oms"
+                  }
+                }
+              },
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "app": "oms-supabase"
+                  }
+                }
+              }
+            ],
+            "ports": [
+              {
+                "protocol": "TCP",
+                "port": 8443
+              }
+            ]
+          },
+          {
+            "to": [
+              {
+                "namespaceSelector": {
+                  "matchLabels": {
+                    "kubernetes.io/metadata.name": "kube-system"
+                  }
+                },
+                "podSelector": {
+                  "matchLabels": {
+                    "k8s-app": "kube-dns"
+                  }
+                }
+              }
+            ],
+            "ports": [
+              {
+                "protocol": "UDP",
+                "port": 53
+              },
+              {
+                "protocol": "TCP",
+                "port": 53
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "batch/v1",
+      "kind": "CronJob",
+      "metadata": {
+        "name": "oms-dispatch",
+        "namespace": "staging"
+      },
+      "spec": {
+        "schedule": "*/5 * * * *",
+        "concurrencyPolicy": "Forbid",
+        "successfulJobsHistoryLimit": 1,
+        "failedJobsHistoryLimit": 2,
+        "jobTemplate": {
+          "spec": {
+            "backoffLimit": 1,
+            "activeDeadlineSeconds": 90,
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "oms-dispatch"
+                }
+              },
+              "spec": {
+                "automountServiceAccountToken": false,
+                "restartPolicy": "Never",
+                "securityContext": {
+                  "runAsUser": 10001,
+                  "runAsGroup": 10001,
+                  "runAsNonRoot": true,
+                  "seccompProfile": {
+                    "type": "RuntimeDefault"
+                  }
+                },
+                "containers": [
+                  {
+                    "name": "dispatch",
+                    "image": "node:24-alpine",
+                    "command": [
+                      "node",
+                      "--input-type=module",
+                      "-e",
+                      "const base=process.env.BACKEND,key=process.env.SERVICE_KEY;const headers={apikey:key,Authorization:'Bearer '+key};const r=await fetch(base+'/rest/v1/scheduler_token?select=token&id=eq.1',{headers});if(!r.ok)throw Error('Token lookup '+r.status);const rows=await r.json();if(!rows[0]?.token)throw Error('Missing scheduler token');const response=await fetch(process.env.APP_URL+'/api/public/integrations/scheduled',{method:'POST',headers:{'Content-Type':'application/json','x-cron-token':rows[0].token},body:'{}'});if(!response.ok)throw Error('Scheduler callback '+response.status);const d=await response.json();if(!d.ok)throw Error('Scheduler failed');console.log('Verified HTTPS OMS dispatch completed');"
+                    ],
+                    "env": [
+                      {
+                        "name": "BACKEND",
+                        "value": "https://oms-supabase.staging.svc.cluster.local:8443"
+                      },
+                      {
+                        "name": "APP_URL",
+                        "value": "https://oms.staging.svc.cluster.local:8443"
+                      },
+                      {
+                        "name": "SERVICE_KEY",
+                        "valueFrom": {
+                          "secretKeyRef": {
+                            "name": "oms-supabase",
+                            "key": "SERVICE_ROLE_KEY"
+                          }
+                        }
+                      },
+                      {
+                        "name": "NODE_EXTRA_CA_CERTS",
+                        "value": "/certs/ca.crt"
+                      }
+                    ],
+                    "volumeMounts": [
+                      {
+                        "name": "ca",
+                        "mountPath": "/certs",
+                        "readOnly": true
+                      }
+                    ],
+                    "resources": {
+                      "requests": {
+                        "cpu": "5m",
+                        "memory": "32Mi"
+                      },
+                      "limits": {
+                        "cpu": "200m",
+                        "memory": "128Mi"
+                      }
+                    },
+                    "securityContext": {
+                      "allowPrivilegeEscalation": false,
+                      "readOnlyRootFilesystem": true,
+                      "capabilities": {
+                        "drop": [
+                          "ALL"
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "volumes": [
+                  {
+                    "name": "ca",
+                    "secret": {
+                      "secretName": "oms-supabase-tls",
+                      "items": [
+                        {
+                          "key": "ca.crt",
+                          "path": "ca.crt"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "metadata": {
+        "name": "oms-dispatch",
+        "namespace": "staging"
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "app": "oms-dispatch"
+          }
+        },
+        "policyTypes": [
+          "Egress"
+        ],
+        "egress": [
+          {
+            "to": [
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "app": "oms"
+                  }
+                }
+              },
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "app": "oms-supabase"
+                  }
+                }
+              }
+            ],
+            "ports": [
+              {
+                "protocol": "TCP",
+                "port": 8443
+              }
+            ]
+          },
+          {
+            "to": [
+              {
+                "namespaceSelector": {
+                  "matchLabels": {
+                    "kubernetes.io/metadata.name": "kube-system"
+                  }
+                },
+                "podSelector": {
+                  "matchLabels": {
+                    "k8s-app": "kube-dns"
+                  }
+                }
+              }
+            ],
+            "ports": [
+              {
+                "protocol": "UDP",
+                "port": 53
+              },
+              {
+                "protocol": "TCP",
+                "port": 53
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "batch/v1",
+      "kind": "CronJob",
+      "metadata": {
+        "name": "oms-dispatch",
+        "namespace": "manuqube"
+      },
+      "spec": {
+        "schedule": "*/5 * * * *",
+        "concurrencyPolicy": "Forbid",
+        "successfulJobsHistoryLimit": 1,
+        "failedJobsHistoryLimit": 2,
+        "jobTemplate": {
+          "spec": {
+            "backoffLimit": 1,
+            "activeDeadlineSeconds": 90,
+            "template": {
+              "metadata": {
+                "labels": {
+                  "app": "oms-dispatch"
+                }
+              },
+              "spec": {
+                "automountServiceAccountToken": false,
+                "restartPolicy": "Never",
+                "securityContext": {
+                  "runAsUser": 10001,
+                  "runAsGroup": 10001,
+                  "runAsNonRoot": true,
+                  "seccompProfile": {
+                    "type": "RuntimeDefault"
+                  }
+                },
+                "containers": [
+                  {
+                    "name": "dispatch",
+                    "image": "node:24-alpine",
+                    "command": [
+                      "node",
+                      "--input-type=module",
+                      "-e",
+                      "const base=process.env.BACKEND,key=process.env.SERVICE_KEY;const headers={apikey:key,Authorization:'Bearer '+key};const r=await fetch(base+'/rest/v1/scheduler_token?select=token&id=eq.1',{headers});if(!r.ok)throw Error('Token lookup '+r.status);const rows=await r.json();if(!rows[0]?.token)throw Error('Missing scheduler token');const response=await fetch(process.env.APP_URL+'/api/public/integrations/scheduled',{method:'POST',headers:{'Content-Type':'application/json','x-cron-token':rows[0].token},body:'{}'});if(!response.ok)throw Error('Scheduler callback '+response.status);const d=await response.json();if(!d.ok)throw Error('Scheduler failed');console.log('Verified HTTPS OMS dispatch completed');"
+                    ],
+                    "env": [
+                      {
+                        "name": "BACKEND",
+                        "value": "https://oms-supabase.manuqube.svc.cluster.local:8443"
+                      },
+                      {
+                        "name": "APP_URL",
+                        "value": "https://oms.manuqube.svc.cluster.local:8443"
+                      },
+                      {
+                        "name": "SERVICE_KEY",
+                        "valueFrom": {
+                          "secretKeyRef": {
+                            "name": "oms-supabase",
+                            "key": "SERVICE_ROLE_KEY"
+                          }
+                        }
+                      },
+                      {
+                        "name": "NODE_EXTRA_CA_CERTS",
+                        "value": "/certs/ca.crt"
+                      }
+                    ],
+                    "volumeMounts": [
+                      {
+                        "name": "ca",
+                        "mountPath": "/certs",
+                        "readOnly": true
+                      }
+                    ],
+                    "resources": {
+                      "requests": {
+                        "cpu": "5m",
+                        "memory": "32Mi"
+                      },
+                      "limits": {
+                        "cpu": "200m",
+                        "memory": "128Mi"
+                      }
+                    },
+                    "securityContext": {
+                      "allowPrivilegeEscalation": false,
+                      "readOnlyRootFilesystem": true,
+                      "capabilities": {
+                        "drop": [
+                          "ALL"
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "volumes": [
+                  {
+                    "name": "ca",
+                    "secret": {
+                      "secretName": "oms-supabase-tls",
+                      "items": [
+                        {
+                          "key": "ca.crt",
+                          "path": "ca.crt"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "metadata": {
+        "name": "oms-dispatch",
+        "namespace": "manuqube"
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "app": "oms-dispatch"
+          }
+        },
+        "policyTypes": [
+          "Egress"
+        ],
+        "egress": [
+          {
+            "to": [
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "app": "oms"
+                  }
+                }
+              },
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "app": "oms-supabase"
+                  }
+                }
+              }
+            ],
+            "ports": [
+              {
+                "protocol": "TCP",
+                "port": 8443
+              }
+            ]
+          },
+          {
+            "to": [
+              {
+                "namespaceSelector": {
+                  "matchLabels": {
+                    "kubernetes.io/metadata.name": "kube-system"
+                  }
+                },
+                "podSelector": {
+                  "matchLabels": {
+                    "k8s-app": "kube-dns"
+                  }
+                }
+              }
+            ],
+            "ports": [
+              {
+                "protocol": "UDP",
+                "port": 53
+              },
+              {
+                "protocol": "TCP",
+                "port": 53
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
