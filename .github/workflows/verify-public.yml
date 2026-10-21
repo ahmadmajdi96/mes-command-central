@@ -1,0 +1,20 @@
+name: Verify public OMS
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-https:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify production frontend and Supabase from outside the office
+        env:
+          PUBLIC_KEY: ${{ vars.OMS_PROD_ANON_KEY }}
+        run: |
+          # Verify real public DNS, certificate trust and the compiled OMS application.
+          curl --fail --silent --show-error --retry 8 --retry-all-errors --retry-delay 5 https://oms.manuqube.com/auth -o /tmp/oms.html
+          grep -q 'CORTA OMS' /tmp/oms.html
+          if grep -Eq '/@vite/client|virtual:tanstack-start-dev-client-entry' /tmp/oms.html; then echo 'Unexpected development server'; exit 1; fi
+          curl --fail --silent --show-error --retry 8 --retry-all-errors --retry-delay 5 -H "apikey: $PUBLIC_KEY" https://oms.manuqube.com/supabase/auth/v1/health -o /tmp/auth.json
+          python3 -c 'import json; d=json.load(open("/tmp/auth.json")); assert d["name"] == "GoTrue"; print("Public HTTPS frontend and self-hosted Auth verified from GitHub runner")'
