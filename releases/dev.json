@@ -1,1 +1,6 @@
-{}
+{
+  "image": "ghcr.io/ahmadmajdi96/mes-command-central@sha256:b247b819b969b98e3a64e1ce6ff1fe7f97e0af56e4e001384fe848204e4b01d0",
+  "commit": "2cc8d9aa01135edac6fbd3ffa2ff85cc32595d0b",
+  "environment": "dev",
+  "ref": "refs/tags/dev-oms-selfhosted-20261021-1"
+}
