@@ -1,6 +1,6 @@
 {
-  "image": "ghcr.io/ahmadmajdi96/mes-command-central@sha256:b247b819b969b98e3a64e1ce6ff1fe7f97e0af56e4e001384fe848204e4b01d0",
-  "commit": "2cc8d9aa01135edac6fbd3ffa2ff85cc32595d0b",
+  "image": "ghcr.io/ahmadmajdi96/mes-command-central@sha256:1472dcfdfebd65c55035ee33ed7ac5cd761c38df32f7c069268e752e0ac15b9d",
+  "commit": "5e8172b0e42ef64b2cdde737b1747b8d8ce3a03a",
   "environment": "dev",
-  "ref": "refs/tags/dev-oms-selfhosted-20261021-1"
+  "ref": "refs/tags/dev-oms-selfhosted-20261021-2"
 }
