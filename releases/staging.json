@@ -1,1 +1,6 @@
-{}
+{
+  "image": "ghcr.io/ahmadmajdi96/mes-command-central@sha256:8c19e33f5f31f65efd1966445cebee687c51481215fa9642a61e40a786ac56e4",
+  "commit": "2cc8d9aa01135edac6fbd3ffa2ff85cc32595d0b",
+  "environment": "staging",
+  "ref": "refs/tags/staging-oms-selfhosted-20261021-1"
+}
