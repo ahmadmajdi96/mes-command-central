@@ -155,6 +155,37 @@ export const documentation: DocChapter[] = [
     ],
   },
   {
+    id: "cross-system", group: "Monitoring & integration", title: "Access Hub, APS planning & quality", summary: "Who owns which data across MES Command Central, APS and the Command Access Hub; event envelope; quality holds, NCR and CAPA.", source: ["src/lib/access-hub.server.ts", "src/lib/access-hub-map.ts", "src/lib/integration-hub.server.ts", "src/components/aps-plan-panel.tsx", "src/routes/quality-holds.tsx", "src/routes/ncr.tsx", "src/routes/capa.tsx"],
+    blocks: [
+      { title: "System ownership", table: { title: "System of record", columns: ["Data", "Owner", "This app's role"], rows: [
+        ["Customers, sales orders, production order identity, quantity and status", "MES Command Central (this app) / ERP", "Creates, releases and records execution"],
+        ["Schedule placement, sequencing, capacity, approved schedule versions", "APS Production Command Center", "Receives the approved plan; never edits it"],
+        ["Shared roles and rights", "Command Access Hub", "Copies the Hub's answer and enforces it in the database"],
+        ["Batch holds, nonconformance, CAPA", "This app (until a dedicated QMS is connected)", "Owns holds/NCR/CAPA; accepts QC dispositions"],
+      ] } },
+      { title: "Access from the Command Access Hub", bullets: [
+        "Sign-in stays in this app. After sign-in, and every 5 minutes, the server asks the Hub (GET /api/public/v1/access?email=…, header x-api-key, system key mes-command-central) for the person's rights.",
+        "Hub view/create/edit/delete map to read/create/update/delete per page; dashed keys (production-orders) map to local keys (production_orders); unknown keys grant nothing.",
+        "Once the Hub is connected it is the only source of rights: local roles and the local admin shortcut are ignored by the database rules.",
+        "Fail closed: Hub unreachable, key rejected or person inactive → view only, with a banner explaining why.",
+        "Until ACCESS_HUB_URL and ACCESS_HUB_API_KEY are set, local roles keep working so nobody is locked out.",
+      ], note: "Pages to register in the Hub for MES Command Central: orders, customers, products, shipments, production-orders, batches, requests, feedback, audit, settings, users, roles, inventory, locations, rules, workflow, orchestration, fulfillments, exceptions, alerts, kpis, integrations, quality-holds, ncr, capa." },
+      { title: "Production orders to APS and back", steps: [
+        { title: "Release", detail: "Releasing a production order queues production_order.released to the APS connection. Quantity, due date, priority or product changes raise the order revision and send production_order.changed; cancelling sends production_order.cancelled." },
+        { title: "Delivery", detail: "Sent to APS's /api/public/integrations/oms as { records: [{ po_number, sku, quantity, due_date, priority, status }] } with header x-api-key (APS_INTEGRATION_KEY), plus envelope fields. Normal retries and the message log apply." },
+        { title: "Approved plan", detail: "APS posts schedule.approved to /api/public/integrations/aps (signed). Each item sets schedule version, machine, sequence, planned start/end and plan revision; planning status moves released → planned." },
+        { title: "Stale plan", detail: "If the order's revision moves past the plan revision, the production order page shows a stale-plan warning until APS approves again." },
+      ], code: '{\n  "type": "schedule.approved",\n  "correlation_id": "production_orders:<id>",\n  "idempotency_key": "SV-2026-001",\n  "payload": { "schedule_version": "SV-2026-001", "items": [ { "po_number": "PO-2026-0011", "machine": "M-01", "sequence": 1, "planned_start": "2026-11-03T06:00:00Z", "planned_end": "2026-11-03T14:00:00Z", "plan_revision": 1 } ] }\n}' },
+      { title: "Shared event envelope", bullets: ["Every message stores event_id, correlation_id, source_system, entity_id, entity_revision, occurred_at, received_at, schema_version, idempotency_key and outcome.", "Inbound duplicates are rejected by message ID or idempotency key; outbound messages carry X-Correlation-Id and X-Idempotency-Key headers.", "Filter the Integration Monitor by correlation ID to follow one order across systems."] },
+      { title: "Quality holds, NCR and CAPA", bullets: [
+        "A hold sets its batch to on hold; the production order can't be completed while any hold is active. Releasing needs a reason and restores the batch's previous status.",
+        "An NCR records severity, quantity affected and disposition (use as is, rework, scrap, return to supplier); it can't be closed without a disposition.",
+        "A CAPA closes only with a root cause, at least one action, every action done, and a verified effectiveness check. CAPAs link to one or more NCRs.",
+        "QC systems send qc.disposition to /api/public/integrations/qms: hold, release or reject a batch (by batch_number or lot_code), optionally with an NCR.",
+      ] },
+    ],
+  },
+  {
     id: "operations", group: "Production readiness", title: "Operations & troubleshooting", summary: "Daily checks, common failure diagnosis, incident recovery and rollout acceptance.", source: ["roadmap.md", "vite.config.ts", "Dockerfile", "docker-compose.yml", "src/lib/error-capture.ts"],
     blocks: [
       { title: "Daily operational checks", bullets: ["Inspect high/critical and overdue cases in the priority queue; ensure every actionable case has an owner.", "Review delayed/failed fulfillments and outstanding backorders; compare allocations with physical warehouse availability.", "Inspect failed, dead, held and waiting integration messages and the latest automatic-run outcome.", "Review KPI targets and underlying period/cohort, not just the green/red indicator.", "Check open returns awaiting receipt, inspection, disposition or financial reconciliation.", "Verify scheduled callback delivery after a publish, connectivity change or secret rotation."] },
