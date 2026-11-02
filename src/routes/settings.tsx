@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { usePermissions } from "@/lib/permissions";
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel } from "@/components/page-shell";
 import { Users, KeyRound, Plus, Trash2, RotateCcw, ClipboardCopy } from "lucide-react";
@@ -26,9 +27,16 @@ type Tab = "users" | "roles";
 
 function SettingsPage() {
   const [tab, setTab] = useState<Tab>("users");
+  const { data: perm } = usePermissions();
+  const hub = perm?.hub;
   return (
     <div className="space-y-5">
       <PageHeader title="System Settings" subtitle="Users and roles" />
+      <div className={`rounded-xl border px-3 py-2 text-xs ${hub?.enforced ? "border-primary/40 bg-primary/10 text-primary" : "border-border/60 bg-card/60 text-muted-foreground"}`}>
+        {hub?.enforced
+          ? <>Access is <b>managed in the Command Access Hub</b>. Roles and rights shown here are read-only copies, refreshed every 5 minutes. You can still create sign-in accounts and reset passwords here; give people their rights in the Hub under “MES Command Central”.{hub.checkedAt && <span className="block text-[10px] opacity-80">Last Hub check: {new Date(hub.checkedAt).toLocaleString()} · {hub.status}</span>}</>
+          : <>The Command Access Hub isn't connected yet, so the roles below apply. Once it is connected, the Hub becomes the only source of rights.</>}
+      </div>
       <div className="flex items-center gap-1 border-b border-border/60">
         {(["users", "roles"] as Tab[]).map((t) => (
           <button key={t} onClick={() => setTab(t)}
@@ -42,7 +50,7 @@ function SettingsPage() {
         ))}
       </div>
       {tab === "users" && <UsersTab />}
-      {tab === "roles" && <RolesTab />}
+      {tab === "roles" && (hub?.enforced ? <div className="pointer-events-none select-none opacity-60" aria-disabled><RolesTab /></div> : <RolesTab />)}
     </div>
   );
 }
