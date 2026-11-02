@@ -119,6 +119,56 @@ async function processMessage(type: InboundType, raw: unknown): Promise<Record<s
     await rpc("set_fulfillment_status", { _id: f.id, _status: type === "shipment.confirm" ? "shipped" : p.status, _carrier: p.carrier ?? null, _tracking: p.tracking ?? null, _notes: p.reason ?? null });
     return { fulfillment_number: p.fulfillment_number, entity_table: "fulfillments", entity_id: f.id };
   }
+  if (type === "schedule.approved") {
+    const nums = p.items.map((i: any) => i.po_number);
+    const { data: pos } = await db.from("production_orders").select("id, number, status, revision, planning_status").in("number", nums);
+    const missing = nums.filter((n: string) => !(pos ?? []).some((x: any) => x.number === n));
+    if (missing.length) fail(`Unknown production order(s): ${missing.join(", ")}`);
+    const stale: string[] = [];
+    for (const it of p.items) {
+      const po = pos.find((x: any) => x.number === it.po_number);
+      if (it.plan_revision && it.plan_revision !== po.revision) stale.push(it.po_number);
+      // APS owns only placement; order status and quantity stay here.
+      const upd: Record<string, unknown> = {
+        aps_schedule_version: p.schedule_version, aps_machine: it.machine ?? null, aps_sequence: it.sequence ?? null,
+        aps_planned_start: it.planned_start, aps_planned_end: it.planned_end, aps_plan_revision: it.plan_revision ?? po.revision,
+        aps_approved_at: p.approved_at ?? new Date().toISOString(), aps_feasibility: it.feasibility ?? null,
+      };
+      if (po.planning_status === "released" || po.planning_status === "unplanned") upd.planning_status = po.status === "released" ? "planned" : po.planning_status;
+      const r = await db.from("production_orders").update(upd).eq("id", po.id);
+      if (r.error) fail(r.error.message);
+    }
+    return { schedule_version: p.schedule_version, orders: p.items.length, stale_plans: stale, entity_table: "production_orders" };
+  }
+  if (type === "qc.disposition") {
+    let q = db.from("batches").select("id, number, production_order_id, product_id, lot_code");
+    q = p.batch_number ? q.eq("number", p.batch_number) : q.eq("lot_code", p.lot_code);
+    const { data: b } = await q.maybeSingle();
+    if (!b) fail(`Batch ${p.batch_number ?? p.lot_code} not found`);
+    let holdId: string | null = null;
+    if (p.result === "hold" || p.result === "reject") {
+      const { data: active } = await db.from("quality_holds").select("id").eq("batch_id", b.id).eq("status", "active").maybeSingle();
+      if (active) holdId = active.id;
+      else {
+        const h = await db.from("quality_holds").insert({ batch_id: b.id, reason: p.reason, source: "qc", created_by: null }).select("id").single();
+        if (h.error) fail(h.error.message); holdId = h.data.id;
+      }
+    } else {
+      const r = await db.from("quality_holds").update({ status: "released", release_reason: `QC release: ${p.reason}` }).eq("batch_id", b.id).eq("status", "active");
+      if (r.error) fail(r.error.message);
+    }
+    let ncrId: string | null = null;
+    if (p.ncr || p.result === "reject") {
+      const n = p.ncr ?? { title: `QC rejection of ${b.number}`, severity: "major" };
+      const row = { title: n.title, description: p.reason, source: "qc", severity: n.severity ?? "major", disposition: n.disposition ?? null, qty_affected: n.qty_affected ?? null,
+        batch_id: b.id, production_order_id: b.production_order_id, product_id: b.product_id, hold_id: holdId, external_id: n.external_id ?? null, created_by: null };
+      const r = n.external_id
+        ? await db.from("ncr_reports").upsert(row, { onConflict: "external_id" }).select("id").single()
+        : await db.from("ncr_reports").insert(row).select("id").single();
+      if (r.error) fail(r.error.message); ncrId = r.data.id;
+    }
+    return { batch: b.number, result: p.result, hold_id: holdId, ncr_id: ncrId, entity_table: "batches", entity_id: b.id };
+  }
   // inventory.adjust
   const [{ data: pr }, { data: loc }] = await Promise.all([
     db.from("products").select("id").eq("sku", p.sku).maybeSingle(),
@@ -131,11 +181,17 @@ async function processMessage(type: InboundType, raw: unknown): Promise<Record<s
 }
 
 /** Store + process one inbound message. Duplicates (same system + message id) are acknowledged, never re-applied. */
-export async function receiveInbound(system: HubSystem, messageId: string, type: string, payload: unknown, signatureValid: boolean) {
+export async function receiveInbound(system: HubSystem, messageId: string, type: string, payload: unknown, signatureValid: boolean, env: EnvelopeT = {}) {
   const db = await admin();
-  const existing = (await db.from("integration_messages").select("id, status, response").eq("system", system).eq("direction", "inbound").eq("message_id", messageId).maybeSingle()).data;
+  const idem = env.idempotency_key ?? null;
+  let existing = (await db.from("integration_messages").select("id, status, response").eq("system", system).eq("direction", "inbound").eq("message_id", messageId).maybeSingle()).data;
+  if (!existing && idem) existing = (await db.from("integration_messages").select("id, status, response").eq("system", system).eq("direction", "inbound").eq("idempotency_key", idem).maybeSingle()).data;
   if (existing) return { status: 200, body: { ok: true, duplicate: true, message: existing.id, previous_status: existing.status, result: existing.response } };
-  const ins = await db.from("integration_messages").insert({ message_id: messageId, system, direction: "inbound", message_type: type, status: "received", payload: payload ?? {}, signature_valid: signatureValid, attempts: 0 }).select("id").single();
+  const ins = await db.from("integration_messages").insert({
+    message_id: messageId, system, direction: "inbound", message_type: type, status: "received", payload: payload ?? {}, signature_valid: signatureValid, attempts: 0,
+    correlation_id: env.correlation_id ?? messageId, source_system: env.source_system ?? system, entity_revision: env.entity_revision ?? null,
+    occurred_at: env.occurred_at ?? null, received_at: new Date().toISOString(), schema_version: env.schema_version ?? SCHEMA_VERSION, idempotency_key: idem,
+  }).select("id").single();
   if (ins.error) {
     if (String(ins.error.code) === "23505") return { status: 200, body: { ok: true, duplicate: true } };
     return { status: 500, body: { ok: false, error: "Could not store message" } };
@@ -169,10 +225,31 @@ async function sendOne(m: any, ep: any, secret: string) {
     await db.from("integration_messages").update({ status: "held", error: "Endpoint has no address or is turned off" }).eq("id", m.id);
     return false;
   }
-  const body = JSON.stringify({ message_id: m.message_id, type: m.message_type, sent_at: new Date().toISOString(), payload: m.payload });
+  const envelope = {
+    event_id: m.message_id, message_id: m.message_id, correlation_id: m.correlation_id ?? null, source_system: OWN_SYSTEM,
+    entity_id: m.entity_id ?? null, entity_revision: m.entity_revision ?? null, occurred_at: m.occurred_at ?? m.created_at,
+    schema_version: m.schema_version ?? SCHEMA_VERSION, idempotency_key: m.idempotency_key ?? m.message_id,
+  };
+  const isAps = ep.system === "aps";
+  // APS's inbound contract is { records: [...] } with an x-api-key header; everyone else gets the signed envelope.
+  const body = isAps
+    ? JSON.stringify({ records: [apsRecord(m.payload)], ...envelope })
+    : JSON.stringify({ ...envelope, type: m.message_type, sent_at: new Date().toISOString(), payload: m.payload });
+  const headers: Record<string, string> = {
+    "content-type": "application/json", "x-message-id": m.message_id, "x-message-type": m.message_type,
+    "x-correlation-id": String(envelope.correlation_id ?? ""), "x-idempotency-key": String(envelope.idempotency_key), "x-signature": sign(body, secret),
+  };
+  if (isAps) {
+    const k = process.env["APS_INTEGRATION_KEY"];
+    if (!k) {
+      await db.from("integration_messages").update({ status: "held", error: "APS integration key is not set" }).eq("id", m.id);
+      return false;
+    }
+    headers["x-api-key"] = k;
+  }
   const attempts = m.attempts + 1;
   try {
-    const res = await fetch(ep.url, { method: "POST", headers: { "content-type": "application/json", "x-message-id": m.message_id, "x-message-type": m.message_type, "x-signature": sign(body, secret) }, body, signal: AbortSignal.timeout(10000) });
+    const res = await fetch(ep.url, { method: "POST", headers, body, signal: AbortSignal.timeout(10000) });
     const text = (await res.text()).slice(0, 2000);
     if (!res.ok) throw new Error(`HTTP ${res.status} ${text.slice(0, 200)}`);
     let parsed: unknown = text; try { parsed = JSON.parse(text); } catch { /* keep text */ }
