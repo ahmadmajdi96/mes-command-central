@@ -26,21 +26,25 @@ export const Route = createFileRoute("/integrations")({
 });
 
 type Explanation = { cause: string; next_action: string; safe_to_retry: "yes" | "no" | "after_fix" };
-type Msg = { id: string; message_id: string; system: string; direction: string; message_type: string; status: string; payload: unknown; response: unknown; error: string | null; signature_valid: boolean | null; attempts: number; next_retry_at: string | null; created_at: string; processed_at: string | null; ai_explanation: Explanation | null; ai_explained_at: string | null };
+type Msg = { id: string; message_id: string; system: string; direction: string; message_type: string; status: string; payload: unknown; response: unknown; error: string | null; signature_valid: boolean | null; attempts: number; next_retry_at: string | null; created_at: string; processed_at: string | null; ai_explanation: Explanation | null; ai_explained_at: string | null; correlation_id: string | null; source_system: string | null; entity_revision: number | null; occurred_at: string | null; received_at: string | null; schema_version: string | null; idempotency_key: string | null };
 type Run = { id: string; source: string; ran_at: string; ok: boolean; result: Record<string, unknown> };
 const EXPLAINABLE = ["failed", "dead", "held"];
 const RETRY_LABEL = { yes: "Safe to retry now", no: "Do not retry", after_fix: "Retry after fixing the cause" } as const;
 type Endpoint = { id: string; system: string; name: string; url: string | null; enabled: boolean; events: string[] };
 const KEY = ["integration_messages"];
-const SYS_LABEL: Record<string, string> = { erp: "ERP", wms: "Warehouse (WMS)", fulfillment: "Fulfillment / 3PL", channel: "Sales channel" };
-const EVENTS = ["order.created", "order.status_changed", "fulfillment.instruction", "fulfillment.status_changed"];
+const SYS_LABEL: Record<string, string> = { erp: "ERP", wms: "Warehouse (WMS)", fulfillment: "Fulfillment / 3PL", channel: "Sales channel", aps: "APS planning", qms: "Quality (QC / QMS)" };
+const EVENTS = ["order.created", "order.status_changed", "fulfillment.instruction", "fulfillment.status_changed", "production_order.released", "production_order.changed", "production_order.cancelled"];
 const QUEUES = ["All", "Inbound", "Outbound", "Failed", "Waiting", "Duplicates blocked"] as const;
 const SAMPLES: Record<string, Record<string, unknown>> = {
   "order.create": { external_id: "WEB-1001", channel: "web", customer: { name: "Test Customer", email: "test@example.com" }, lines: [{ sku: "SKU", qty: 1 }] },
   "order.status": { order_number: "SO-2026-0001", status: "on_hold" },
   "shipment.confirm": { fulfillment_number: "FUL-2026-0001", carrier: "DHL", tracking: "123" },
   "inventory.adjust": { sku: "SKU", location_code: "WH-01", type: "receipt", qty: 10 },
+  "schedule.approved": { schedule_version: "SV-2026-001", items: [{ po_number: "PO-2026-0001", machine: "M-01", sequence: 1, planned_start: "2026-11-03T06:00:00Z", planned_end: "2026-11-03T14:00:00Z", plan_revision: 1 }] },
+  "qc.disposition": { batch_number: "BATCH-2026-0001", result: "hold", reason: "Visual defect on sample", ncr: { title: "Surface scratches", severity: "minor" } },
 };
+const INBOUND_TYPES = ["order.create", "order.status", "order.cancel", "shipment.confirm", "fulfillment.status", "inventory.adjust", "schedule.approved", "qc.disposition"];
+type Sys = "erp" | "wms" | "fulfillment" | "channel" | "aps" | "qms";
 
 function IntegrationsPage() {
   useRealtimeInvalidate("integration_messages" as never, [KEY]);
@@ -50,6 +54,7 @@ function IntegrationsPage() {
   const testFn = useServerFn(sendTestInbound);
   const [q, setQ] = useState<typeof QUEUES[number]>("All");
   const [sys, setSys] = useState("");
+  const [corr, setCorr] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
   const setOpen = (m: Msg | null) => setOpenId(m?.id ?? null);
   const { roles } = useSession();
@@ -97,7 +102,7 @@ function IntegrationsPage() {
     All: () => true, Inbound: (m) => m.direction === "inbound", Outbound: (m) => m.direction === "outbound",
     Failed: (m) => ["failed", "dead"].includes(m.status), Waiting: (m) => ["pending", "held", "received"].includes(m.status), "Duplicates blocked": () => false,
   };
-  const filtered = msgs.filter((m) => test[q](m) && (!sys || m.system === sys));
+  const filtered = msgs.filter((m) => test[q](m) && (!sys || m.system === sys) && (!corr.trim() || (m.correlation_id ?? "").toLowerCase().includes(corr.trim().toLowerCase())));
   const cards = useMemo(() => [
     { label: "Messages", value: msgs.length, accent: "primary" as const },
     { label: "Inbound", value: msgs.filter(test.Inbound).length, accent: "info" as const },
@@ -114,7 +119,7 @@ function IntegrationsPage() {
           <button onClick={() => run.mutate()} disabled={run.isPending} className="inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary disabled:opacity-50"><Play className="h-3.5 w-3.5" /> Send waiting now</button>
           <CSVExportButton filename={`integration-messages-${q}`} rows={filtered} columns={[
             { key: "created_at", label: "Time" }, { key: "system", label: "System" }, { key: "direction", label: "Direction" }, { key: "message_type", label: "Type" },
-            { key: "message_id", label: "Message ID" }, { key: "status", label: "Status" }, { key: "attempts", label: "Attempts" }, { key: "error", label: "Error" },
+            { key: "message_id", label: "Message ID" }, { key: "correlation_id", label: "Correlation ID" }, { key: "idempotency_key", label: "Idempotency key" }, { key: "entity_revision", label: "Revision" }, { key: "status", label: "Status" }, { key: "attempts", label: "Attempts" }, { key: "error", label: "Error" },
           ]} />
         </>} />
       <AnalyticsCards cards={cards} />
@@ -138,17 +143,18 @@ function IntegrationsPage() {
 
       <Panel>
         <h3 className="mb-1 text-sm font-semibold">Connections (outgoing)</h3>
-        <p className="mb-3 text-[11px] text-muted-foreground">Where the OMS sends updates. Every message is signed (X-Signature: sha256 HMAC of the body with your shared secret) and carries an X-Message-Id. Failed sends retry up to 5 times with growing waits.</p>
+        <p className="mb-3 text-[11px] text-muted-foreground">Where the OMS sends updates. Every message is signed (X-Signature: sha256 HMAC of the body with your shared secret) and carries X-Message-Id, X-Correlation-Id and X-Idempotency-Key plus the shared envelope fields. The APS connection sends released production orders in the planning app’s own format with its integration key. Failed sends retry up to 5 times with growing waits.</p>
         <div className="space-y-2">{eps.map((e) => <EndpointRow key={e.id} ep={e} onSave={(v) => saveEp.mutate(v)} />)}</div>
         <div className="mt-4 rounded-lg border border-border/60 bg-card/40 p-3 text-[11px] text-muted-foreground">
-          <b className="text-foreground">Incoming address</b> for other systems: <code className="text-foreground">{typeof window !== "undefined" ? window.location.origin : ""}/api/public/integrations/&lt;erp|wms|fulfillment|channel&gt;</code> — POST {"{"} "type", "payload" {"}"} with the same signature and message ID headers. Types: order.create, order.status, order.cancel, shipment.confirm, fulfillment.status, inventory.adjust. A repeated message ID is acknowledged but never applied twice.
+          <b className="text-foreground">Incoming address</b> for other systems: <code className="text-foreground">{typeof window !== "undefined" ? window.location.origin : ""}/api/public/integrations/&lt;erp|wms|fulfillment|channel|aps|qms&gt;</code> — POST {"{"} "type", "payload" {"}"} with the same signature and message ID headers. Types: order.create, order.status, order.cancel, shipment.confirm, fulfillment.status, inventory.adjust, schedule.approved (from APS), qc.disposition (from QC). Optional envelope: correlation_id, source_system, entity_revision, occurred_at, schema_version, idempotency_key. A repeated message ID is acknowledged but never applied twice.
         </div>
         <TestSender onSend={async (v) => { const r = await testFn({ data: v }); qc.invalidateQueries({ queryKey: KEY }); (r as any).ok ? toast.success((r as any).duplicate ? "Duplicate — ignored as expected" : "Processed") : toast.error(String((r as any).error)); }} />
       </Panel>
 
       <div className="glass-panel flex flex-wrap items-center gap-1 rounded-2xl p-3">
         {QUEUES.filter((x) => x !== "Duplicates blocked").map((x) => <button key={x} onClick={() => setQ(x)} className={`rounded-lg px-2.5 py-1 text-[11px] ${q === x ? "border border-primary/30 bg-primary/15 text-primary" : "border border-transparent text-muted-foreground"}`}>{x}</button>)}
-        <select value={sys} onChange={(e) => setSys(e.target.value)} className="ml-auto h-8 rounded-md border border-border/60 bg-card/60 px-2 text-xs">
+        <input value={corr} onChange={(e) => setCorr(e.target.value)} placeholder="Correlation ID…" aria-label="Filter by correlation ID" className="ml-auto h-8 w-56 rounded-md border border-border/60 bg-card/60 px-2 font-mono text-xs" />
+        <select value={sys} onChange={(e) => setSys(e.target.value)} className=" h-8 rounded-md border border-border/60 bg-card/60 px-2 text-xs">
           <option value="">All systems</option>{Object.entries(SYS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
       </div>
@@ -157,7 +163,7 @@ function IntegrationsPage() {
         { key: "s", label: "System", render: (m) => <span className="text-xs">{SYS_LABEL[m.system] ?? m.system}</span> },
         { key: "d", label: "Direction", render: (m) => <span className={`text-xs ${m.direction === "inbound" ? "text-info" : "text-accent"}`}>{m.direction === "inbound" ? "← in" : "→ out"}</span> },
         { key: "type", label: "Type", render: (m) => <button onClick={() => setOpen(m)} className="font-mono text-xs text-primary hover:underline">{m.message_type}</button> },
-        { key: "id", label: "Message ID", render: (m) => <span className="font-mono text-[10px] text-muted-foreground">{m.message_id.slice(0, 18)}</span> },
+        { key: "id", label: "Message / correlation", render: (m) => <span className="font-mono text-[10px] text-muted-foreground">{m.message_id.slice(0, 18)}{m.correlation_id && <button onClick={() => setCorr(m.correlation_id!)} className="block text-primary/80 hover:underline" title="Follow this correlation ID">{m.correlation_id.slice(0, 32)}</button>}</span> },
         { key: "st", label: "Status", render: (m) => <StatusPill status={m.status} /> },
         { key: "a", label: "Tries", align: "right", render: (m) => <span className="font-mono text-xs">{m.attempts}</span> },
         { key: "e", label: "Error / next try", render: (m) => <span className="block max-w-xs truncate text-[11px] text-destructive" title={m.error ?? ""}>{m.error ?? ""}{m.next_retry_at && m.status === "failed" ? <span className="text-muted-foreground"> · next {new Date(m.next_retry_at).toLocaleTimeString()}</span> : null}</span> },
@@ -190,6 +196,11 @@ function IntegrationsPage() {
                 ) : <p className="text-muted-foreground">Press Explain to get the likely cause and a safe next step.</p>}
               </div>
             )}
+            <div className="mb-3 grid grid-cols-2 gap-x-3 gap-y-1 rounded-md border border-border/60 p-2 text-[11px]">
+              {([["Correlation ID", open.correlation_id], ["Source system", open.source_system], ["Revision", open.entity_revision], ["Schema", open.schema_version], ["Occurred", open.occurred_at && new Date(open.occurred_at).toLocaleString()], ["Received", open.received_at && new Date(open.received_at).toLocaleString()], ["Idempotency key", open.idempotency_key]] as const).map(([k, v]) => (
+                <div key={k} className="min-w-0"><span className="text-muted-foreground">{k}: </span><span className="break-all font-mono">{v ?? "—"}</span></div>
+              ))}
+            </div>
             <div className="text-[11px] font-semibold">Payload</div>
             <pre className="mb-3 overflow-auto rounded-md bg-card/60 p-2 text-[11px]">{JSON.stringify(open.payload, null, 2)}</pre>
             <div className="text-[11px] font-semibold">Result</div>
@@ -222,8 +233,8 @@ function EndpointRow({ ep, onSave }: { ep: Endpoint; onSave: (v: Partial<Endpoin
   );
 }
 
-function TestSender({ onSend }: { onSend: (v: { system: "erp" | "wms" | "fulfillment" | "channel"; type: string; payload: Record<string, unknown>; message_id: string }) => Promise<void> }) {
-  const [system, setSystem] = useState<"erp" | "wms" | "fulfillment" | "channel">("channel");
+function TestSender({ onSend }: { onSend: (v: { system: Sys; type: string; payload: Record<string, unknown>; message_id: string }) => Promise<void> }) {
+  const [system, setSystem] = useState<Sys>("channel");
   const [type, setType] = useState("order.create");
   const [body, setBody] = useState(JSON.stringify(SAMPLES["order.create"], null, 2));
   const [mid, setMid] = useState(() => `test-${Date.now()}`);
@@ -234,7 +245,7 @@ function TestSender({ onSend }: { onSend: (v: { system: "erp" | "wms" | "fulfill
       <div className="mt-2 flex flex-wrap gap-2">
         <select value={system} onChange={(e) => setSystem(e.target.value as never)} className="h-8 rounded-md border border-border/60 bg-card/60 px-2">{Object.entries(SYS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
         <select value={type} onChange={(e) => { setType(e.target.value); setBody(JSON.stringify(SAMPLES[e.target.value] ?? {}, null, 2)); }} className="h-8 rounded-md border border-border/60 bg-card/60 px-2">
-          {["order.create", "order.status", "order.cancel", "shipment.confirm", "fulfillment.status", "inventory.adjust"].map((t) => <option key={t}>{t}</option>)}
+          {INBOUND_TYPES.map((t) => <option key={t}>{t}</option>)}
         </select>
         <input value={mid} onChange={(e) => setMid(e.target.value)} className="h-8 w-48 rounded-md border border-border/60 bg-card/60 px-2 font-mono" title="Message ID — reuse it to test duplicate protection" />
         <button onClick={() => setMid(`test-${Date.now()}`)} className="text-[11px] text-muted-foreground">New ID</button>
