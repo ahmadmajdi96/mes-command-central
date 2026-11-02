@@ -23,6 +23,9 @@ import {
   Scale,
   Activity,
   BookOpen,
+  ShieldAlert,
+  ClipboardX,
+  Wrench,
 } from "lucide-react";
 
 
@@ -66,6 +69,12 @@ const production = [
   { title: "Batches", url: "/batches", icon: Boxes },
 ];
 
+const quality = [
+  { title: "Quality Holds", url: "/quality-holds", icon: ShieldAlert },
+  { title: "Nonconformance", url: "/ncr", icon: ClipboardX },
+  { title: "CAPA", url: "/capa", icon: Wrench },
+];
+
 
 const integrations = [
   { title: "Requests", url: "/requests", icon: Send },
@@ -93,7 +102,7 @@ const RES: Record<string, Resource> = {
   "/orchestration": "orchestration", "/fulfillments": "fulfillments", "/exceptions": "exceptions", "/alerts": "alerts", "/kpis": "kpis",
   "/rules": "rules", "/workflow": "workflow", "/production-orders": "production_orders", "/batches": "batches",
   "/requests": "requests", "/integrations": "integrations", "/products": "products", "/inventory": "inventory", "/locations": "locations",
-  "/audit": "audit", "/settings": "settings",
+  "/audit": "audit", "/settings": "settings", "/quality-holds": "quality_holds", "/ncr": "ncr", "/capa": "capa",
 };
 
 export function AppSidebar() {
@@ -151,6 +160,7 @@ export function AppSidebar() {
         {renderGroup("Orders", orders)}
         {renderGroup("Orchestration", orchestration)}
         {renderGroup("Production", production)}
+        {renderGroup("Quality", quality)}
         {renderGroup("Integrations", integrations)}
         {renderGroup("Materials", materials)}
         {renderGroup("Platform", platform)}

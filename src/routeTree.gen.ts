@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CapaRouteImport } from './routes/capa'
 import { Route as DocumentationRouteImport } from './routes/documentation'
 import { Route as ExceptionsRouteImport } from './routes/exceptions'
 import { Route as FulfillmentsRouteImport } from './routes/fulfillments'
@@ -20,6 +21,7 @@ import { Route as IntegrationsRouteImport } from './routes/integrations'
 import { Route as InventoryRouteImport } from './routes/inventory'
 import { Route as KpisRouteImport } from './routes/kpis'
 import { Route as LocationsRouteImport } from './routes/locations'
+import { Route as NcrRouteImport } from './routes/ncr'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OrchestrationRouteImport } from './routes/orchestration'
 import { Route as QualityHoldsRouteImport } from './routes/quality-holds'
@@ -69,6 +71,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CapaRoute = CapaRouteImport.update({
+  id: '/capa',
+  path: '/capa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DocumentationRoute = DocumentationRouteImport.update({
   id: '/documentation',
   path: '/documentation',
@@ -102,6 +109,11 @@ const KpisRoute = KpisRouteImport.update({
 const LocationsRoute = LocationsRouteImport.update({
   id: '/locations',
   path: '/locations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NcrRoute = NcrRouteImport.update({
+  id: '/ncr',
+  path: '/ncr',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NotificationsRoute = NotificationsRouteImport.update({
@@ -252,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/capa': typeof CapaRoute
   '/documentation': typeof DocumentationRoute
   '/exceptions': typeof ExceptionsRoute
   '/fulfillments': typeof FulfillmentsRoute
@@ -259,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/inventory': typeof InventoryRoute
   '/kpis': typeof KpisRoute
   '/locations': typeof LocationsRoute
+  '/ncr': typeof NcrRoute
   '/notifications': typeof NotificationsRoute
   '/orchestration': typeof OrchestrationRoute
   '/quality-holds': typeof QualityHoldsRoute
@@ -293,6 +307,7 @@ export interface FileRoutesByTo {
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/capa': typeof CapaRoute
   '/documentation': typeof DocumentationRoute
   '/exceptions': typeof ExceptionsRoute
   '/fulfillments': typeof FulfillmentsRoute
@@ -300,6 +315,7 @@ export interface FileRoutesByTo {
   '/inventory': typeof InventoryRoute
   '/kpis': typeof KpisRoute
   '/locations': typeof LocationsRoute
+  '/ncr': typeof NcrRoute
   '/notifications': typeof NotificationsRoute
   '/orchestration': typeof OrchestrationRoute
   '/quality-holds': typeof QualityHoldsRoute
@@ -335,6 +351,7 @@ export interface FileRoutesById {
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/auth': typeof AuthRoute
+  '/capa': typeof CapaRoute
   '/documentation': typeof DocumentationRoute
   '/exceptions': typeof ExceptionsRoute
   '/fulfillments': typeof FulfillmentsRoute
@@ -342,6 +359,7 @@ export interface FileRoutesById {
   '/inventory': typeof InventoryRoute
   '/kpis': typeof KpisRoute
   '/locations': typeof LocationsRoute
+  '/ncr': typeof NcrRoute
   '/notifications': typeof NotificationsRoute
   '/orchestration': typeof OrchestrationRoute
   '/quality-holds': typeof QualityHoldsRoute
@@ -378,6 +396,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/audit'
     | '/auth'
+    | '/capa'
     | '/documentation'
     | '/exceptions'
     | '/fulfillments'
@@ -385,6 +404,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/kpis'
     | '/locations'
+    | '/ncr'
     | '/notifications'
     | '/orchestration'
     | '/quality-holds'
@@ -419,6 +439,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/audit'
     | '/auth'
+    | '/capa'
     | '/documentation'
     | '/exceptions'
     | '/fulfillments'
@@ -426,6 +447,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/kpis'
     | '/locations'
+    | '/ncr'
     | '/notifications'
     | '/orchestration'
     | '/quality-holds'
@@ -460,6 +482,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/audit'
     | '/auth'
+    | '/capa'
     | '/documentation'
     | '/exceptions'
     | '/fulfillments'
@@ -467,6 +490,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/kpis'
     | '/locations'
+    | '/ncr'
     | '/notifications'
     | '/orchestration'
     | '/quality-holds'
@@ -502,6 +526,7 @@ export interface RootRouteChildren {
   AlertsRoute: typeof AlertsRoute
   AuditRoute: typeof AuditRoute
   AuthRoute: typeof AuthRoute
+  CapaRoute: typeof CapaRoute
   DocumentationRoute: typeof DocumentationRoute
   ExceptionsRoute: typeof ExceptionsRoute
   FulfillmentsRoute: typeof FulfillmentsRoute
@@ -509,6 +534,7 @@ export interface RootRouteChildren {
   InventoryRoute: typeof InventoryRoute
   KpisRoute: typeof KpisRoute
   LocationsRoute: typeof LocationsRoute
+  NcrRoute: typeof NcrRoute
   NotificationsRoute: typeof NotificationsRoute
   OrchestrationRoute: typeof OrchestrationRoute
   QualityHoldsRoute: typeof QualityHoldsRoute
@@ -568,6 +594,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/capa': {
+      id: '/capa'
+      path: '/capa'
+      fullPath: '/capa'
+      preLoaderRoute: typeof CapaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/documentation': {
       id: '/documentation'
       path: '/documentation'
@@ -615,6 +648,13 @@ declare module '@tanstack/react-router' {
       path: '/locations'
       fullPath: '/locations'
       preLoaderRoute: typeof LocationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ncr': {
+      id: '/ncr'
+      path: '/ncr'
+      fullPath: '/ncr'
+      preLoaderRoute: typeof NcrRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notifications': {
@@ -833,6 +873,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlertsRoute: AlertsRoute,
   AuditRoute: AuditRoute,
   AuthRoute: AuthRoute,
+  CapaRoute: CapaRoute,
   DocumentationRoute: DocumentationRoute,
   ExceptionsRoute: ExceptionsRoute,
   FulfillmentsRoute: FulfillmentsRoute,
@@ -840,6 +881,7 @@ const rootRouteChildren: RootRouteChildren = {
   InventoryRoute: InventoryRoute,
   KpisRoute: KpisRoute,
   LocationsRoute: LocationsRoute,
+  NcrRoute: NcrRoute,
   NotificationsRoute: NotificationsRoute,
   OrchestrationRoute: OrchestrationRoute,
   QualityHoldsRoute: QualityHoldsRoute,
