@@ -162,8 +162,9 @@ async function processMessage(type: InboundType, raw: unknown): Promise<Record<s
       const n = p.ncr ?? { title: `QC rejection of ${b.number}`, severity: "major" };
       const row = { title: n.title, description: p.reason, source: "qc", severity: n.severity ?? "major", disposition: n.disposition ?? null, qty_affected: n.qty_affected ?? null,
         batch_id: b.id, production_order_id: b.production_order_id, product_id: b.product_id, hold_id: holdId, external_id: n.external_id ?? null, created_by: null };
-      const r = n.external_id
-        ? await db.from("ncr_reports").upsert(row, { onConflict: "external_id" }).select("id").single()
+      const prev = n.external_id ? (await db.from("ncr_reports").select("id").eq("external_id", n.external_id).maybeSingle()).data : null;
+      const r = prev
+        ? await db.from("ncr_reports").update(row).eq("id", prev.id).select("id").single()
         : await db.from("ncr_reports").insert(row).select("id").single();
       if (r.error) fail(r.error.message); ncrId = r.data.id;
     }
@@ -209,11 +210,11 @@ export async function runInbound(id: string) {
   try {
     const result = await processMessage(m.message_type, m.payload);
     const { entity_table, entity_id, ...rest } = result as any;
-    await db.from("integration_messages").update({ status: "processed", error: null, response: rest, entity_table: entity_table ?? null, entity_id: entity_id ?? null, processed_at: new Date().toISOString(), attempts: m.attempts + 1 }).eq("id", id);
+    await db.from("integration_messages").update({ status: "processed", outcome: "processed", error: null, response: rest, entity_table: entity_table ?? null, entity_id: entity_id ?? null, processed_at: new Date().toISOString(), attempts: m.attempts + 1 }).eq("id", id);
     return { status: 200, body: { ok: true, message: id, result: rest } };
   } catch (e) {
     const msg = e instanceof z.ZodError ? "Invalid payload: " + e.issues.map((i) => `${i.path.join(".")} ${i.message}`).join("; ") : e instanceof Error ? e.message : String(e);
-    await db.from("integration_messages").update({ status: "failed", error: msg, attempts: m.attempts + 1 }).eq("id", id);
+    await db.from("integration_messages").update({ status: "failed", outcome: "failed", error: msg, attempts: m.attempts + 1 }).eq("id", id);
     return { status: e instanceof z.ZodError ? 400 : 422, body: { ok: false, message: id, error: msg } };
   }
 }
@@ -253,7 +254,7 @@ async function sendOne(m: any, ep: any, secret: string) {
     const text = (await res.text()).slice(0, 2000);
     if (!res.ok) throw new Error(`HTTP ${res.status} ${text.slice(0, 200)}`);
     let parsed: unknown = text; try { parsed = JSON.parse(text); } catch { /* keep text */ }
-    await db.from("integration_messages").update({ status: "sent", attempts, error: null, response: { http: res.status, body: parsed }, processed_at: new Date().toISOString(), next_retry_at: null }).eq("id", m.id);
+    await db.from("integration_messages").update({ status: "sent", outcome: "delivered", attempts, error: null, response: { http: res.status, body: parsed }, processed_at: new Date().toISOString(), next_retry_at: null }).eq("id", m.id);
     return true;
   } catch (e) {
     const dead = attempts >= MAX_ATTEMPTS;
