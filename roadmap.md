@@ -17,3 +17,6 @@
 - [x] KPI drift detection (in-app)
 - [ ] KPI drift + critical rule emails — needs an email sending domain from the user
 - [ ] Connect oms.manuqube.com — user declined the connect card for now
+- [x] Hub-only access, APS order/plan exchange, shared message envelope, quality holds/NCR/CAPA
+- [ ] Connect Command Access Hub — Hub app not published yet; its per-system key is only visible in the Hub's Systems page
+- [ ] Connect APS — APS app not published yet; needs its integration key and a schedule.approved sender on the APS side
