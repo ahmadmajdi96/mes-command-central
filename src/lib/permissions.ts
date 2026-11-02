@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
 import { useSession } from "@/hooks/use-session";
+import { getMyAccess } from "@/lib/access-hub.functions";
 
 export type Resource =
   | "orders" | "customers" | "products" | "shipments"
   | "production_orders" | "batches" | "requests" | "feedback"
-  | "audit" | "settings" | "users" | "roles" | "inventory" | "locations" | "rules" | "workflow" | "orchestration" | "fulfillments" | "exceptions" | "alerts" | "kpis" | "integrations";
+  | "audit" | "settings" | "users" | "roles" | "inventory" | "locations" | "rules" | "workflow" | "orchestration" | "fulfillments" | "exceptions" | "alerts" | "kpis" | "integrations"
+  | "quality_holds" | "ncr" | "capa";
 
 export type Action = "read" | "create" | "update" | "delete";
 
@@ -13,55 +15,35 @@ export const RESOURCES: Resource[] = [
   "orders", "customers", "products", "shipments",
   "production_orders", "batches", "requests", "feedback",
   "audit", "settings", "users", "roles", "inventory", "locations", "rules", "workflow", "orchestration", "fulfillments", "exceptions", "alerts", "kpis", "integrations",
+  "quality_holds", "ncr", "capa",
 ];
 
 export const ACTIONS: Action[] = ["read", "create", "update", "delete"];
 
-interface Perm {
+export interface Perm {
   isAdmin: boolean;
   hasRoles: boolean;
   matrix: Record<string, Record<Action, boolean>>;
+  hub: { enforced: boolean; status: string; message: string | null; checkedAt: string | null };
 }
 
+/** Effective access. When the Command Access Hub is connected it is the only source of rights. */
 export function usePermissions() {
-  const { user, roles } = useSession();
+  const { user } = useSession();
+  const fetchAccess = useServerFn(getMyAccess);
   return useQuery({
     queryKey: ["permissions", user?.id],
     enabled: !!user,
-    queryFn: async (): Promise<Perm> => {
-      if (!user) return { isAdmin: false, hasRoles: false, matrix: {} };
-      const isAdmin = roles.includes("admin");
-      const { data: assignments } = await supabase
-        .from("user_app_roles" as never)
-        .select("role_id")
-        .eq("user_id", user.id);
-      const roleIds = (assignments ?? []).map((r: { role_id: string }) => r.role_id);
-      if (roleIds.length === 0) return { isAdmin, hasRoles: false, matrix: {} };
-      const { data: perms } = await supabase
-        .from("app_role_permissions" as never)
-        .select("resource, can_read, can_create, can_update, can_delete")
-        .in("role_id", roleIds);
-      const matrix: Perm["matrix"] = {};
-      for (const p of (perms ?? []) as Array<{ resource: string; can_read: boolean; can_create: boolean; can_update: boolean; can_delete: boolean }>) {
-        const cur = matrix[p.resource] ?? { read: false, create: false, update: false, delete: false };
-        matrix[p.resource] = {
-          read: cur.read || p.can_read,
-          create: cur.create || p.can_create,
-          update: cur.update || p.can_update,
-          delete: cur.delete || p.can_delete,
-        };
-      }
-      return { isAdmin, hasRoles: true, matrix };
-    },
+    queryFn: async (): Promise<Perm> => (await fetchAccess({ data: {} })) as Perm,
     staleTime: 60_000,
+    refetchInterval: 5 * 60_000,
   });
 }
 
 export function usePermission(resource: Resource, action: Action): boolean {
   const { data } = usePermissions();
-  if (!data) return true; // permissive while loading to avoid UI flicker
+  if (!data) return true; // permissive while loading to avoid UI flicker; the database still enforces
   if (data.isAdmin) return true;
-  // Users without any role can look but not change anything; users with roles get exactly what their roles grant.
   if (!data.hasRoles) return action === "read";
   return data.matrix[resource]?.[action] ?? false;
 }
