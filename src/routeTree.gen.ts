@@ -22,6 +22,7 @@ import { Route as KpisRouteImport } from './routes/kpis'
 import { Route as LocationsRouteImport } from './routes/locations'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OrchestrationRouteImport } from './routes/orchestration'
+import { Route as QualityHoldsRouteImport } from './routes/quality-holds'
 import { Route as RequestsRouteImport } from './routes/requests'
 import { Route as RulesRouteImport } from './routes/rules'
 import { Route as SetPasswordRouteImport } from './routes/set-password'
@@ -111,6 +112,11 @@ const NotificationsRoute = NotificationsRouteImport.update({
 const OrchestrationRoute = OrchestrationRouteImport.update({
   id: '/orchestration',
   path: '/orchestration',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QualityHoldsRoute = QualityHoldsRouteImport.update({
+  id: '/quality-holds',
+  path: '/quality-holds',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RequestsRoute = RequestsRouteImport.update({
@@ -255,6 +261,7 @@ export interface FileRoutesByFullPath {
   '/locations': typeof LocationsRoute
   '/notifications': typeof NotificationsRoute
   '/orchestration': typeof OrchestrationRoute
+  '/quality-holds': typeof QualityHoldsRoute
   '/requests': typeof RequestsRouteWithChildren
   '/rules': typeof RulesRoute
   '/set-password': typeof SetPasswordRoute
@@ -295,6 +302,7 @@ export interface FileRoutesByTo {
   '/locations': typeof LocationsRoute
   '/notifications': typeof NotificationsRoute
   '/orchestration': typeof OrchestrationRoute
+  '/quality-holds': typeof QualityHoldsRoute
   '/requests': typeof RequestsRouteWithChildren
   '/rules': typeof RulesRoute
   '/set-password': typeof SetPasswordRoute
@@ -336,6 +344,7 @@ export interface FileRoutesById {
   '/locations': typeof LocationsRoute
   '/notifications': typeof NotificationsRoute
   '/orchestration': typeof OrchestrationRoute
+  '/quality-holds': typeof QualityHoldsRoute
   '/requests': typeof RequestsRouteWithChildren
   '/rules': typeof RulesRoute
   '/set-password': typeof SetPasswordRoute
@@ -378,6 +387,7 @@ export interface FileRouteTypes {
     | '/locations'
     | '/notifications'
     | '/orchestration'
+    | '/quality-holds'
     | '/requests'
     | '/rules'
     | '/set-password'
@@ -418,6 +428,7 @@ export interface FileRouteTypes {
     | '/locations'
     | '/notifications'
     | '/orchestration'
+    | '/quality-holds'
     | '/requests'
     | '/rules'
     | '/set-password'
@@ -458,6 +469,7 @@ export interface FileRouteTypes {
     | '/locations'
     | '/notifications'
     | '/orchestration'
+    | '/quality-holds'
     | '/requests'
     | '/rules'
     | '/set-password'
@@ -499,6 +511,7 @@ export interface RootRouteChildren {
   LocationsRoute: typeof LocationsRoute
   NotificationsRoute: typeof NotificationsRoute
   OrchestrationRoute: typeof OrchestrationRoute
+  QualityHoldsRoute: typeof QualityHoldsRoute
   RequestsRoute: typeof RequestsRouteWithChildren
   RulesRoute: typeof RulesRoute
   SetPasswordRoute: typeof SetPasswordRoute
@@ -616,6 +629,13 @@ declare module '@tanstack/react-router' {
       path: '/orchestration'
       fullPath: '/orchestration'
       preLoaderRoute: typeof OrchestrationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quality-holds': {
+      id: '/quality-holds'
+      path: '/quality-holds'
+      fullPath: '/quality-holds'
+      preLoaderRoute: typeof QualityHoldsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/requests': {
@@ -822,6 +842,7 @@ const rootRouteChildren: RootRouteChildren = {
   LocationsRoute: LocationsRoute,
   NotificationsRoute: NotificationsRoute,
   OrchestrationRoute: OrchestrationRoute,
+  QualityHoldsRoute: QualityHoldsRoute,
   RequestsRoute: RequestsRouteWithChildren,
   RulesRoute: RulesRoute,
   SetPasswordRoute: SetPasswordRoute,
