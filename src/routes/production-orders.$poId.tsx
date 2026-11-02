@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import { ApsPlanPanel } from "@/components/aps-plan-panel";
 import { useState, useEffect } from "react";
 import { ArrowLeft, Play, CheckCircle2, Plus, Trash2, Layers } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -136,6 +137,7 @@ function PODetail() {
           </div>
         </Panel>
       </div>
+      <ApsPlanPanel po={r as any} />
       <BatchingSummary
         totalQty={Number(r.qty)}
         limit={Number((product as any)?.batching_limit ?? 0)}

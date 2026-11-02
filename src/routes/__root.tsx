@@ -18,6 +18,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { GlobalSearch } from "@/components/global-search";
+import { HubAccessBanner } from "@/components/hub-access-banner";
 
 import { LiveIndicator } from "@/components/live-indicator";
 import { EventFeed } from "@/components/event-feed";
@@ -179,6 +180,7 @@ function RootComponent() {
             <div className="flex min-w-0 flex-1 flex-col">
               <TopBar />
               <main className="flex-1 p-4 sm:p-6">
+                <HubAccessBanner />
                 <Outlet />
               </main>
             </div>
