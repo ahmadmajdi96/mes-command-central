@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_hub_state: {
+        Row: {
+          enforced: boolean
+          id: number
+          last_checked_at: string | null
+          last_message: string | null
+          last_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          enforced?: boolean
+          id?: number
+          last_checked_at?: string | null
+          last_message?: string | null
+          last_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          enforced?: boolean
+          id?: number
+          last_checked_at?: string | null
+          last_message?: string | null
+          last_status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       alert_rules: {
         Row: {
           create_exception: boolean
@@ -190,22 +217,31 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          hub_synced_at: string | null
+          hub_user_id: string | null
           id: string
           name: string
+          source: string
           updated_at: string
         }
         Insert: {
           created_at?: string
           description?: string | null
+          hub_synced_at?: string | null
+          hub_user_id?: string | null
           id?: string
           name: string
+          source?: string
           updated_at?: string
         }
         Update: {
           created_at?: string
           description?: string | null
+          hub_synced_at?: string | null
+          hub_user_id?: string | null
           id?: string
           name?: string
+          source?: string
           updated_at?: string
         }
         Relationships: []
@@ -385,6 +421,140 @@ export type Database = {
           priority?: number
           rule_type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      capa_actions: {
+        Row: {
+          capa_id: string
+          created_at: string
+          description: string
+          done: boolean
+          done_at: string | null
+          due_date: string | null
+          id: string
+          kind: string
+          owner: string | null
+          updated_at: string
+        }
+        Insert: {
+          capa_id: string
+          created_at?: string
+          description: string
+          done?: boolean
+          done_at?: string | null
+          due_date?: string | null
+          id?: string
+          kind?: string
+          owner?: string | null
+          updated_at?: string
+        }
+        Update: {
+          capa_id?: string
+          created_at?: string
+          description?: string
+          done?: boolean
+          done_at?: string | null
+          due_date?: string | null
+          id?: string
+          kind?: string
+          owner?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "capa_actions_capa_id_fkey"
+            columns: ["capa_id"]
+            isOneToOne: false
+            referencedRelation: "capas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      capa_ncr_links: {
+        Row: {
+          capa_id: string
+          created_at: string
+          ncr_id: string
+        }
+        Insert: {
+          capa_id: string
+          created_at?: string
+          ncr_id: string
+        }
+        Update: {
+          capa_id?: string
+          created_at?: string
+          ncr_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "capa_ncr_links_capa_id_fkey"
+            columns: ["capa_id"]
+            isOneToOne: false
+            referencedRelation: "capas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "capa_ncr_links_ncr_id_fkey"
+            columns: ["ncr_id"]
+            isOneToOne: false
+            referencedRelation: "ncr_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      capas: {
+        Row: {
+          closed_at: string | null
+          created_at: string
+          created_by: string | null
+          due_date: string | null
+          effectiveness_check: string | null
+          effectiveness_verified: boolean
+          id: string
+          number: string | null
+          owner: string | null
+          problem: string | null
+          root_cause: string | null
+          status: string
+          title: string
+          updated_at: string
+          verified_by: string | null
+        }
+        Insert: {
+          closed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_date?: string | null
+          effectiveness_check?: string | null
+          effectiveness_verified?: boolean
+          id?: string
+          number?: string | null
+          owner?: string | null
+          problem?: string | null
+          root_cause?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          verified_by?: string | null
+        }
+        Update: {
+          closed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_date?: string | null
+          effectiveness_check?: string | null
+          effectiveness_verified?: boolean
+          id?: string
+          number?: string | null
+          owner?: string | null
+          problem?: string | null
+          root_cause?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          verified_by?: string | null
         }
         Relationships: []
       }
@@ -837,20 +1007,28 @@ export type Database = {
           ai_explained_at: string | null
           ai_explanation: Json | null
           attempts: number
+          correlation_id: string | null
           created_at: string
           direction: string
           endpoint_id: string | null
           entity_id: string | null
+          entity_revision: number | null
           entity_table: string | null
           error: string | null
           id: string
+          idempotency_key: string | null
           message_id: string
           message_type: string
           next_retry_at: string | null
+          occurred_at: string | null
+          outcome: string | null
           payload: Json
           processed_at: string | null
+          received_at: string | null
           response: Json | null
+          schema_version: string
           signature_valid: boolean | null
+          source_system: string | null
           status: string
           system: string
           updated_at: string
@@ -859,20 +1037,28 @@ export type Database = {
           ai_explained_at?: string | null
           ai_explanation?: Json | null
           attempts?: number
+          correlation_id?: string | null
           created_at?: string
           direction: string
           endpoint_id?: string | null
           entity_id?: string | null
+          entity_revision?: number | null
           entity_table?: string | null
           error?: string | null
           id?: string
+          idempotency_key?: string | null
           message_id: string
           message_type: string
           next_retry_at?: string | null
+          occurred_at?: string | null
+          outcome?: string | null
           payload?: Json
           processed_at?: string | null
+          received_at?: string | null
           response?: Json | null
+          schema_version?: string
           signature_valid?: boolean | null
+          source_system?: string | null
           status?: string
           system: string
           updated_at?: string
@@ -881,20 +1067,28 @@ export type Database = {
           ai_explained_at?: string | null
           ai_explanation?: Json | null
           attempts?: number
+          correlation_id?: string | null
           created_at?: string
           direction?: string
           endpoint_id?: string | null
           entity_id?: string | null
+          entity_revision?: number | null
           entity_table?: string | null
           error?: string | null
           id?: string
+          idempotency_key?: string | null
           message_id?: string
           message_type?: string
           next_retry_at?: string | null
+          occurred_at?: string | null
+          outcome?: string | null
           payload?: Json
           processed_at?: string | null
+          received_at?: string | null
           response?: Json | null
+          schema_version?: string
           signature_valid?: boolean | null
+          source_system?: string | null
           status?: string
           system?: string
           updated_at?: string
@@ -1268,6 +1462,118 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      ncr_reports: {
+        Row: {
+          batch_id: string | null
+          closed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          disposition: string | null
+          external_id: string | null
+          hold_id: string | null
+          id: string
+          number: string | null
+          owner: string | null
+          product_id: string | null
+          production_order_id: string | null
+          qty_affected: number | null
+          return_id: string | null
+          severity: string
+          source: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          batch_id?: string | null
+          closed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          disposition?: string | null
+          external_id?: string | null
+          hold_id?: string | null
+          id?: string
+          number?: string | null
+          owner?: string | null
+          product_id?: string | null
+          production_order_id?: string | null
+          qty_affected?: number | null
+          return_id?: string | null
+          severity?: string
+          source?: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          batch_id?: string | null
+          closed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          disposition?: string | null
+          external_id?: string | null
+          hold_id?: string | null
+          id?: string
+          number?: string | null
+          owner?: string | null
+          product_id?: string | null
+          production_order_id?: string | null
+          qty_affected?: number | null
+          return_id?: string | null
+          severity?: string
+          source?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ncr_reports_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ncr_reports_hold_id_fkey"
+            columns: ["hold_id"]
+            isOneToOne: false
+            referencedRelation: "quality_holds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ncr_reports_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ncr_reports_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "ncr_reports_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ncr_reports_return_id_fkey"
+            columns: ["return_id"]
+            isOneToOne: false
+            referencedRelation: "returns"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       non_conformances: {
         Row: {
@@ -1744,17 +2050,27 @@ export type Database = {
         Row: {
           actual_end: string | null
           actual_start: string | null
+          aps_approved_at: string | null
+          aps_feasibility: string | null
+          aps_machine: string | null
+          aps_plan_revision: number | null
+          aps_planned_end: string | null
+          aps_planned_start: string | null
+          aps_schedule_version: string | null
+          aps_sequence: number | null
           created_at: string
           id: string
           notes: string | null
           number: string | null
           planned_end: string | null
           planned_start: string | null
+          planning_status: string
           priority: number
           product_id: string | null
           qty: number
           qty_produced: number
           qty_scrap: number
+          revision: number
           sales_order_id: string | null
           status: Database["public"]["Enums"]["production_order_status"]
           updated_at: string
@@ -1762,17 +2078,27 @@ export type Database = {
         Insert: {
           actual_end?: string | null
           actual_start?: string | null
+          aps_approved_at?: string | null
+          aps_feasibility?: string | null
+          aps_machine?: string | null
+          aps_plan_revision?: number | null
+          aps_planned_end?: string | null
+          aps_planned_start?: string | null
+          aps_schedule_version?: string | null
+          aps_sequence?: number | null
           created_at?: string
           id?: string
           notes?: string | null
           number?: string | null
           planned_end?: string | null
           planned_start?: string | null
+          planning_status?: string
           priority?: number
           product_id?: string | null
           qty?: number
           qty_produced?: number
           qty_scrap?: number
+          revision?: number
           sales_order_id?: string | null
           status?: Database["public"]["Enums"]["production_order_status"]
           updated_at?: string
@@ -1780,17 +2106,27 @@ export type Database = {
         Update: {
           actual_end?: string | null
           actual_start?: string | null
+          aps_approved_at?: string | null
+          aps_feasibility?: string | null
+          aps_machine?: string | null
+          aps_plan_revision?: number | null
+          aps_planned_end?: string | null
+          aps_planned_start?: string | null
+          aps_schedule_version?: string | null
+          aps_sequence?: number | null
           created_at?: string
           id?: string
           notes?: string | null
           number?: string | null
           planned_end?: string | null
           planned_start?: string | null
+          planning_status?: string
           priority?: number
           product_id?: string | null
           qty?: number
           qty_produced?: number
           qty_scrap?: number
+          revision?: number
           sales_order_id?: string | null
           status?: Database["public"]["Enums"]["production_order_status"]
           updated_at?: string
@@ -1973,6 +2309,92 @@ export type Database = {
             columns: ["work_order_id"]
             isOneToOne: false
             referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quality_holds: {
+        Row: {
+          batch_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          lot_code: string | null
+          number: string | null
+          previous_batch_status: string | null
+          product_id: string | null
+          production_order_id: string | null
+          reason: string
+          release_reason: string | null
+          released_at: string | null
+          released_by: string | null
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lot_code?: string | null
+          number?: string | null
+          previous_batch_status?: string | null
+          product_id?: string | null
+          production_order_id?: string | null
+          reason: string
+          release_reason?: string | null
+          released_at?: string | null
+          released_by?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lot_code?: string | null
+          number?: string | null
+          previous_batch_status?: string | null
+          product_id?: string | null
+          production_order_id?: string | null
+          reason?: string
+          release_reason?: string | null
+          released_at?: string | null
+          released_by?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quality_holds_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_holds_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_holds_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_supply_demand"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "quality_holds_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
             referencedColumns: ["id"]
           },
         ]
