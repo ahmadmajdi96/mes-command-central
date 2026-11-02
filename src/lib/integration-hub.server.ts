@@ -1,7 +1,32 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { z } from "zod";
 
-export const SYSTEMS = ["erp", "wms", "fulfillment", "channel"] as const;
+export const SYSTEMS = ["erp", "wms", "fulfillment", "channel", "aps", "qms"] as const;
+export const OWN_SYSTEM = "mes-command-central";
+export const SCHEMA_VERSION = "1.0";
+
+/** Shared event envelope (see report: event_id, correlation_id, source_system, entity_revision, occurred_at, schema_version, idempotency_key). */
+export const Envelope = z.object({
+  event_id: z.string().max(200).optional(),
+  message_id: z.string().max(200).optional(),
+  correlation_id: z.string().max(200).optional(),
+  source_system: z.string().max(64).optional(),
+  entity_id: z.string().max(200).optional(),
+  entity_revision: z.number().int().nonnegative().optional(),
+  occurred_at: z.string().datetime({ offset: true }).optional(),
+  schema_version: z.string().max(16).optional(),
+  idempotency_key: z.string().max(300).optional(),
+}).passthrough();
+export type EnvelopeT = z.infer<typeof Envelope>;
+
+/** Body APS's /api/public/integrations/oms endpoint accepts. */
+export function apsRecord(payload: any) {
+  return {
+    po_number: String(payload.po_number), sku: String(payload.sku), quantity: Number(payload.quantity),
+    due_date: String(payload.due_date), priority: Math.min(9, Math.max(1, Math.round(Number(payload.priority ?? 3)))),
+    status: String(payload.status ?? "released"),
+  };
+}
 export type HubSystem = (typeof SYSTEMS)[number];
 const MAX_ATTEMPTS = 5;
 
@@ -33,6 +58,20 @@ export const InboundSchemas = {
   "shipment.confirm": z.object({ fulfillment_number: z.string().min(1).max(64), carrier: z.string().max(64).optional(), tracking: z.string().max(128).optional() }),
   "fulfillment.status": z.object({ fulfillment_number: z.string().min(1).max(64), status: z.enum(["picking", "packed", "shipped", "delivered", "failed", "cancelled"]), reason: z.string().max(500).optional(), carrier: z.string().max(64).optional(), tracking: z.string().max(128).optional() }),
   "inventory.adjust": z.object({ sku: z.string().min(1).max(64), location_code: z.string().min(1).max(64), type: z.enum(["receipt", "issue", "adjustment"]), qty: z.number(), reference: z.string().max(128).optional() }),
+  "schedule.approved": z.object({
+    schedule_version: z.string().min(1).max(80), approved_at: z.string().datetime({ offset: true }).optional(),
+    items: z.array(z.object({
+      po_number: z.string().min(1).max(64), machine: z.string().max(80).optional(), sequence: z.number().int().nonnegative().optional(),
+      planned_start: z.string().datetime({ offset: true }), planned_end: z.string().datetime({ offset: true }),
+      plan_revision: z.number().int().positive().optional(), feasibility: z.string().max(40).optional(),
+    })).min(1).max(1000),
+  }),
+  "qc.disposition": z.object({
+    batch_number: z.string().max(64).optional(), lot_code: z.string().max(64).optional(),
+    result: z.enum(["hold", "release", "reject"]), reason: z.string().min(1).max(1000),
+    ncr: z.object({ external_id: z.string().max(80).optional(), title: z.string().min(1).max(200), severity: z.enum(["minor", "major", "critical"]).default("minor"),
+      disposition: z.enum(["use_as_is", "rework", "scrap", "return_to_supplier"]).optional(), qty_affected: z.number().nonnegative().optional() }).optional(),
+  }).refine((p) => p.batch_number || p.lot_code, { message: "batch_number or lot_code is required" }),
 } as const;
 export type InboundType = keyof typeof InboundSchemas;
 export const isInboundType = (t: string): t is InboundType => t in InboundSchemas;
