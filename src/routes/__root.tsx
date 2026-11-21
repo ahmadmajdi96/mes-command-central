@@ -18,6 +18,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { GlobalSearch } from "@/components/global-search";
+import { OMSAppearance, OMSThemeToggle, omsThemeBootstrap, useOMSAppearance } from "@/components/oms-appearance";
 
 import { LiveIndicator } from "@/components/live-indicator";
 import { EventFeed } from "@/components/event-feed";
@@ -91,7 +92,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.png", type: "image/png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -102,8 +103,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
-      <head><HeadContent /></head>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: omsThemeBootstrap }} />
+        <HeadContent />
+      </head>
       <body>{children}<Scripts /></body>
     </html>
   );
@@ -113,16 +117,17 @@ function TopBar() {
   const { user } = useSession();
   useNotificationsRealtime(user?.id);
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/60 bg-background/70 px-4 backdrop-blur-xl">
-      <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-      <div className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-1.5 border-b border-border/60 bg-background/70 px-2 backdrop-blur-xl sm:gap-3 sm:px-4">
+      <SidebarTrigger className="shrink-0 text-muted-foreground hover:text-foreground" />
+      <div className="hidden shrink-0 items-center gap-1.5 text-xs text-muted-foreground lg:flex">
         <span>MANUQUBE</span>
         <ChevronRight className="h-3 w-3" />
         <span className="text-foreground">Order Operations</span>
       </div>
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-1 sm:gap-2">
         <LiveIndicator />
         <GlobalSearch />
+        <OMSThemeToggle />
         <NotificationBell />
         <EventFeed />
         <UserMenu />
@@ -132,6 +137,11 @@ function TopBar() {
 }
 
 function RootComponent() {
+  return <OMSAppearance><OMSWorkspace /></OMSAppearance>;
+}
+
+function OMSWorkspace() {
+  const { theme } = useOMSAppearance();
   const { queryClient } = Route.useRouteContext();
   const { session, loading } = useSession();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -185,7 +195,7 @@ function RootComponent() {
           </div>
         </SidebarProvider>
       )}
-      <Toaster theme="dark" position="bottom-right" richColors />
+      <Toaster theme={theme ?? "light"} position="bottom-right" richColors />
     </QueryClientProvider>
   );
 }

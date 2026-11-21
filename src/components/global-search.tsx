@@ -42,7 +42,7 @@ export function GlobalSearch() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="relative hidden h-9 w-72 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-3 text-left text-sm text-muted-foreground/70 hover:text-foreground md:flex"
+        className="relative hidden h-9 w-72 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-3 text-left text-sm text-muted-foreground/70 hover:text-foreground xl:flex"
       >
         <Search className="h-3.5 w-3.5" />
         <span className="flex-1 truncate">Search everywhere…</span>
@@ -50,7 +50,7 @@ export function GlobalSearch() {
       </button>
       <button
         onClick={() => setOpen(true)}
-        className="grid h-9 w-9 place-items-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground md:hidden"
+        className="grid h-9 w-9 place-items-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground xl:hidden"
         aria-label="Search"
       >
         <Search className="h-4 w-4" />

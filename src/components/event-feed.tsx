@@ -27,11 +27,11 @@ export function EventFeed() {
     <>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="relative flex h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-3 text-xs hover:bg-card"
+        className="relative flex h-9 items-center gap-1.5 rounded-lg border border-border/60 bg-card/60 px-2 text-xs hover:bg-card xl:gap-2 xl:px-3"
         aria-label="Event feed"
       >
         <Activity className="h-3.5 w-3.5" />
-        <span className="hidden sm:inline">Activity</span>
+        <span className="hidden xl:inline">Activity</span>
         {unread > 0 && (
           <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 font-mono text-[10px] font-medium text-primary-foreground">
             {unread > 99 ? "99+" : unread}
@@ -41,7 +41,7 @@ export function EventFeed() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="glass-panel absolute right-4 top-14 z-50 flex max-h-[70vh] w-[380px] flex-col rounded-2xl border border-border/60 shadow-xl">
+          <div className="glass-panel absolute right-4 top-14 z-50 flex max-h-[70vh] w-[min(380px,calc(100vw-2rem))] flex-col rounded-2xl border border-border/60 shadow-xl">
             <div className="flex items-center justify-between border-b border-border/60 p-3">
               <div>
                 <h3 className="text-sm font-semibold">Event Feed</h3>

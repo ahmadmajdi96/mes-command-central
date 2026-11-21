@@ -25,9 +25,9 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-2 text-xs hover:bg-card">
+        <button aria-label="Account menu" className="flex h-9 items-center gap-2 rounded-lg border border-border/60 bg-card/60 px-2 text-xs hover:bg-card">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 font-mono text-[10px] text-primary">{initials}</span>
-          <span className="hidden font-mono sm:inline">{user.email}</span>
+          <span className="hidden max-w-36 truncate font-mono xl:inline-block">{user.email}</span>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">

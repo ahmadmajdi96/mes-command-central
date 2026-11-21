@@ -8,13 +8,13 @@ import { useQuery } from "@tanstack/react-query";
 
 function Panel({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
-    <div className="glass-panel rounded-2xl p-5">
+    <div className="glass-panel min-w-0 rounded-2xl p-5">
       <div className="mb-3">
         <h3 className="text-sm font-semibold">{title}</h3>
         {subtitle && <p className="text-[11px] text-muted-foreground">{subtitle}</p>}
       </div>
-      <div className="h-64">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="h-64 min-w-0 sm:h-72">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
           {children as never}
         </ResponsiveContainer>
       </div>
@@ -78,7 +78,7 @@ export function DashboardCharts() {
   const axis = { stroke: "var(--muted-foreground)", fontSize: 11 };
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,2.4fr)_minmax(16rem,1fr)]">
       <Panel title="Orders over time" subtitle="Last 30 days">
         <LineChart data={line} margin={{ left: -10, right: 8, top: 8, bottom: 0 }}>
           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" opacity={0.4} />
@@ -102,8 +102,18 @@ export function DashboardCharts() {
           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" opacity={0.4} />
           <XAxis dataKey="name" {...axis} />
           <YAxis {...axis} />
-          <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", color: "var(--card-foreground)", fontSize: 12 }} />
-          <Bar dataKey="qty" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+          <Tooltip
+            wrapperStyle={{ maxWidth: "min(15rem, 70%)", zIndex: 10 }}
+            contentStyle={{
+              background: "var(--card)",
+              border: "1px solid var(--border)",
+              color: "var(--card-foreground)",
+              fontSize: 12,
+              whiteSpace: "normal",
+              overflowWrap: "anywhere",
+            }}
+          />
+          <Bar dataKey="qty" fill="var(--chart-2)" radius={[4, 4, 0, 0]} />
         </BarChart>
       </Panel>
 
