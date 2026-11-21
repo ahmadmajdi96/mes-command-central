@@ -42,18 +42,18 @@ export function useOMSAppearance() {
 }
 
 export function OMSThemeToggle() {
-  const { theme, toggle } = useOMSAppearance();
-  const dark = theme === "dark";
+  const { toggle } = useOMSAppearance();
   return (
     <Button
       type="button"
       variant="outline"
       size="icon"
       className="size-10 shrink-0 border-border bg-card"
-      aria-label={dark ? "Switch to light appearance" : "Switch to dark appearance"}
+      aria-label="Change appearance"
       onClick={toggle}
     >
-      {dark ? <Sun aria-hidden /> : <Moon aria-hidden />}
+      <Sun aria-hidden className="hidden dark:block" />
+      <Moon aria-hidden className="dark:hidden" />
     </Button>
   );
 }

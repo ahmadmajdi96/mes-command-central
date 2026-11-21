@@ -117,14 +117,14 @@ function TopBar() {
   const { user } = useSession();
   useNotificationsRealtime(user?.id);
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border/60 bg-background/70 px-3 backdrop-blur-xl sm:gap-3 sm:px-4">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-1.5 border-b border-border/60 bg-background/70 px-2 backdrop-blur-xl sm:gap-3 sm:px-4">
       <SidebarTrigger className="shrink-0 text-muted-foreground hover:text-foreground" />
       <div className="hidden shrink-0 items-center gap-1.5 text-xs text-muted-foreground lg:flex">
         <span>MANUQUBE</span>
         <ChevronRight className="h-3 w-3" />
         <span className="text-foreground">Order Operations</span>
       </div>
-      <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+      <div className="ml-auto flex items-center gap-1 sm:gap-2">
         <LiveIndicator />
         <GlobalSearch />
         <OMSThemeToggle />

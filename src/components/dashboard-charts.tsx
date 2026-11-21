@@ -13,7 +13,7 @@ function Panel({ title, subtitle, children }: { title: string; subtitle?: string
         <h3 className="text-sm font-semibold">{title}</h3>
         {subtitle && <p className="text-[11px] text-muted-foreground">{subtitle}</p>}
       </div>
-      <div className="h-64 min-w-0 overflow-hidden sm:h-72">
+      <div className="h-64 min-w-0 sm:h-72">
         <ResponsiveContainer width="100%" height="100%" minWidth={0}>
           {children as never}
         </ResponsiveContainer>
@@ -103,7 +103,7 @@ export function DashboardCharts() {
           <XAxis dataKey="name" {...axis} />
           <YAxis {...axis} />
           <Tooltip
-            wrapperStyle={{ maxWidth: "min(15rem, 70%)" }}
+            wrapperStyle={{ maxWidth: "min(15rem, 70%)", zIndex: 10 }}
             contentStyle={{
               background: "var(--card)",
               border: "1px solid var(--border)",
