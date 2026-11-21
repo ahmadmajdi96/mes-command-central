@@ -1,6 +1,6 @@
 {
-  "image": "ghcr.io/ahmadmajdi96/mes-command-central@sha256:4a7e788ed36f0bb7ffa3bceafbeaccf185bb9bc65936a803a6c6f24387d11ef7",
-  "commit": "26e9a04b36399e60b4fa84d56e486945bbeb5333",
+  "image": "ghcr.io/ahmadmajdi96/mes-command-central@sha256:f9eacf9a2bbe63465be61b52e4bd31e674b08ca1f5954faf81b02b51bb4d92b2",
+  "commit": "a18fc38f3b97d63139ec39252c9e6d38878ab7c0",
   "environment": "production",
   "ref": "refs/heads/main"
 }
