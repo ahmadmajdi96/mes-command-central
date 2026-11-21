@@ -14,8 +14,8 @@ export function LiveIndicator() {
       aria-label="Real-time updates"
       aria-pressed={live}
     >
-      <Radio className={`h-3 w-3 ${live ? "animate-pulse" : ""}`} />
-      <span className="hidden xl:inline">{live ? "LIVE" : "PAUSED"}</span>
+      <Radio aria-hidden className={`hidden size-3 sm:block ${live ? "motion-safe:animate-pulse" : ""}`} />
+      <span>{live ? "Live" : "Paused"}</span>
       <span className="hidden font-mono text-[10px] opacity-60 xl:inline">·{tick}</span>
     </button>
   );

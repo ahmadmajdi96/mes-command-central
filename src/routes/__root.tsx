@@ -18,7 +18,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { GlobalSearch } from "@/components/global-search";
-import { OMSAppearance, OMSThemeToggle, useOMSAppearance } from "@/components/oms-appearance";
+import { OMSAppearance, OMSThemeToggle, omsThemeBootstrap, useOMSAppearance } from "@/components/oms-appearance";
 
 import { LiveIndicator } from "@/components/live-indicator";
 import { EventFeed } from "@/components/event-feed";
@@ -104,7 +104,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head><HeadContent /></head>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: omsThemeBootstrap }} />
+        <HeadContent />
+      </head>
       <body>{children}<Scripts /></body>
     </html>
   );

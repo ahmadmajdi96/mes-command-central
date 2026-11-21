@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 type Theme = "light" | "dark";
 const Appearance = createContext({ theme: "light" as Theme, toggle: () => {} });
 const storageKey = "oms-theme";
+export const omsThemeBootstrap = `try {
+  document.documentElement.classList.toggle("dark", localStorage.getItem(${JSON.stringify(storageKey)}) === "dark");
+} catch {}`;
 
 export function OMSAppearance({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>("light");

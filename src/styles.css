@@ -176,6 +176,24 @@
   color: var(--accent-foreground);
 }
 
+[cmdk-item][data-selected="true"],
+:is([role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"])[data-highlighted] {
+  box-shadow: inset 3px 0 var(--primary-ink);
+}
+
+:root:not(.dark) select:not(:focus-visible) {
+  border-color: #8b8477;
+}
+
+:root:not(.dark) select:focus-visible {
+  outline: 2px solid var(--primary-ink);
+  outline-offset: 1px;
+}
+
+:root:not(.dark) select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23625f58' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
 .oms-brand-stage {
   color: var(--ivory);
   background: var(--graphite);
