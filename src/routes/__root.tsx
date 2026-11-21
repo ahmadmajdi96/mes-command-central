@@ -195,7 +195,7 @@ function OMSWorkspace() {
           </div>
         </SidebarProvider>
       )}
-      <Toaster theme={theme} position="bottom-right" richColors />
+      <Toaster theme={theme ?? "light"} position="bottom-right" richColors />
     </QueryClientProvider>
   );
 }

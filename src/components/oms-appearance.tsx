@@ -3,28 +3,24 @@ import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Theme = "light" | "dark";
-const Appearance = createContext({ theme: "light" as Theme, toggle: () => {} });
+const Appearance = createContext<{ theme: Theme | undefined; toggle: () => void }>({
+  theme: undefined,
+  toggle: () => {},
+});
 const storageKey = "oms-theme";
 export const omsThemeBootstrap = `try {
   document.documentElement.classList.toggle("dark", localStorage.getItem(${JSON.stringify(storageKey)}) === "dark");
 } catch {}`;
 
 export function OMSAppearance({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>();
 
   useEffect(() => {
-    try {
-      if (localStorage.getItem(storageKey) === "dark") {
-        document.documentElement.classList.add("dark");
-        setTheme("dark");
-      }
-    } catch {
-      // Light is the default when browser storage is unavailable.
-    }
+    setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light");
   }, []);
 
   function toggle() {
-    const next = theme === "light" ? "dark" : "light";
+    const next = document.documentElement.classList.contains("dark") ? "light" : "dark";
     document.documentElement.classList.toggle("dark", next === "dark");
     setTheme(next);
     try {
@@ -42,14 +38,15 @@ export function useOMSAppearance() {
 }
 
 export function OMSThemeToggle() {
-  const { toggle } = useOMSAppearance();
+  const { theme, toggle } = useOMSAppearance();
   return (
     <Button
       type="button"
       variant="outline"
       size="icon"
       className="size-10 shrink-0 border-border bg-card"
-      aria-label="Change appearance"
+      aria-label="Dark appearance"
+      aria-pressed={theme === undefined ? undefined : theme === "dark"}
       onClick={toggle}
     >
       <Sun aria-hidden className="hidden dark:block" />
