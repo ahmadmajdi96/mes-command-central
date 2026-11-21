@@ -2,13 +2,16 @@ import { useState } from "react";
 import { NewOrderDialog } from "@/components/new-order-dialog";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { CheckCircle2, Factory, Package, ShoppingCart, TrendingUp, AlertTriangle, UserCircle, Boxes } from "lucide-react";
+import { CheckCircle2, Factory, Package, ShoppingCart, TrendingUp, AlertTriangle, UserCircle, Boxes, LayoutDashboard, Plus } from "lucide-react";
 import { StatusPill } from "@/components/status-pill";
 import { DashboardCharts } from "@/components/dashboard-charts";
 import { useOrders, useCustomers, useProducts, useShipments } from "@/lib/oms-db";
 import { useProductionOrders } from "@/lib/production-orders-db";
 import { useBatches } from "@/lib/batches-db";
 import { usePriorityQueue } from "@/lib/exceptions-db";
+import { DispatcherBanner } from "@/components/dispatcher";
+import { PageHeader } from "@/components/page-shell";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -86,18 +89,21 @@ function Dashboard() {
   const recent = [...orders].sort((a, b) => (b.order_date ?? "").localeCompare(a.order_date ?? "")).slice(0, 6);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight">Operations Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Live view of orders, production and shipments</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button type="button" onClick={() => setOpenNew(true)} className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">+ New Sales Order</button>
-        </div>
-      </div>
+    <div className="mx-auto max-w-[96rem] space-y-4">
+      <PageHeader
+        title="Operations Dashboard"
+        subtitle="Live view of orders, production and shipments"
+        icon={<LayoutDashboard />}
+        className="mb-6"
+        actions={(
+          <Button type="button" className="min-h-11" onClick={() => setOpenNew(true)}>
+            <Plus aria-hidden /> New Sales Order
+          </Button>
+        )}
+      />
+      <DispatcherBanner />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
         <Kpi label="Open Orders" value={stats.openOrders} icon={ShoppingCart} accent="primary" href="/orders" />
         <Kpi label="In Production" value={stats.inProduction} icon={Factory} accent="info" href="/production-orders" />
         <Kpi label="Overdue" value={stats.overdue} icon={AlertTriangle} accent="warning" href="/orchestration" />
@@ -106,7 +112,7 @@ function Dashboard() {
         <Kpi label="Revenue" value={`$${(stats.totalRevenue / 1000).toFixed(1)}k`} icon={TrendingUp} accent="accent" hint="All orders" />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
         <Kpi label="Problems needing attention" value={queue.length} icon={AlertTriangle} accent="warning" href="/exceptions" hint={`${queue.filter((q: any) => ["high", "critical"].includes(q.severity)).length} high or critical`} />
         <Kpi label="Customers" value={customers.length} icon={UserCircle} accent="info" href="/customers" />
         <Kpi label="Products" value={products.length} icon={Package} accent="primary" href="/products" />

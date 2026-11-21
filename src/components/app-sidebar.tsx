@@ -39,6 +39,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { usePermissions, type Resource } from "@/lib/permissions";
+import { DispatcherPresence } from "@/components/dispatcher";
 
 const overview = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -155,16 +156,8 @@ export function AppSidebar() {
         {renderGroup("Materials", materials)}
         {renderGroup("Platform", platform)}
       </SidebarContent>
-      <SidebarFooter className="p-3">
-        <div className="rounded-xl border border-border/60 bg-card/60 p-3 group-data-[collapsible=icon]:hidden">
-          <div className="flex items-center gap-2 text-xs">
-            <span className="status-dot animate-pulse-glow text-success" />
-            <span className="font-medium">API healthy · v1.0</span>
-          </div>
-          <p className="mt-1 text-[10px] text-muted-foreground">
-            Live data · realtime sync on
-          </p>
-        </div>
+      <SidebarFooter className="border-t border-sidebar-border group-data-[collapsible=icon]:px-1">
+        <DispatcherPresence />
       </SidebarFooter>
     </Sidebar>
   );

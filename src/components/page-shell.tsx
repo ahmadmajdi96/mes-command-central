@@ -3,18 +3,26 @@ import { useMemo, useState, type ReactNode } from "react";
 import { ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 export function PageHeader({
-  title, subtitle, actions, breadcrumb,
+  title, subtitle, actions, breadcrumb, icon, className,
 }: {
   title: string; subtitle?: string; actions?: ReactNode; breadcrumb?: ReactNode;
+  icon?: ReactNode; className?: string;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        {breadcrumb && <div className="mb-1 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{breadcrumb}</div>}
-        <h1 className="font-display text-2xl font-semibold tracking-tight">{title}</h1>
-        {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+    <div className={cn("flex flex-wrap items-end justify-between gap-3", className)}>
+      <div className="flex min-w-0 items-start gap-3">
+        {icon && (
+          <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-xl border border-primary/20 bg-primary/8 text-primary [&>svg]:size-5">
+            {icon}
+          </span>
+        )}
+        <div className="min-w-0">
+          {breadcrumb && <div className="mb-1 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{breadcrumb}</div>}
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-pretty">{title}</h1>
+          {subtitle && <p className="max-w-[68ch] text-sm text-muted-foreground">{subtitle}</p>}
+        </div>
       </div>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
+      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
   );
 }
