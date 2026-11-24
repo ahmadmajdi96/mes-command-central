@@ -57,6 +57,42 @@ export function usePermissions() {
   });
 }
 
+export function getOperationAccess(grants: Record<Action, boolean> | undefined) {
+  const read = grants?.read === true;
+  const update = grants?.update === true;
+  // The released INSERT policy accepts create or update. Writes that return rows also need SELECT.
+  return { create: read && (grants.create || update), update: read && update, delete: read && grants.delete };
+}
+
+export function describeWriteError(error: unknown, action: string) {
+  if (typeof error === "object" && error !== null && "code" in error && error.code === "42501") {
+    return `You don’t have permission to ${action}. Contact your OMS administrator.`;
+  }
+  return `Could not ${action}. Try again.`;
+}
+
+export function useOperationAccess(resource: "orders" | "shipments") {
+  const { user } = useSession();
+  const query = useQuery({
+    queryKey: ["operation-access", user?.id, resource],
+    enabled: !!user,
+    queryFn: async (): Promise<Record<Action, boolean>> => {
+      const resources = resource === "orders" ? ["orders"] : ["shipments", "fulfillments"];
+      const checks = await Promise.all(ACTIONS.map(async (action) => {
+        const { data, error } = await supabase.rpc("app_can_any", { _res: resources, _act: action });
+        if (error) throw error;
+        return [action, data === true] as const;
+      }));
+      return Object.fromEntries(checks) as Record<Action, boolean>;
+    },
+  });
+  return {
+    ...getOperationAccess(query.isSuccess ? query.data : undefined),
+    pending: query.isPending,
+    failed: query.isError,
+  };
+}
+
 export function usePermission(resource: Resource, action: Action): boolean {
   const { data } = usePermissions();
   if (!data) return true; // permissive while loading to avoid UI flicker

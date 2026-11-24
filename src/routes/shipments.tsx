@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { trackingUrl } from "@/lib/tracking";
 import { StatusPill } from "@/components/status-pill";
+import { describeWriteError, useOperationAccess } from "@/lib/permissions";
 import { PageHeader, DataTable } from "@/components/page-shell";
 import { CSVExportButton } from "@/components/csv-export-button";
 import { AnalyticsCards } from "@/components/analytics-cards";
@@ -33,6 +34,7 @@ function ShipmentsPage() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
   const [openNew, setOpenNew] = useState(false);
+  const access = useOperationAccess("shipments");
   const [editing, setEditing] = useState<ShipmentWithOrder | null>(null);
   const [deleting, setDeleting] = useState<ShipmentWithOrder | null>(null);
   useRealtimeInvalidate("shipments", [shipmentsKey]);
@@ -97,7 +99,7 @@ function ShipmentsPage() {
                 { key: "shipped_at", label: "Shipped At" },
               ]}
             />
-            {true && (
+            {access.create && (
               <button onClick={() => setOpenNew(true)}
                 className="flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary">
                 <Plus className="h-3.5 w-3.5" /> New Shipment
@@ -107,6 +109,11 @@ function ShipmentsPage() {
         }
       />
 
+      {!access.create && !access.pending && (
+        <p className="text-sm text-muted-foreground">
+          {access.failed ? "Shipment permissions could not be loaded. Reload this page to try again." : "To create shipment records, ask an OMS administrator for shipment access."}
+        </p>
+      )}
       <AnalyticsCards cards={analytics} />
 
 
@@ -143,19 +150,19 @@ function ShipmentsPage() {
           { key: "tracking", label: "Tracking", render: (s) => s.tracking ? <a href={trackingUrl(s.carrier, s.tracking)!} target="_blank" rel="noopener noreferrer" className="font-mono text-xs text-primary hover:underline">{s.tracking} ↗</a> : <span className="font-mono text-xs text-muted-foreground">—</span> },
           { key: "shipped", label: "Shipped", sortAccessor: (s) => s.shipped_at ?? "", render: (s) => <span className="font-mono text-xs">{s.shipped_at ? new Date(s.shipped_at).toLocaleDateString() : "—"}</span> },
           { key: "status", label: "Status", sortAccessor: (s) => s.status, render: (s) => <StatusPill status={s.status} /> },
-          ...(true ? [{
+          ...(access.update || access.delete ? [{
             key: "actions", label: "", render: (s: ShipmentWithOrder) => (
               <div className="flex items-center justify-end gap-1">
-                <button onClick={() => setEditing(s)}
+                {access.update && <button onClick={() => setEditing(s)}
                   className="rounded-md border border-border/60 bg-card/60 p-1.5 text-muted-foreground hover:text-foreground"
                   aria-label="Edit shipment">
                   <Pencil className="h-3.5 w-3.5" />
-                </button>
-                <button onClick={() => setDeleting(s)}
+                </button>}
+                {access.delete && <button onClick={() => setDeleting(s)}
                   className="rounded-md border border-destructive/40 bg-destructive/10 p-1.5 text-destructive hover:bg-destructive/20"
                   aria-label="Delete shipment">
                   <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                </button>}
               </div>
             ),
           }] : []),
@@ -163,7 +170,7 @@ function ShipmentsPage() {
       />
 
       <FormDialog
-        open={openNew}
+        open={access.create && openNew}
         onOpenChange={setOpenNew}
         title="New Shipment"
         description="Shipment # is auto-generated (SHP-YYYY-####)."
@@ -178,6 +185,7 @@ function ShipmentsPage() {
           { name: "shipped_at", label: "Shipped date", type: "date" },
         ]}
         onSubmit={async (v: any) => {
+          if (!access.create) return;
           try {
             const created = await createShipment.mutateAsync({
               order_id: v.order_id || null, carrier: v.carrier || null,
@@ -190,13 +198,13 @@ function ShipmentsPage() {
               toast.success(`Shipment ${created.number} created`);
             }
           } catch (e: any) {
-            toast.error(e?.message ?? "Failed to create shipment");
+            throw new Error(describeWriteError(e, "create shipments"));
           }
         }}
       />
 
       <FormDialog
-        open={!!editing}
+        open={access.update && !!editing}
         onOpenChange={(v) => !v && setEditing(null)}
         title={editing ? `Edit ${editing.number}` : "Edit shipment"}
         submitLabel="Save changes"
@@ -217,7 +225,7 @@ function ShipmentsPage() {
           { name: "shipped_at", label: "Shipped date", type: "date" },
         ]}
         onSubmit={async (v: any) => {
-          if (!editing) return;
+          if (!editing || !access.update) return;
           try {
             await updateShipment.mutateAsync({
               id: editing.id,
@@ -232,26 +240,26 @@ function ShipmentsPage() {
             toast.success(`Shipment ${editing.number} updated`);
             setEditing(null);
           } catch (e: any) {
-            toast.error(e?.message ?? "Failed to update shipment");
+            throw new Error(describeWriteError(e, "update shipments"));
           }
         }}
       />
 
       <ConfirmDialog
-        open={!!deleting}
+        open={access.delete && !!deleting}
         onOpenChange={(v) => !v && setDeleting(null)}
         title={deleting ? `Delete ${deleting.number}?` : "Delete shipment?"}
         description="This permanently removes the shipment record."
         confirmLabel="Delete shipment"
         variant="destructive"
         onConfirm={async () => {
-          if (!deleting) return;
+          if (!deleting || !access.delete) return;
           try {
             await deleteShipment.mutateAsync(deleting.id);
             toast.success(`Shipment ${deleting.number} deleted`);
             setDeleting(null);
           } catch (e: any) {
-            toast.error(e?.message ?? "Failed to delete shipment");
+            toast.error(describeWriteError(e, "delete shipments"));
           }
         }}
       />

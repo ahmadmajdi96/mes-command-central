@@ -1,4 +1,5 @@
 import { useAvailability } from "@/lib/inventory-db";
+import { describeWriteError, useOperationAccess } from "@/lib/permissions";
 import { AvailabilityBadge } from "@/components/availability-badge";
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Trash2, Info } from "lucide-react";
@@ -19,6 +20,7 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
   const { data: products = [] } = useProducts();
   const { data: customers = [] } = useCustomers();
   const createOrder = useCreateOrder();
+  const access = useOperationAccess("orders");
   const qc = useQueryClient();
 
   const [busy, setBusy] = useState(false);
@@ -85,6 +87,7 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
   );
 
   const submit = async () => {
+    if (!access.create || busy) return;
     if (!customerId) return toast.error("Select a customer");
     if (lines.length === 0) return toast.error("Add at least one product line");
     for (const [i, l] of lines.entries()) {
@@ -121,7 +124,7 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
       toast.success(`Order ${created.number} created — ${rows.length} line(s)`);
       onOpenChange(false);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Create failed");
+      toast.error(describeWriteError(e, "create orders"));
     } finally {
       setBusy(false);
     }
@@ -257,7 +260,7 @@ export function NewOrderDialog({ open, onOpenChange }: { open: boolean; onOpenCh
 
         <DialogFooter>
           <button onClick={() => onOpenChange(false)} className="rounded-lg border border-border/60 px-3 py-1.5 text-xs">Cancel</button>
-          <button onClick={submit} disabled={busy}
+          <button onClick={submit} disabled={busy || !access.create}
             className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs text-primary disabled:opacity-50">
             {busy ? "Creating…" : "Create order"}
           </button>

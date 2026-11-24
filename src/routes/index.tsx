@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NewOrderDialog } from "@/components/new-order-dialog";
+import { useOperationAccess } from "@/lib/permissions";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { CheckCircle2, Factory, Package, ShoppingCart, TrendingUp, AlertTriangle, UserCircle, Boxes, LayoutDashboard, Plus } from "lucide-react";
@@ -63,6 +64,7 @@ function Kpi({
 
 function Dashboard() {
   const [openNew, setOpenNew] = useState(false);
+  const access = useOperationAccess("orders");
   const { data: orders = [] } = useOrders();
   const { data: customers = [] } = useCustomers();
   const { data: products = [] } = useProducts();
@@ -95,7 +97,7 @@ function Dashboard() {
         subtitle="Live view of orders, production and shipments"
         icon={<LayoutDashboard />}
         className="mb-6"
-        actions={(
+        actions={access.create && (
           <Button type="button" className="min-h-11" onClick={() => setOpenNew(true)}>
             <Plus aria-hidden /> New Sales Order
           </Button>
@@ -120,7 +122,7 @@ function Dashboard() {
         <Kpi label="Batches" value={batches.length} icon={Boxes} accent="accent" href="/batches" />
       </div>
       <DashboardCharts />
-      <NewOrderDialog open={openNew} onOpenChange={setOpenNew} />
+      <NewOrderDialog open={access.create && openNew} onOpenChange={setOpenNew} />
 
 
       <div className="glass-panel rounded-2xl p-5">
