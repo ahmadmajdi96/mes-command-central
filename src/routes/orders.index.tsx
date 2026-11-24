@@ -8,6 +8,7 @@ import { AnalyticsCards } from "@/components/analytics-cards";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { FormDialog } from "@/components/form-dialog";
 import { NewOrderDialog } from "@/components/new-order-dialog";
+import { describeWriteError, useOperationAccess } from "@/lib/permissions";
 import { NumberField } from "@/components/ui/form-controls";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +37,7 @@ function OrdersList() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [openNew, setOpenNew] = useState(false);
+  const access = useOperationAccess("orders");
   const [editing, setEditing] = useState<OrderWithCustomer | null>(null);
   const [lineQty, setLineQty] = useState<Record<string, number>>({});
   const [deleting, setDeleting] = useState<OrderWithCustomer | null>(null);
@@ -83,7 +85,7 @@ function OrdersList() {
   }, [orders]);
 
   const runBulk = async () => {
-    if (!confirm) return;
+    if (!confirm || !access.update) return;
     try {
       const res = await bulkUpdate.mutateAsync({ ids: confirm.ids, status: confirm.targetStatus, label: confirm.label });
       const extra = res && res.pos ? ` · ${res.pos} PO / ${res.batches} batch(es) created` : "";
@@ -114,7 +116,7 @@ function OrdersList() {
                 { key: "currency", label: "Currency" },
               ]}
             />
-            {true && (
+            {access.create && (
               <button onClick={() => setOpenNew(true)}
                 className="flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20">
                 <Plus className="h-3.5 w-3.5" /> New Order
@@ -124,6 +126,11 @@ function OrdersList() {
         }
       />
 
+      {!access.create && !access.pending && (
+        <p className="text-sm text-muted-foreground">
+          {access.failed ? "Order permissions could not be loaded. Reload this page to try again." : "To create orders, ask an OMS administrator for order creation access."}
+        </p>
+      )}
       <AnalyticsCards cards={analytics} />
 
 
@@ -149,31 +156,35 @@ function OrdersList() {
         rows={filtered}
         getRowId={(o) => o.id}
         defaultSort={{ key: "orderDate", dir: "desc" }}
-        bulkActions={true ? (selected, clear) => (
+        bulkActions={(selected, clear) => (
           <>
-            <button onClick={() => setConfirm({ ids: selected.map((s) => s.id), clear, targetStatus: "confirmed", label: "Confirm orders" })}
-              className="rounded-md border border-success/40 bg-success/10 px-2.5 py-1 text-[11px] text-success hover:bg-success/20">
-              Confirm
-            </button>
-            <button onClick={() => setConfirm({ ids: selected.map((s) => s.id), clear, targetStatus: "in_production", label: "Send to production" })}
-              className="rounded-md border border-info/40 bg-info/10 px-2.5 py-1 text-[11px] text-info hover:bg-info/20">
-              Send to Production
-            </button>
-            <button onClick={() => setConfirm({ ids: selected.map((s) => s.id), clear, targetStatus: "cancelled", label: "Cancel orders", variant: "destructive" })}
-              className="rounded-md border border-destructive/40 bg-destructive/10 px-2.5 py-1 text-[11px] text-destructive hover:bg-destructive/20">
-              Cancel
-            </button>
-            <button disabled={bulkBusy} onClick={async () => {
-              setBulkBusy(true); let ok = 0, short = 0, failed = 0;
-              for (const o of selected) {
-                const { data, error } = await (supabase.rpc as any)("orchestrate_order", { _order: o.id });
-                if (error) failed++; else if ((data as any)?.result === "sourced") ok++; else short++;
-              }
-              setBulkBusy(false); clear(); qc.invalidateQueries();
-              toast[failed ? "warning" : "success"](`Sourcing: ${ok} fully sourced, ${short} partly/on hold, ${failed} failed`);
-            }} className="rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 text-[11px] text-primary hover:bg-primary/20 disabled:opacity-50">
-              {bulkBusy ? "Sourcing…" : "Run sourcing"}
-            </button>
+            {access.update && (
+              <>
+                <button onClick={() => setConfirm({ ids: selected.map((s) => s.id), clear, targetStatus: "confirmed", label: "Confirm orders" })}
+                  className="rounded-md border border-success/40 bg-success/10 px-2.5 py-1 text-[11px] text-success hover:bg-success/20">
+                  Confirm
+                </button>
+                <button onClick={() => setConfirm({ ids: selected.map((s) => s.id), clear, targetStatus: "in_production", label: "Send to production" })}
+                  className="rounded-md border border-info/40 bg-info/10 px-2.5 py-1 text-[11px] text-info hover:bg-info/20">
+                  Send to Production
+                </button>
+                <button onClick={() => setConfirm({ ids: selected.map((s) => s.id), clear, targetStatus: "cancelled", label: "Cancel orders", variant: "destructive" })}
+                  className="rounded-md border border-destructive/40 bg-destructive/10 px-2.5 py-1 text-[11px] text-destructive hover:bg-destructive/20">
+                  Cancel
+                </button>
+                <button disabled={bulkBusy} onClick={async () => {
+                  setBulkBusy(true); let ok = 0, short = 0, failed = 0;
+                  for (const o of selected) {
+                    const { data, error } = await (supabase.rpc as any)("orchestrate_order", { _order: o.id });
+                    if (error) failed++; else if ((data as any)?.result === "sourced") ok++; else short++;
+                  }
+                  setBulkBusy(false); clear(); qc.invalidateQueries();
+                  toast[failed ? "warning" : "success"](`Sourcing: ${ok} fully sourced, ${short} partly/on hold, ${failed} failed`);
+                }} className="rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 text-[11px] text-primary hover:bg-primary/20 disabled:opacity-50">
+                  {bulkBusy ? "Sourcing…" : "Run sourcing"}
+                </button>
+              </>
+            )}
             <CSVExportButton filename="sales-orders-selection" rows={selected} label="Export selection"
               columns={[
                 { key: "number", label: "Order #" },
@@ -182,7 +193,7 @@ function OrdersList() {
                 { key: "total", label: "Total" },
               ]} />
           </>
-        ) : undefined}
+        )}
         columns={[
           { key: "number", label: "Order", sortAccessor: (o) => o.number, render: (o) => (
             <Link to="/orders/$orderId" params={{ orderId: o.id }} className="font-mono text-xs text-primary hover:underline">{o.number}</Link>
@@ -195,16 +206,16 @@ function OrdersList() {
           { key: "total", label: "Total", align: "right", sortAccessor: (o) => Number(o.total), render: (o) => <span className="font-mono text-sm">${Number(o.total).toLocaleString()}</span> },
           { key: "actions", label: "", render: (o: OrderWithCustomer) => (
             <div className="flex items-center justify-end gap-1">
-              <button onClick={() => setEditing(o)}
+              {access.update && <button onClick={() => setEditing(o)}
                 className="rounded-md border border-border/60 bg-card/60 p-1.5 text-muted-foreground hover:text-foreground"
                 aria-label="Edit order">
                 <Pencil className="h-3.5 w-3.5" />
-              </button>
-              <button onClick={() => setDeleting(o)}
+              </button>}
+              {access.delete && <button onClick={() => setDeleting(o)}
                 className="rounded-md border border-destructive/40 bg-destructive/10 p-1.5 text-destructive hover:bg-destructive/20"
                 aria-label="Delete order">
                 <Trash2 className="h-3.5 w-3.5" />
-              </button>
+              </button>}
             </div>
           )},
         ]}
@@ -212,7 +223,7 @@ function OrdersList() {
       />
 
       <ConfirmDialog
-        open={!!confirm}
+        open={access.update && !!confirm}
         onOpenChange={(v) => !v && setConfirm(null)}
         title={confirm?.label ?? ""}
         description={
@@ -225,10 +236,10 @@ function OrdersList() {
         onConfirm={runBulk}
       />
 
-      <NewOrderDialog open={openNew} onOpenChange={setOpenNew} />
+      <NewOrderDialog open={access.create && openNew} onOpenChange={setOpenNew} />
 
       <FormDialog
-        open={!!editing}
+        open={access.update && !!editing}
         onOpenChange={(v) => { if (!v) { setEditing(null); setLineQty({}); } }}
         title={editing ? `Edit ${editing.number}` : "Edit order"}
         submitLabel="Save changes"
@@ -253,7 +264,7 @@ function OrdersList() {
           { name: "notes", label: "Notes", type: "textarea" },
         ]}
         onSubmit={async (v: any) => {
-          if (!editing) return;
+          if (!editing || !access.update) return;
           try {
             const changed = Object.entries(lineQty).filter(([, q]) => q !== undefined);
             for (const [, q] of changed) if (!(Number(q) > 0)) throw new Error("Each line quantity must be more than zero");
@@ -284,26 +295,26 @@ function OrdersList() {
             setLineQty({});
             qc.invalidateQueries({ queryKey: ordersKey });
           } catch (e: any) {
-            toast.error(e?.message ?? "Failed to update order");
+            throw new Error(describeWriteError(e, "update orders"));
           }
         }}
       />
 
       <ConfirmDialog
-        open={!!deleting}
+        open={access.delete && !!deleting}
         onOpenChange={(v) => !v && setDeleting(null)}
         title={deleting ? `Delete ${deleting.number}?` : "Delete order?"}
         description="This permanently removes the sales order and its lines."
         confirmLabel="Delete order"
         variant="destructive"
         onConfirm={async () => {
-          if (!deleting) return;
+          if (!deleting || !access.delete) return;
           try {
             await deleteOrder.mutateAsync(deleting.id);
             toast.success(`Order ${deleting.number} deleted`);
             setDeleting(null);
           } catch (e: any) {
-            toast.error(e?.message ?? "Failed to delete order");
+            toast.error(describeWriteError(e, "delete orders"));
           }
         }}
       />
